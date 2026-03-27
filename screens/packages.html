@@ -43,13 +43,13 @@ body{display:flex;flex-direction:column;}
 .psub{font-size:12px;color:rgba(255,255,255,0.35);margin-top:3px;}
 .grid{flex:1;min-height:0;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(3,1fr);gap:10px;}
 .pkg:nth-child(5){grid-column:1/-1;max-width:calc(50% - 5px);justify-self:center;}
-.pkg{border-radius:14px;border:1.5px solid var(--border);background:var(--c2);padding:12px 14px;cursor:pointer;position:relative;overflow:hidden;display:flex;flex-direction:row;gap:10px;transition:border-color 0.2s,background 0.2s,transform 0.12s;min-height:0;}
+.pkg{border-radius:14px;border:1.5px solid var(--border);background:var(--c2);padding:14px 16px;cursor:pointer;position:relative;overflow:hidden;display:flex;flex-direction:row;gap:12px;transition:border-color 0.2s,background 0.2s,transform 0.12s,box-shadow 0.2s;min-height:0;}
 .pkg-body{flex:1;display:flex;flex-direction:column;min-width:0;}
-.pkg-sample{width:72px;flex-shrink:0;display:flex;align-items:center;justify-content:center;border-radius:8px;background:rgba(232,197,71,0.04);border:1px solid rgba(232,197,71,0.1);overflow:hidden;transition:background 0.2s,border-color 0.2s;}
-.pkg.sel .pkg-sample{background:rgba(232,197,71,0.08);border-color:rgba(232,197,71,0.2);}
-.pkg-sample svg{width:58px;height:auto;}
+.pkg-sample{width:78px;flex-shrink:0;display:flex;align-items:center;justify-content:center;border-radius:10px;background:rgba(232,197,71,0.04);border:1px solid rgba(232,197,71,0.12);overflow:hidden;transition:background 0.2s,border-color 0.2s;padding:6px;}
+.pkg.sel .pkg-sample{background:rgba(232,197,71,0.09);border-color:rgba(232,197,71,0.25);}
+.pkg-sample svg{width:66px;height:auto;}
 .pkg:active{transform:scale(0.98);}
-.pkg.sel{border-color:var(--gold);background:linear-gradient(145deg,#1E1C10,#1A1A26);box-shadow:0 0 24px rgba(232,197,71,0.07);}
+.pkg.sel{border-color:var(--gold);background:linear-gradient(145deg,#1E1C10,#1A1A26);box-shadow:0 0 32px rgba(232,197,71,0.1),inset 0 0 40px rgba(232,197,71,0.03);}
 .ptop{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;}
 .pico{width:40px;height:40px;border-radius:10px;background:var(--faint);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;transition:all 0.2s;flex-shrink:0;}
 .pkg.sel .pico{background:rgba(232,197,71,0.1);border-color:rgba(232,197,71,0.3);}
@@ -60,42 +60,29 @@ body{display:flex;flex-direction:column;}
 .bd{background:rgba(55,138,221,0.15);color:#85B7EB;font-size:8px;font-weight:700;border:1px solid rgba(55,138,221,0.25);padding:2px 7px;border-radius:20px;letter-spacing:0.5px;}
 .chk{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;transition:all 0.2s;}
 .pkg.sel .chk{background:var(--gold);border-color:var(--gold);}
-.pname{font-family:'Playfair Display',serif;font-size:clamp(15px,2vw,20px);font-weight:700;color:#fff;margin-bottom:2px;transition:color 0.2s;}
+.pname{font-family:'Playfair Display',serif;font-size:clamp(16px,2.2vw,22px);font-weight:700;color:#fff;margin-bottom:2px;transition:color 0.2s;}
 .pkg.sel .pname{color:var(--gold);}
 .ptag{font-size:10px;color:rgba(255,255,255,0.3);margin-bottom:8px;font-weight:300;}
-.pdets{display:flex;flex-direction:column;gap:4px;flex:1;}
+.pdets{display:flex;flex-direction:column;gap:5px;flex:1;}
 .pdet{display:flex;align-items:center;gap:6px;font-size:10px;color:rgba(255,255,255,0.4);}
 .pdet svg{width:11px;height:11px;flex-shrink:0;opacity:0.5;}
-.pkg.sel .pdet{color:rgba(255,255,255,0.6);}
-.pkg.sel .pdet svg{opacity:0.8;}
+.pkg.sel .pdet{color:rgba(255,255,255,0.65);}
+.pkg.sel .pdet svg{opacity:0.85;}
 .ppr{display:flex;align-items:baseline;gap:4px;margin-top:8px;}
-.pprice{font-family:'Playfair Display',serif;font-size:clamp(22px,2.8vw,34px);font-weight:900;color:rgba(255,255,255,0.22);line-height:1;transition:color 0.2s;}
+.pprice{font-family:'Playfair Display',serif;font-size:clamp(24px,3vw,36px);font-weight:900;color:rgba(255,255,255,0.22);line-height:1;transition:color 0.2s;}
 .pkg.sel .pprice{color:var(--gold);}
 .pper{font-size:10px;color:rgba(255,255,255,0.2);}
-.brow{flex-shrink:0;display:grid;grid-template-columns:1fr auto;gap:10px;align-items:stretch;}
-.fwrap{background:var(--c2);border:1px solid var(--border);border-radius:12px;padding:10px 14px;display:flex;flex-direction:column;gap:7px;}
-.flabel{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:3px;color:rgba(255,255,255,0.25);text-transform:uppercase;}
-.fchips{display:flex;gap:7px;}
-.fc{flex:1;padding:7px 5px;border-radius:9px;border:1px solid var(--border);background:var(--faint);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;transition:all 0.15s;}
-.fc:active{transform:scale(0.95);}
-.fc.sel{border-color:var(--gold);background:rgba(232,197,71,0.06);}
-.fsw{width:28px;height:28px;border-radius:7px;overflow:hidden;border:1px solid rgba(255,255,255,0.05);}
-.fswi{width:100%;height:100%;background:linear-gradient(135deg,#4A8C6A,#C84B6E);}
-.f-vintage .fswi{filter:sepia(0.8) contrast(1.1);}
-.f-bw .fswi{filter:grayscale(1);}
-.f-pastel .fswi{filter:saturate(0.4) brightness(1.3);}
-.f-neon .fswi{filter:saturate(2.2) hue-rotate(25deg);}
-.fn{font-size:9px;color:rgba(255,255,255,0.35);font-weight:500;transition:color 0.2s;}
-.fc.sel .fn{color:var(--gold);}
-.scta{display:flex;flex-direction:column;gap:8px;min-width:200px;}
-.smini{background:var(--c3);border:1px solid var(--border);border-radius:11px;padding:10px 12px;display:flex;flex-direction:column;gap:3px;flex:1;}
-.sr{display:flex;justify-content:space-between;font-size:11px;}
+.brow{flex-shrink:0;display:flex;gap:12px;align-items:stretch;}
+.scta{display:flex;flex-direction:row;gap:10px;flex:1;align-items:stretch;}
+.smini{background:var(--c3);border:1px solid var(--border);border-radius:11px;padding:12px 16px;display:flex;flex-direction:column;gap:4px;flex:1;}
+.sr{display:flex;justify-content:space-between;font-size:12px;}
 .sk{color:rgba(255,255,255,0.35);}
-.sv{color:rgba(255,255,255,0.7);font-weight:500;}
-.sdiv{height:1px;background:var(--border);margin:3px 0;}
-.stot{font-family:'Playfair Display',serif;font-size:18px;font-weight:900;color:var(--gold);}
-.cta{padding:13px 18px;border-radius:11px;border:none;background:linear-gradient(145deg,var(--gold),#C8892A);color:#1A1200;font-family:'Playfair Display',serif;font-weight:700;font-size:15px;cursor:pointer;position:relative;overflow:hidden;transition:transform 0.12s;white-space:nowrap;}
+.sv{color:rgba(255,255,255,0.8);font-weight:600;}
+.sdiv{height:1px;background:var(--border);margin:4px 0;}
+.stot{font-family:'Playfair Display',serif;font-size:22px;font-weight:900;color:var(--gold);}
+.cta{padding:14px 28px;border-radius:11px;border:none;background:linear-gradient(145deg,var(--gold),#C8892A);color:#1A1200;font-family:'Playfair Display',serif;font-weight:700;font-size:16px;cursor:pointer;position:relative;overflow:hidden;transition:transform 0.12s,box-shadow 0.12s;white-space:nowrap;min-width:200px;}
 .cta:active{transform:scale(0.97);}
+.cta:not(:disabled):hover{box-shadow:0 0 24px rgba(232,197,71,0.3);}
 .cshine{position:absolute;inset:0;background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,0.2) 50%,transparent 65%);animation:shine 3s ease-in-out infinite;}
 @keyframes shine{0%{transform:translateX(-150%)}40%{transform:translateX(150%)}100%{transform:translateX(150%)}}
 .hint{position:fixed;bottom:70px;left:50%;transform:translateX(-50%);background:rgba(232,197,71,0.1);border:1px solid rgba(232,197,71,0.2);border-radius:30px;padding:7px 18px;font-size:11px;color:rgba(232,197,71,0.7);white-space:nowrap;pointer-events:none;z-index:50;opacity:0;transition:opacity 0.3s;animation:hb 2s ease-in-out infinite;}
@@ -126,7 +113,7 @@ body{display:flex;flex-direction:column;}
   <div class="hdr">
     <div class="eyebrow">step 2 of 6 · package selection</div>
     <div class="ptitle">choose your <em>package</em></div>
-    <div class="psub">pick a set · choose a filter · then select your layout</div>
+    <div class="psub">pick a package for your photo session</div>
   </div>
   <div class="grid">
     <!-- Classic -->
@@ -142,7 +129,27 @@ body{display:flex;flex-direction:column;}
         <div class="ppr"><div class="pprice">₱100</div><div class="pper">/ session</div></div>
       </div>
       <div class="pkg-sample">
-        <svg viewBox="0 0 50 62" fill="none"><rect x="3" y="3" width="44" height="56" rx="3" fill="rgba(232,197,71,0.05)" stroke="rgba(232,197,71,0.4)" stroke-width="1.5"/><rect x="8" y="8" width="34" height="34" rx="2" fill="rgba(232,197,71,0.08)"/><circle cx="16" cy="16" r="4" fill="rgba(232,197,71,0.2)"/><path d="M8 32 L16 23 L23 29 L31 21 L42 30 L42 42 L8 42 Z" fill="rgba(232,197,71,0.12)"/><rect x="8" y="45" width="34" height="4" rx="1" fill="rgba(232,197,71,0.05)"/><rect x="8" y="51" width="20" height="3" rx="1" fill="rgba(232,197,71,0.04)"/></svg>
+        <!-- Classic: single 4×6 print -->
+        <svg viewBox="0 0 52 68" fill="none">
+          <rect x="2" y="2" width="48" height="64" rx="4" fill="rgba(232,197,71,0.06)" stroke="rgba(232,197,71,0.45)" stroke-width="1.5"/>
+          <rect x="7" y="7" width="38" height="38" rx="3" fill="rgba(232,197,71,0.1)"/>
+          <!-- sky gradient -->
+          <rect x="7" y="7" width="38" height="16" rx="3" fill="rgba(100,140,220,0.15)"/>
+          <!-- sun -->
+          <circle cx="38" cy="14" r="5" fill="rgba(232,197,71,0.4)"/>
+          <!-- hills -->
+          <ellipse cx="15" cy="44" rx="12" ry="6" fill="rgba(61,170,108,0.25)"/>
+          <ellipse cx="38" cy="44" rx="14" ry="5" fill="rgba(61,170,108,0.18)"/>
+          <!-- person silhouette -->
+          <circle cx="26" cy="25" r="4" fill="rgba(232,197,71,0.35)"/>
+          <path d="M22 44 C22 37 30 37 30 44" fill="rgba(232,197,71,0.25)"/>
+          <!-- bottom info area -->
+          <rect x="7" y="48" width="38" height="4" rx="1" fill="rgba(232,197,71,0.08)"/>
+          <rect x="7" y="54" width="22" height="3" rx="1" fill="rgba(232,197,71,0.06)"/>
+          <rect x="7" y="59" width="14" height="2.5" rx="1" fill="rgba(232,197,71,0.04)"/>
+          <!-- corner mark -->
+          <circle cx="43" cy="58" r="2" fill="rgba(232,197,71,0.25)"/>
+        </svg>
       </div>
     </div>
     <!-- Strip -->
@@ -158,7 +165,31 @@ body{display:flex;flex-direction:column;}
         <div class="ppr"><div class="pprice">₱150</div><div class="pper">/ session</div></div>
       </div>
       <div class="pkg-sample">
-        <svg viewBox="0 0 30 68" fill="none"><rect x="2" y="2" width="26" height="64" rx="3" fill="rgba(232,197,71,0.05)" stroke="rgba(232,197,71,0.4)" stroke-width="1.5"/><rect x="5" y="6" width="20" height="14" rx="1" fill="rgba(232,197,71,0.1)"/><circle cx="10" cy="11" r="2.5" fill="rgba(232,197,71,0.2)"/><rect x="5" y="23" width="20" height="14" rx="1" fill="rgba(232,197,71,0.1)"/><rect x="5" y="40" width="20" height="14" rx="1" fill="rgba(232,197,71,0.1)"/><rect x="5" y="57" width="20" height="6" rx="1" fill="rgba(232,197,71,0.07)"/></svg>
+        <!-- Strip: narrow vertical strip with 4 photo frames -->
+        <svg viewBox="0 0 32 78" fill="none">
+          <rect x="1" y="1" width="30" height="76" rx="4" fill="rgba(232,197,71,0.06)" stroke="rgba(232,197,71,0.45)" stroke-width="1.5"/>
+          <!-- sprocket holes top -->
+          <circle cx="5" cy="5" r="1.5" fill="rgba(232,197,71,0.2)"/>
+          <circle cx="27" cy="5" r="1.5" fill="rgba(232,197,71,0.2)"/>
+          <!-- frame 1 -->
+          <rect x="5" y="10" width="22" height="14" rx="1.5" fill="rgba(232,197,71,0.12)"/>
+          <circle cx="10" cy="15" r="3" fill="rgba(232,197,71,0.25)"/>
+          <path d="M5 22 L11 17 L16 20 L21 16 L27 21 L27 24 L5 24Z" fill="rgba(232,197,71,0.1)"/>
+          <!-- frame 2 -->
+          <rect x="5" y="27" width="22" height="14" rx="1.5" fill="rgba(232,197,71,0.1)"/>
+          <circle cx="18" cy="32" r="3" fill="rgba(232,197,71,0.22)"/>
+          <path d="M5 39 L9 35 L15 38 L20 34 L27 38 L27 41 L5 41Z" fill="rgba(232,197,71,0.09)"/>
+          <!-- frame 3 -->
+          <rect x="5" y="44" width="22" height="14" rx="1.5" fill="rgba(232,197,71,0.12)"/>
+          <circle cx="12" cy="50" r="3" fill="rgba(232,197,71,0.25)"/>
+          <path d="M5 56 L13 51 L18 54 L23 50 L27 53 L27 58 L5 58Z" fill="rgba(232,197,71,0.1)"/>
+          <!-- frame 4 -->
+          <rect x="5" y="61" width="22" height="12" rx="1.5" fill="rgba(232,197,71,0.08)"/>
+          <rect x="7" y="63" width="18" height="8" rx="1" fill="rgba(232,197,71,0.07)"/>
+          <!-- sprocket holes bottom -->
+          <circle cx="5" cy="74" r="1.5" fill="rgba(232,197,71,0.2)"/>
+          <circle cx="27" cy="74" r="1.5" fill="rgba(232,197,71,0.2)"/>
+        </svg>
       </div>
     </div>
     <!-- Polaroid -->
@@ -174,7 +205,28 @@ body{display:flex;flex-direction:column;}
         <div class="ppr"><div class="pprice">₱200</div><div class="pper">/ session</div></div>
       </div>
       <div class="pkg-sample">
-        <svg viewBox="0 0 54 66" fill="none"><rect x="3" y="3" width="48" height="60" rx="3" fill="rgba(255,255,255,0.04)" stroke="rgba(232,197,71,0.4)" stroke-width="1.5"/><rect x="9" y="9" width="36" height="36" rx="2" fill="rgba(232,197,71,0.08)"/><circle cx="17" cy="17" r="5" fill="rgba(232,197,71,0.18)"/><path d="M9 34 L18 25 L26 31 L34 23 L45 31 L45 45 L9 45 Z" fill="rgba(232,197,71,0.12)"/><line x1="3" y1="48" x2="51" y2="48" stroke="rgba(232,197,71,0.15)" stroke-width="1"/><rect x="9" y="52" width="20" height="4" rx="1" fill="rgba(232,197,71,0.07)"/><rect x="9" y="58" width="12" height="3" rx="1" fill="rgba(232,197,71,0.05)"/></svg>
+        <!-- Polaroid: polaroid-style print with white border -->
+        <svg viewBox="0 0 56 68" fill="none">
+          <!-- polaroid outer border (white-ish) -->
+          <rect x="2" y="2" width="52" height="64" rx="3" fill="rgba(255,255,255,0.07)" stroke="rgba(232,197,71,0.45)" stroke-width="1.5"/>
+          <!-- inner white mat -->
+          <rect x="6" y="6" width="44" height="44" rx="2" fill="rgba(255,255,255,0.05)"/>
+          <!-- photo area -->
+          <rect x="8" y="8" width="40" height="38" rx="2" fill="rgba(232,197,71,0.1)"/>
+          <!-- sky -->
+          <rect x="8" y="8" width="40" height="14" rx="2" fill="rgba(100,140,220,0.18)"/>
+          <!-- warm gradient overlay -->
+          <rect x="8" y="22" width="40" height="24" rx="1" fill="rgba(232,197,71,0.06)"/>
+          <!-- mountains -->
+          <path d="M8 35 L18 20 L28 30 L36 22 L48 35 L48 46 L8 46Z" fill="rgba(61,100,170,0.2)"/>
+          <!-- person + glow -->
+          <circle cx="28" cy="30" r="5" fill="rgba(232,197,71,0.3)"/>
+          <circle cx="28" cy="30" r="8" fill="rgba(232,197,71,0.06)"/>
+          <!-- bottom white border (polaroid characteristic) -->
+          <rect x="6" y="52" width="44" height="12" rx="1" fill="rgba(255,255,255,0.05)"/>
+          <rect x="10" y="56" width="20" height="3" rx="1" fill="rgba(255,255,255,0.07)"/>
+          <rect x="10" y="61" width="12" height="2" rx="1" fill="rgba(255,255,255,0.04)"/>
+        </svg>
       </div>
     </div>
     <!-- Party Mode -->
@@ -190,7 +242,36 @@ body{display:flex;flex-direction:column;}
         <div class="ppr"><div class="pprice">₱149</div><div class="pper">/ session</div></div>
       </div>
       <div class="pkg-sample">
-        <svg viewBox="0 0 56 68" fill="none"><rect x="2" y="2" width="23" height="64" rx="3" fill="rgba(232,197,71,0.05)" stroke="rgba(232,197,71,0.4)" stroke-width="1.5"/><rect x="5" y="6" width="17" height="13" rx="1" fill="rgba(232,197,71,0.1)"/><rect x="5" y="22" width="17" height="13" rx="1" fill="rgba(232,197,71,0.1)"/><rect x="5" y="38" width="17" height="13" rx="1" fill="rgba(232,197,71,0.1)"/><rect x="5" y="54" width="17" height="8" rx="1" fill="rgba(232,197,71,0.07)"/><rect x="31" y="2" width="23" height="64" rx="3" fill="rgba(232,197,71,0.05)" stroke="rgba(232,197,71,0.4)" stroke-width="1.5"/><rect x="34" y="6" width="17" height="13" rx="1" fill="rgba(232,197,71,0.1)"/><rect x="34" y="22" width="17" height="13" rx="1" fill="rgba(232,197,71,0.1)"/><rect x="34" y="38" width="17" height="13" rx="1" fill="rgba(232,197,71,0.1)"/><rect x="34" y="54" width="17" height="8" rx="1" fill="rgba(232,197,71,0.07)"/></svg>
+        <!-- Party Mode: two strips side by side -->
+        <svg viewBox="0 0 64 78" fill="none">
+          <!-- strip 1 -->
+          <rect x="2" y="2" width="27" height="74" rx="3" fill="rgba(232,197,71,0.06)" stroke="rgba(232,197,71,0.4)" stroke-width="1.3"/>
+          <circle cx="7" cy="6" r="1.5" fill="rgba(232,197,71,0.2)"/>
+          <circle cx="26" cy="6" r="1.5" fill="rgba(232,197,71,0.2)"/>
+          <rect x="5" y="11" width="21" height="13" rx="1.5" fill="rgba(232,197,71,0.12)"/>
+          <circle cx="10" cy="16" r="2.5" fill="rgba(232,197,71,0.3)"/>
+          <path d="M5 22 L10 18 L15 21 L20 17 L26 21 L26 24 L5 24Z" fill="rgba(232,197,71,0.1)"/>
+          <rect x="5" y="27" width="21" height="13" rx="1.5" fill="rgba(232,197,71,0.1)"/>
+          <circle cx="18" cy="32" r="2.5" fill="rgba(232,197,71,0.25)"/>
+          <rect x="5" y="43" width="21" height="13" rx="1.5" fill="rgba(232,197,71,0.12)"/>
+          <circle cx="11" cy="48" r="2.5" fill="rgba(232,197,71,0.28)"/>
+          <rect x="5" y="59" width="21" height="10" rx="1.5" fill="rgba(232,197,71,0.08)"/>
+          <circle cx="7" cy="73" r="1.5" fill="rgba(232,197,71,0.2)"/>
+          <circle cx="26" cy="73" r="1.5" fill="rgba(232,197,71,0.2)"/>
+          <!-- strip 2 -->
+          <rect x="35" y="2" width="27" height="74" rx="3" fill="rgba(232,197,71,0.06)" stroke="rgba(232,197,71,0.4)" stroke-width="1.3"/>
+          <circle cx="40" cy="6" r="1.5" fill="rgba(232,197,71,0.2)"/>
+          <circle cx="59" cy="6" r="1.5" fill="rgba(232,197,71,0.2)"/>
+          <rect x="38" y="11" width="21" height="13" rx="1.5" fill="rgba(232,197,71,0.1)"/>
+          <circle cx="50" cy="16" r="2.5" fill="rgba(232,197,71,0.25)"/>
+          <rect x="38" y="27" width="21" height="13" rx="1.5" fill="rgba(232,197,71,0.12)"/>
+          <circle cx="43" cy="33" r="2.5" fill="rgba(232,197,71,0.3)"/>
+          <rect x="38" y="43" width="21" height="13" rx="1.5" fill="rgba(232,197,71,0.1)"/>
+          <circle cx="54" cy="49" r="2.5" fill="rgba(232,197,71,0.22)"/>
+          <rect x="38" y="59" width="21" height="10" rx="1.5" fill="rgba(232,197,71,0.08)"/>
+          <circle cx="40" cy="73" r="1.5" fill="rgba(232,197,71,0.2)"/>
+          <circle cx="59" cy="73" r="1.5" fill="rgba(232,197,71,0.2)"/>
+        </svg>
       </div>
     </div>
     <!-- GIF Booth -->
@@ -206,27 +287,59 @@ body{display:flex;flex-direction:column;}
         <div class="ppr"><div class="pprice">₱99</div><div class="pper">/ session</div></div>
       </div>
       <div class="pkg-sample">
-        <svg viewBox="0 0 66 50" fill="none"><rect x="2" y="7" width="62" height="36" rx="3" fill="rgba(232,197,71,0.05)" stroke="rgba(232,197,71,0.4)" stroke-width="1.5"/><rect x="4" y="4" width="4" height="3" rx="1" fill="rgba(232,197,71,0.3)"/><rect x="13" y="4" width="4" height="3" rx="1" fill="rgba(232,197,71,0.3)"/><rect x="22" y="4" width="4" height="3" rx="1" fill="rgba(232,197,71,0.3)"/><rect x="31" y="4" width="4" height="3" rx="1" fill="rgba(232,197,71,0.3)"/><rect x="40" y="4" width="4" height="3" rx="1" fill="rgba(232,197,71,0.3)"/><rect x="49" y="4" width="4" height="3" rx="1" fill="rgba(232,197,71,0.3)"/><rect x="58" y="4" width="4" height="3" rx="1" fill="rgba(232,197,71,0.3)"/><rect x="4" y="43" width="4" height="3" rx="1" fill="rgba(232,197,71,0.3)"/><rect x="13" y="43" width="4" height="3" rx="1" fill="rgba(232,197,71,0.3)"/><rect x="22" y="43" width="4" height="3" rx="1" fill="rgba(232,197,71,0.3)"/><rect x="31" y="43" width="4" height="3" rx="1" fill="rgba(232,197,71,0.3)"/><rect x="40" y="43" width="4" height="3" rx="1" fill="rgba(232,197,71,0.3)"/><rect x="49" y="43" width="4" height="3" rx="1" fill="rgba(232,197,71,0.3)"/><rect x="58" y="43" width="4" height="3" rx="1" fill="rgba(232,197,71,0.3)"/><rect x="7" y="12" width="14" height="26" rx="1" fill="rgba(232,197,71,0.08)"/><rect x="26" y="12" width="14" height="26" rx="1" fill="rgba(232,197,71,0.12)" stroke="rgba(232,197,71,0.25)" stroke-width="1"/><path d="M31 21 L39 25 L31 29 Z" fill="rgba(232,197,71,0.45)"/><rect x="45" y="12" width="14" height="26" rx="1" fill="rgba(232,197,71,0.08)"/></svg>
+        <!-- GIF Booth: film strip with play indicator and frame dots -->
+        <svg viewBox="0 0 72 56" fill="none">
+          <!-- film strip body -->
+          <rect x="2" y="8" width="68" height="40" rx="3" fill="rgba(232,197,71,0.06)" stroke="rgba(232,197,71,0.4)" stroke-width="1.5"/>
+          <!-- sprocket holes top row -->
+          <rect x="5" y="3" width="5" height="4" rx="1" fill="rgba(232,197,71,0.25)"/>
+          <rect x="15" y="3" width="5" height="4" rx="1" fill="rgba(232,197,71,0.25)"/>
+          <rect x="25" y="3" width="5" height="4" rx="1" fill="rgba(232,197,71,0.25)"/>
+          <rect x="35" y="3" width="5" height="4" rx="1" fill="rgba(232,197,71,0.25)"/>
+          <rect x="45" y="3" width="5" height="4" rx="1" fill="rgba(232,197,71,0.25)"/>
+          <rect x="55" y="3" width="5" height="4" rx="1" fill="rgba(232,197,71,0.25)"/>
+          <rect x="65" y="3" width="5" height="4" rx="1" fill="rgba(232,197,71,0.25)"/>
+          <!-- sprocket holes bottom row -->
+          <rect x="5" y="49" width="5" height="4" rx="1" fill="rgba(232,197,71,0.25)"/>
+          <rect x="15" y="49" width="5" height="4" rx="1" fill="rgba(232,197,71,0.25)"/>
+          <rect x="25" y="49" width="5" height="4" rx="1" fill="rgba(232,197,71,0.25)"/>
+          <rect x="35" y="49" width="5" height="4" rx="1" fill="rgba(232,197,71,0.25)"/>
+          <rect x="45" y="49" width="5" height="4" rx="1" fill="rgba(232,197,71,0.25)"/>
+          <rect x="55" y="49" width="5" height="4" rx="1" fill="rgba(232,197,71,0.25)"/>
+          <rect x="65" y="49" width="5" height="4" rx="1" fill="rgba(232,197,71,0.25)"/>
+          <!-- frame 1 - dim -->
+          <rect x="5" y="12" width="12" height="32" rx="1.5" fill="rgba(232,197,71,0.08)"/>
+          <circle cx="9" cy="18" r="2" fill="rgba(232,197,71,0.2)"/>
+          <!-- frame 2 - dim -->
+          <rect x="20" y="12" width="12" height="32" rx="1.5" fill="rgba(232,197,71,0.08)"/>
+          <!-- frame 3 - ACTIVE (highlighted, play button) -->
+          <rect x="30" y="10" width="14" height="36" rx="2" fill="rgba(232,197,71,0.18)" stroke="rgba(232,197,71,0.5)" stroke-width="1"/>
+          <!-- play triangle -->
+          <path d="M35 21 L42 28 L35 35 Z" fill="rgba(232,197,71,0.7)"/>
+          <!-- frame 4 - dim -->
+          <rect x="47" y="12" width="12" height="32" rx="1.5" fill="rgba(232,197,71,0.08)"/>
+          <!-- frame 5 - dim -->
+          <rect x="62" y="12" width="7" height="32" rx="1.5" fill="rgba(232,197,71,0.06)"/>
+          <!-- GIF label -->
+          <rect x="5" y="44" width="10" height="5" rx="1" fill="rgba(232,197,71,0.12)"/>
+          <text x="6.5" y="48" font-size="3.5" fill="rgba(232,197,71,0.7)" font-family="monospace" font-weight="700">GIF</text>
+          <!-- QR code hint -->
+          <rect x="55" y="44" width="14" height="10" rx="1" fill="rgba(232,197,71,0.1)"/>
+          <rect x="57" y="46" width="3" height="3" rx="0.5" fill="rgba(232,197,71,0.4)"/>
+          <rect x="57" y="50" width="3" height="3" rx="0.5" fill="rgba(232,197,71,0.4)"/>
+          <rect x="61" y="46" width="3" height="3" rx="0.5" fill="rgba(232,197,71,0.4)"/>
+          <rect x="61" y="50" width="3" height="3" rx="0.5" fill="rgba(232,197,71,0.3)"/>
+          <rect x="65" y="46" width="3" height="7" rx="0.5" fill="rgba(232,197,71,0.3)"/>
+        </svg>
       </div>
     </div>
   </div>
   <div class="brow">
-    <div class="fwrap">
-      <div class="flabel">filter preset</div>
-      <div class="fchips">
-        <div class="fc f-none sel" id="fc0" onclick="sf(0,event)"><div class="fsw"><div class="fswi"></div></div><div class="fn">Original</div></div>
-        <div class="fc f-vintage" id="fc1" onclick="sf(1,event)"><div class="fsw"><div class="fswi"></div></div><div class="fn">Vintage</div></div>
-        <div class="fc f-bw" id="fc2" onclick="sf(2,event)"><div class="fsw"><div class="fswi"></div></div><div class="fn">B&amp;W</div></div>
-        <div class="fc f-pastel" id="fc3" onclick="sf(3,event)"><div class="fsw"><div class="fswi"></div></div><div class="fn">Pastel</div></div>
-        <div class="fc f-neon" id="fc4" onclick="sf(4,event)"><div class="fsw"><div class="fswi"></div></div><div class="fn">Neon</div></div>
-      </div>
-    </div>
     <div class="scta">
       <div class="smini">
-        <div class="sr"><span class="sk">Package</span><span class="sv" id="sp-name">Classic Strip</span></div>
-        <div class="sr"><span class="sk">Filter</span><span class="sv" id="sp-filter">Original</span></div>
+        <div class="sr"><span class="sk">Package</span><span class="sv" id="sp-name">Classic</span></div>
         <div class="sdiv"></div>
-        <div class="sr"><span class="sk">Total</span><span class="stot" id="sp-total">₱89</span></div>
+        <div class="sr"><span class="sk">Total</span><span class="stot" id="sp-total">₱100</span></div>
       </div>
       <button class="cta" onclick="proceed(event)"><div class="cshine"></div>next · choose layout →</button>
     </div>
@@ -235,8 +348,9 @@ body{display:flex;flex-direction:column;}
 <div class="hint" id="hint">👆 tap a package to select</div>
 <script>
 const PKG=[
-  {name:'Classic Strip',photos:'4 shots · 1 strip',price:'₱89',amount:89},
-  {name:'Solo Frame',photos:'1 photo · 2 prints',price:'₱59',amount:59},
+  {name:'Classic',photos:'1 shot · 1 print',price:'₱100',amount:100},
+  {name:'Strip',photos:'4 shots · 1 strip',price:'₱150',amount:150},
+  {name:'Polaroid',photos:'1 shot · polaroid print',price:'₱200',amount:200},
   {name:'Party Mode',photos:'6 shots · 2 strips',price:'₱149',amount:149},
   {name:'GIF Booth',photos:'5 frames · GIF',price:'₱99',amount:99},
 ];
@@ -245,17 +359,12 @@ let selP=0,selF=0;
 
 function sp(i,e){
   addRipple(e);selP=i;
-  [0,1,2,3].forEach(n=>document.getElementById('p'+n).classList.toggle('sel',n===i));
+  [0,1,2,3,4].forEach(n=>document.getElementById('p'+n)&&document.getElementById('p'+n).classList.toggle('sel',n===i));
   document.getElementById('sp-name').textContent=PKG[i].name;
   document.getElementById('sp-total').textContent=PKG[i].price;
   document.getElementById('hint').classList.remove('show');
 }
 
-function sf(i,e){
-  addRipple(e);selF=i;
-  [0,1,2,3,4].forEach(n=>document.getElementById('fc'+n).classList.toggle('sel',n===i));
-  document.getElementById('sp-filter').textContent=FL[i];
-}
 
 function proceed(e){
   addRipple(e);
