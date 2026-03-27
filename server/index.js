@@ -71,6 +71,7 @@ app.get('/api/sessions/:id/qr', async (req, res) => {
 });
 
 /* ── GCash payment status + SSE push ── */
+const { router: gcashRouter, paymentEventBus } = require('./gcash-api');
 app.use('/api/gcash', gcashRouter);
 
 /* ══════════════════════════════════════
