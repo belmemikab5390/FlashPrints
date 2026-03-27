@@ -70,6 +70,15 @@
     top: 62%; left: 25%;
     animation: glowPulse2 6s ease-in-out infinite;
   }
+  .bg-sweep {
+    position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.08) 50%, transparent 70%);
+    animation: lightSweep 8s ease-in-out infinite;
+  }
+  @keyframes lightSweep {
+    0%,100% { transform: translateX(-120%) skewX(-15deg); }
+    50%     { transform: translateX(120%)  skewX(-15deg); }
+  }
   @keyframes glowPulse {
     0%,100% { opacity: 0.7; }
     50%     { opacity: 1;   }
@@ -244,10 +253,60 @@
   .hl-main em { font-style:italic; color:var(--gold); display:block; }
   .hl-amp { font-style:normal; color:rgba(28,21,8,0.18); font-size:72px; }
   .hl-sub {
-    font-size:22px; font-weight:300;
-    color:var(--muted); letter-spacing:0.5px; line-height:1.5;
+    font-size:26px; font-weight:500;
+    color:var(--ink2); letter-spacing:0.3px; line-height:1.4;
+    margin-top:8px;
   }
-  .hl-sub strong { color:var(--ink2); font-weight:600; }
+  .hl-sub .tagline-emoji { font-style:normal; }
+
+  /* social proof */
+  .social-proof {
+    display:inline-flex; align-items:center; gap:10px;
+    padding:10px 28px; border-radius:40px;
+    background:rgba(200,144,10,0.10);
+    border:1.5px solid rgba(200,144,10,0.25);
+    font-size:17px; font-weight:600; color:var(--ink2);
+    margin-bottom:0;
+    animation: fadeUp 1s 0.45s both, proofPulse 3s 1.5s ease-in-out infinite;
+  }
+  @keyframes proofPulse {
+    0%,100% { box-shadow: 0 0 0 0 rgba(200,144,10,0.18); }
+    50%     { box-shadow: 0 0 0 10px rgba(200,144,10,0); }
+  }
+
+  /* mood chips */
+  .mood-section {
+    display:flex; flex-direction:column; align-items:center; gap:20px;
+    margin-bottom:48px;
+    animation: fadeUp 1s 0.7s both;
+  }
+  .mood-label {
+    font-family:'Space Mono',monospace;
+    font-size:14px; letter-spacing:3px; color:var(--gold);
+    text-transform:uppercase; opacity:0.85;
+  }
+  .mood-chips {
+    display:flex; gap:18px; flex-wrap:wrap; justify-content:center;
+  }
+  .mood-chip {
+    padding:14px 28px; border-radius:40px;
+    background:rgba(255,255,255,0.75);
+    border:1.5px solid var(--gold-border);
+    font-size:19px; font-weight:500; color:var(--ink2);
+    backdrop-filter:blur(4px);
+    box-shadow:var(--shadow);
+    pointer-events:none;
+    opacity:0.72;
+    animation: chipFloat linear infinite;
+  }
+  .mc1 { animation-duration:4.2s;  animation-delay:0s;    }
+  .mc2 { animation-duration:3.8s;  animation-delay:0.5s;  }
+  .mc3 { animation-duration:4.6s;  animation-delay:1s;    }
+  .mc4 { animation-duration:4.0s;  animation-delay:1.5s;  }
+  @keyframes chipFloat {
+    0%,100% { transform: translateY(0); }
+    50%     { transform: translateY(-6px); }
+  }
 
   /* divider */
   .divider-line {
@@ -449,6 +508,8 @@
     .cta-hint { font-size:11px !important; }
     .features { display:none !important; }
     .idle-ring { display:none !important; }
+    .mood-section { display:none !important; }
+    .social-proof { font-size:12px !important; padding:6px 16px !important; }
   }
 </style>
 </head>
@@ -461,6 +522,7 @@
 <!-- background -->
 <div class="bg-base"></div>
 <div class="bg-grid"></div>
+<div class="bg-sweep"></div>
 <div class="bg-glow-gold"></div>
 <div class="bg-glow-rose"></div>
 
@@ -536,8 +598,7 @@
       <em>Prints</em>
     </div>
     <div class="hl-sub">
-      Professional photos. <strong>Printed instantly.</strong><br/>
-      Pay with GCash — no staff needed.
+      Be the main character <span class="tagline-emoji">🎬</span>
     </div>
   </div>
 
@@ -553,6 +614,17 @@
     <div class="pkg-pill"><div class="pkg-pill-name">Solo Frame</div><div class="pkg-pill-price">₱59</div></div>
     <div class="pkg-pill"><div class="pkg-pill-name">Party Mode</div><div class="pkg-pill-price">₱149</div></div>
     <div class="pkg-pill"><div class="pkg-pill-name">GIF Booth</div><div class="pkg-pill-price">₱99</div></div>
+  </div>
+
+  <!-- mood chips teaser -->
+  <div class="mood-section">
+    <div class="mood-label">✦ Who are you today? · pick inside ✦</div>
+    <div class="mood-chips">
+      <div class="mood-chip mc1">😎 Confident</div>
+      <div class="mood-chip mc2">💔 Heartbroken</div>
+      <div class="mood-chip mc3">😂 Funny</div>
+      <div class="mood-chip mc4">🔥 Main Character</div>
+    </div>
   </div>
 
   <div class="cta-wrap">
@@ -572,6 +644,7 @@
       </button>
     </div>
     <div class="cta-hint">touch anywhere to begin your session</div>
+    <div class="social-proof">🔥 120+ students tried today</div>
   </div>
 </div>
 
@@ -683,10 +756,30 @@
   setInterval(spawnParticle, 400);
   for(let i = 0; i < 12; i++) setTimeout(spawnParticle, i * 200);
 
+  // ── tap sound ──
+  let _audioCtx = null;
+  function playTapSound() {
+    try {
+      if (!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = _audioCtx.createOscillator();
+      const gain = _audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(_audioCtx.destination);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(880, _audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(440, _audioCtx.currentTime + 0.12);
+      gain.gain.setValueAtTime(0.15, _audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, _audioCtx.currentTime + 0.18);
+      osc.start(_audioCtx.currentTime);
+      osc.stop(_audioCtx.currentTime + 0.18);
+    } catch(e) { /* audio not available */ }
+  }
+
   // ── tap handler ──
   let navigating = false;
   function handleTap(e) {
     if (navigating) return;
+    playTapSound();
     const ripple = document.createElement('div');
     ripple.className = 'ripple';
     const x = e.clientX || 540, y = e.clientY || 960;
