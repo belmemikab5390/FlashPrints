@@ -416,12 +416,12 @@ const PKG_NAMES = ['Classic','Strip','Polaroid','Party Mode','GIF Booth'];
 const PKG_PHOTOS = ['1 photo','4 photos','1 photo','6 photos','5 frames'];
 let pkgIdx = 0;
 if (sess.package) {
-  const ni = PKG_NAMES.findIndex(n => (sess.package.name||'').toLowerCase().includes(n.toLowerCase()));
+  const ni = PKG_NAMES.findIndex(n => (sess.package.name||'').toLowerCase() === n.toLowerCase());
   if (ni >= 0) pkgIdx = ni;
 }
 
 const layouts = LAYOUTS[pkgIdx] || LAYOUTS[0];
-let selL = 0;
+let selectedLayoutIndex = 0;
 
 /* ── Build layout grid ────────────────────────────────────────────────── */
 function buildGrid() {
@@ -433,7 +433,7 @@ function buildGrid() {
     const card = document.createElement('div');
     card.className = 'lcard' + (i === 0 ? ' sel' : '');
     card.id = 'lc' + i;
-    card.onclick = (e) => sl(i, e);
+    card.onclick = (e) => selectLayout(i, e);
 
     let badgeHtml = '';
     if (lay.badge) badgeHtml = `<div class="lbadge ${lay.badge}">${lay.badgeLabel}</div>`;
@@ -455,14 +455,14 @@ function buildGrid() {
 }
 
 /* ── Select layout ────────────────────────────────────────────────────── */
-function sl(i, e) {
+function selectLayout(layoutIndex, e) {
   addRipple(e);
-  selL = i;
+  selectedLayoutIndex = layoutIndex;
   layouts.forEach((_, n) => {
     const card = document.getElementById('lc' + n);
-    if (card) card.classList.toggle('sel', n === i);
+    if (card) card.classList.toggle('sel', n === layoutIndex);
   });
-  document.getElementById('sp-layout').textContent = layouts[i].name;
+  document.getElementById('sp-layout').textContent = layouts[layoutIndex].name;
   document.getElementById('hint').classList.remove('show');
 }
 
@@ -479,10 +479,10 @@ function populateSummary() {
 /* ── Proceed to payment ───────────────────────────────────────────────── */
 function proceed(e) {
   addRipple(e);
-  const layout = layouts[selL];
+  const layout = layouts[selectedLayoutIndex];
   sess.layout = { id: layout.id, name: layout.name };
   try { localStorage.setItem('fp_session', JSON.stringify(sess)); } catch(_) {}
-  ft(() => {
+  fadeTransition(() => {
     if (typeof fpNavigate === 'function') fpNavigate('payment', sess);
     else window.location.href = 'payment.html';
   });
@@ -490,7 +490,7 @@ function proceed(e) {
 
 /* ── Go back to packages ──────────────────────────────────────────────── */
 function goBack() {
-  ft(() => {
+  fadeTransition(() => {
     if (typeof fpNavigate === 'function') fpNavigate('packages', sess);
     else window.location.href = 'packages.html';
   });
@@ -505,7 +505,7 @@ function addRipple(e) {
   document.body.appendChild(r); setTimeout(() => r.remove(), 600);
 }
 
-function ft(cb) {
+function fadeTransition(cb) {
   const d = document.createElement('div');
   d.style.cssText = 'position:fixed;inset:0;background:#fff;opacity:0;z-index:9999;pointer-events:none;transition:opacity 0.18s;';
   document.body.appendChild(d);
