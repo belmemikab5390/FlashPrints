@@ -290,6 +290,17 @@ function proceed(e) {
   addRipple(e);
   const layout = layouts[selectedLayoutIndex];
   sess.layout = { id: layout.id, name: layout.name };
+  /* For custom overlay layouts, attach the overlay data so the renderer can use it */
+  if (layout.id && layout.id.startsWith('custom-') && typeof getCustomLayouts === 'function') {
+    try {
+      const full = getCustomLayouts()[layout.id];
+      if (full && full.overlayDataUrl && Array.isArray(full.slots) && full.slots.length > 0) {
+        sess.layout.overlayDataUrl = full.overlayDataUrl;
+        sess.layout.viewBox        = full.viewBox  || '0 0 110 110';
+        sess.layout.slots          = full.slots;
+      }
+    } catch(_) {}
+  }
   try { localStorage.setItem('fp_session', JSON.stringify(sess)); } catch(_) {}
   fadeTransition(() => {
     if (typeof fpNavigate === 'function') fpNavigate('payment', sess);

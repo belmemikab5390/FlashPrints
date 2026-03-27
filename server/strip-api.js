@@ -17,9 +17,9 @@ fs.mkdirSync(OUT_DIR, { recursive: true });
 
 /* ── POST /api/strip/render ── */
 router.post('/render', async (req, res) => {
-  const { photoPaths = [], filter = 'original', session = {} } = req.body;
+  const { photoPaths = [], filter = 'original', session = {}, overlay = null } = req.body;
   try {
-    const result = await renderer.renderStrip(photoPaths, filter, session);
+    const result = await renderer.renderStrip(photoPaths, filter, session, overlay);
     /* return filename only (not full path) for security */
     res.json({ ok: true, filename: path.basename(result.path), method: result.method, width: result.width, height: result.height });
   } catch(e) {

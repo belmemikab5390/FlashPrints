@@ -726,6 +726,9 @@ async function tryRenderStrip() {
     ? sess.photos
     : JSON.parse(localStorage.getItem('fp_captured_photos') || '[]');
   const filter = sess.filter || 'original';
+  const overlay = (sess.layout?.overlayDataUrl && Array.isArray(sess.layout?.slots) && sess.layout.slots.length > 0)
+    ? { dataUrl: sess.layout.overlayDataUrl, viewBox: sess.layout.viewBox || '0 0 110 110', slots: sess.layout.slots }
+    : null;
   const body   = JSON.stringify({
     photoPaths: photos,
     filter,
@@ -736,6 +739,7 @@ async function tryRenderStrip() {
       boothId:     sess.boothId      || '001',
       orNumber:    sess.orNumber     || '',
     },
+    overlay,
   });
 
   for (let attempt = 1; attempt <= MAX_RENDER_ATTEMPTS; attempt++) {

@@ -177,8 +177,72 @@ async function renderWithSharp(photoPaths, filter, outputPath, session) {
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-   CANVAS FALLBACK  (if sharp unavailable)
+   CUSTOM OVERLAY RENDERER  (uses sharp)
+   Composites photos into user-defined slot positions and
+   overlays the decorative frame image on top.
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+async function renderWithSharpCustomOverlay(photoPaths, filter, outputPath, session, overlay) {
+  const sharp = require('sharp');
+  const { dataUrl, viewBox, slots } = overlay;
+
+  /* parse viewBox: "0 0 vw vh" */
+  const vbParts = (viewBox || '0 0 110 110').split(' ').map(Number);
+  const vw = vbParts[2] || 110;
+  const vh = vbParts[3] || 110;
+
+  /* scale factors: SVG coordinate units → output pixels */
+  const scaleX = STRIP_W / vw;
+  const scaleY = STRIP_H / vh;
+
+  const applyFilter = FILTERS[normaliseFilter(filter)] || FILTERS.original;
+  const photos = Array.isArray(photoPaths) ? photoPaths.slice() : [];
+  while (photos.length < slots.length) photos.push(null);
+
+  const compositeOps = [];
+
+  /* composite each photo into its slot */
+  for (let i = 0; i < slots.length; i++) {
+    const s  = slots[i];
+    const px = Math.round(s.x * scaleX);
+    const py = Math.round(s.y * scaleY);
+    const pw = Math.max(1, Math.round(s.w * scaleX));
+    const ph = Math.max(1, Math.round(s.h * scaleY));
+
+    let img;
+    if (photos[i] && fs.existsSync(photos[i])) {
+      img = sharp(photos[i]);
+    } else {
+      img = sharp({ create: { width: pw, height: ph, channels: 3, background: { r: 40, g: 40, b: 50 } } });
+    }
+
+    const photoBuf = await applyFilter(
+      img.resize(pw, ph, { fit: 'cover', position: 'centre' })
+    ).jpeg({ quality: 92 }).toBuffer();
+
+    compositeOps.push({ input: photoBuf, left: px, top: py });
+  }
+
+  /* decode overlay data URL and scale it to fill the full strip */
+  const b64Match = /^data:image\/(png|jpe?g|webp);base64,(.+)$/.exec(dataUrl);
+  if (b64Match) {
+    const overlayBuf = Buffer.from(b64Match[2], 'base64');
+    const overlayResized = await sharp(overlayBuf)
+      .resize(STRIP_W, STRIP_H, { fit: 'fill' })
+      .png()
+      .toBuffer();
+    compositeOps.push({ input: overlayResized, left: 0, top: 0 });
+  }
+
+  /* compose onto dark background */
+  await sharp({
+    create: { width: STRIP_W, height: STRIP_H, channels: 3, background: { r: 20, g: 18, b: 12 } },
+  })
+  .composite(compositeOps)
+  .jpeg({ quality: 95, mozjpeg: true })
+  .toFile(outputPath);
+}
+
+
 async function renderWithCanvas(photoPaths, filter, outputPath, session) {
   const { createCanvas, loadImage } = require('canvas');
   const canvas = createCanvas(STRIP_W, STRIP_H);
@@ -280,9 +344,85 @@ function applyCanvasFilter(ctx, filter, x, y, w, h) {
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-   PLACEHOLDER FALLBACK
-   No image libraries — creates a minimal valid JPEG
+   CUSTOM OVERLAY CANVAS FALLBACK
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+async function renderWithCanvasCustomOverlay(photoPaths, filter, outputPath, session, overlay) {
+  const { createCanvas, loadImage } = require('canvas');
+  const { dataUrl, viewBox, slots } = overlay;
+
+  /* parse viewBox */
+  const vbParts = (viewBox || '0 0 110 110').split(' ').map(Number);
+  const vw = vbParts[2] || 110;
+  const vh = vbParts[3] || 110;
+
+  const scaleX = STRIP_W / vw;
+  const scaleY = STRIP_H / vh;
+
+  const canvas = createCanvas(STRIP_W, STRIP_H);
+  const ctx    = canvas.getContext('2d');
+  const fk     = normaliseFilter(filter);
+
+  ctx.fillStyle = '#14120C';
+  ctx.fillRect(0, 0, STRIP_W, STRIP_H);
+
+  const photos = Array.isArray(photoPaths) ? photoPaths.slice() : [];
+  while (photos.length < slots.length) photos.push(null);
+
+  /* draw each photo into its slot */
+  for (let i = 0; i < slots.length; i++) {
+    const s  = slots[i];
+    const px = Math.round(s.x * scaleX);
+    const py = Math.round(s.y * scaleY);
+    const pw = Math.max(1, Math.round(s.w * scaleX));
+    const ph = Math.max(1, Math.round(s.h * scaleY));
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(px, py, pw, ph);
+    ctx.clip();
+
+    if (photos[i] && fs.existsSync(photos[i])) {
+      const img = await loadImage(photos[i]);
+      /* cover-fit: crop to fill slot */
+      const srcAR = img.width / img.height;
+      const dstAR = pw / ph;
+      let sx, sy, sw, sh;
+      if (srcAR > dstAR) {
+        sh = img.height; sw = img.height * dstAR;
+        sx = (img.width - sw) / 2; sy = 0;
+      } else {
+        sw = img.width; sh = img.width / dstAR;
+        sx = 0; sy = (img.height - sh) / 2;
+      }
+      ctx.drawImage(img, sx, sy, sw, sh, px, py, pw, ph);
+    } else {
+      const grad = ctx.createLinearGradient(px, py, px + pw, py + ph);
+      grad.addColorStop(0, '#2A3A2A');
+      grad.addColorStop(1, '#1A1A2A');
+      ctx.fillStyle = grad;
+      ctx.fillRect(px, py, pw, ph);
+      ctx.fillStyle = 'rgba(255,255,255,0.15)';
+      ctx.font      = `bold ${Math.round(Math.min(pw, ph) * 0.18)}px monospace`;
+      ctx.textAlign = 'center';
+      ctx.fillText(`PHOTO ${i + 1}`, px + pw / 2, py + ph / 2);
+    }
+
+    applyCanvasFilter(ctx, fk, px, py, pw, ph);
+    ctx.restore();
+  }
+
+  /* draw overlay frame on top */
+  try {
+    const overlayImg = await loadImage(dataUrl);
+    ctx.drawImage(overlayImg, 0, 0, STRIP_W, STRIP_H);
+  } catch(_) {}
+
+  const buf = canvas.toBuffer('image/jpeg', { quality: 0.95 });
+  fs.writeFileSync(outputPath, buf);
+  return outputPath;
+}
+
+
 async function renderPlaceholder(outputPath) {
   /* copy test strip asset if it exists */
   const testStrip = path.join(__dirname, '../assets/test-strip.jpg');
@@ -315,28 +455,44 @@ async function renderPlaceholder(outputPath) {
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
 /**
- * renderStrip(photoPaths, filter, session) → { ok, path, method, width, height }
+ * renderStrip(photoPaths, filter, session, overlay) → { ok, path, method, width, height }
  *
  * photoPaths: array of up to 6 absolute file paths (missing ones = placeholder cell)
  * filter:     'original' | 'vintage' | 'bw' | 'pastel' | 'neon'
  * session:    session object from localStorage (for branding metadata)
+ * overlay:    optional { dataUrl, viewBox, slots } from a custom overlay layout
  */
-async function renderStrip(photoPaths = [], filter = 'original', session = {}) {
+async function renderStrip(photoPaths = [], filter = 'original', session = {}, overlay = null) {
   const sessionId  = session?.id || `strip-${Date.now()}`;
   const outputPath = path.join(OUT_DIR, `${sessionId}.jpg`);
-  const photos     = Array.isArray(photoPaths) ? photoPaths.slice(0, 4) : [];
 
-  /* pad to 4 entries */
-  while (photos.length < 4) photos.push(null);
+  /* validate overlay: must have a safe data URL and at least one slot */
+  const hasOverlay = overlay != null
+    && typeof overlay.dataUrl === 'string'
+    && /^data:image\/(png|jpe?g|webp);base64,/.test(overlay.dataUrl)
+    && Array.isArray(overlay.slots)
+    && overlay.slots.length > 0;
 
-  console.log(`[STRIP] Rendering: session=${sessionId} filter=${filter} photos=${photos.filter(Boolean).length}/4`);
+  const photos = Array.isArray(photoPaths)
+    ? photoPaths.slice(0, hasOverlay ? overlay.slots.length : 4)
+    : [];
+
+  /* pad to required number of slots */
+  const slotCount = hasOverlay ? overlay.slots.length : 4;
+  while (photos.length < slotCount) photos.push(null);
+
+  console.log(`[STRIP] Rendering: session=${sessionId} filter=${filter} photos=${photos.filter(Boolean).length}/${slotCount} overlay=${hasOverlay}`);
 
   let result;
 
   /* try sharp first, then canvas, then placeholder */
   try {
     require('sharp');
-    await renderWithSharp(photos, filter, outputPath, session);
+    if (hasOverlay) {
+      await renderWithSharpCustomOverlay(photos, filter, outputPath, session, overlay);
+    } else {
+      await renderWithSharp(photos, filter, outputPath, session);
+    }
     console.log(`[STRIP] Rendered with sharp → ${outputPath}`);
     result = { ok: true, path: outputPath, method: 'sharp', width: STRIP_W, height: STRIP_H };
   } catch(sharpErr) {
@@ -350,7 +506,11 @@ async function renderStrip(photoPaths = [], filter = 'original', session = {}) {
   if (!result) {
     try {
       require('canvas');
-      await renderWithCanvas(photos, filter, outputPath, session);
+      if (hasOverlay) {
+        await renderWithCanvasCustomOverlay(photos, filter, outputPath, session, overlay);
+      } else {
+        await renderWithCanvas(photos, filter, outputPath, session);
+      }
       console.log(`[STRIP] Rendered with canvas → ${outputPath}`);
       result = { ok: true, path: outputPath, method: 'canvas', width: STRIP_W, height: STRIP_H };
     } catch(canvasErr) {
