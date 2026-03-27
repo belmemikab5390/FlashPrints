@@ -534,6 +534,7 @@
     <div class="step-dot done"></div><div class="step-line"></div>
     <div class="step-dot active"></div><div class="step-line"></div>
     <div class="step-dot"></div><div class="step-line"></div>
+    <div class="step-dot"></div><div class="step-line"></div>
     <div class="step-dot"></div>
   </div>
   <div class="topbar-clock" id="clock">--:-- --</div>
@@ -545,7 +546,7 @@
   <!-- LEFT -->
   <div class="left">
     <div class="header">
-      <div class="header-eyebrow">step 3 of 5 · payment</div>
+      <div class="header-eyebrow">step 3 of 6 · payment</div>
       <div class="header-title">pay with<br/><em>GCash</em></div>
       <div class="header-sub">scan the QR code using<br/>your GCash app to proceed</div>
     </div>
@@ -1291,8 +1292,8 @@
         document.body.appendChild(fade);
         requestAnimationFrame(() => { fade.style.opacity = '0.8'; });
         setTimeout(() => {
-          if (typeof fpNavigate === 'function') fpNavigate('camera');
-          else window.location.href = 'camera.html';
+          if (typeof fpNavigate === 'function') fpNavigate('mood');
+          else window.location.href = 'mood.html';
         }, 220);
       }
     }, 1000);
