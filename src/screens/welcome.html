@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=1080"/>
+<title>Flash &amp; Prints Photobooth — Welcome</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500&family=Space+Mono&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --gold: #E8C547;
+    --gold-dim: #C8A030;
+    --rose: #C84B6E;
+    --rose-dim: #8C2F4A;
+    --charcoal: #111118;
+    --charcoal2: #1A1A26;
+    --charcoal3: #22222F;
+    --ink: #0A0A12;
+    --cream: #FDF8F2;
+    --muted: rgba(255,255,255,0.35);
+    --faint: rgba(255,255,255,0.08);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    width: 1080px;
+    height: 1920px;
+    overflow: hidden;
+    background: var(--ink);
+    font-family: 'DM Sans', sans-serif;
+    cursor: none;
+    user-select: none;
+  }
+
+  /* ── background layers ── */
+  .bg-base {
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 900px 900px at 50% 38%, #1E1830 0%, #0A0A12 65%);
+  }
+
+  .bg-grid {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(232,197,71,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(232,197,71,0.04) 1px, transparent 1px);
+    background-size: 80px 80px;
+    animation: gridDrift 30s linear infinite;
+  }
+  @keyframes gridDrift {
+    from { background-position: 0 0; }
+    to   { background-position: 80px 80px; }
+  }
+
+  .bg-glow-gold {
+    position: absolute;
+    width: 700px; height: 700px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(232,197,71,0.07) 0%, transparent 70%);
+    top: 20%; left: 50%; transform: translateX(-50%);
+    animation: glowPulse 4s ease-in-out infinite;
+  }
+  .bg-glow-rose {
+    position: absolute;
+    width: 500px; height: 500px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(200,75,110,0.08) 0%, transparent 70%);
+    top: 60%; left: 30%;
+    animation: glowPulse 5.5s ease-in-out infinite reverse;
+  }
+  @keyframes glowPulse {
+    0%,100% { opacity: 0.6; transform: translateX(-50%) scale(1); }
+    50%      { opacity: 1;   transform: translateX(-50%) scale(1.15); }
+  }
+  .bg-glow-rose { transform: none; }
+  @keyframes glowPulse2 {
+    0%,100% { opacity: 0.5; transform: scale(1); }
+    50%      { opacity: 1;   transform: scale(1.2); }
+  }
+
+  /* ── floating photo frames ── */
+  .frames-layer {
+    position: absolute; inset: 0;
+    pointer-events: none;
+  }
+  .frame {
+    position: absolute;
+    border: 1.5px solid rgba(232,197,71,0.15);
+    border-radius: 12px;
+    background: rgba(255,255,255,0.03);
+    backdrop-filter: blur(2px);
+    overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .frame-inner {
+    width: 100%; height: 100%;
+    background: linear-gradient(135deg, rgba(232,197,71,0.05), rgba(200,75,110,0.05));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 48px;
+    opacity: 0.3;
+  }
+  .f1 { width:180px;height:240px; top:8%; left:4%;  animation: floatA 8s ease-in-out infinite; }
+  .f2 { width:140px;height:186px; top:12%; right:6%; animation: floatB 7s ease-in-out infinite; }
+  .f3 { width:120px;height:160px; top:55%; left:3%;  animation: floatC 9s ease-in-out infinite; }
+  .f4 { width:160px;height:213px; top:60%; right:4%; animation: floatA 6.5s ease-in-out infinite reverse; }
+  .f5 { width:100px;height:133px; top:80%; left:20%; animation: floatB 10s ease-in-out infinite; }
+  .f6 { width:110px;height:146px; top:78%; right:18%;animation: floatC 7.5s ease-in-out infinite reverse; }
+
+  @keyframes floatA {
+    0%,100% { transform: translateY(0px) rotate(-2deg); }
+    50%      { transform: translateY(-24px) rotate(1deg); }
+  }
+  @keyframes floatB {
+    0%,100% { transform: translateY(0px) rotate(3deg); }
+    50%      { transform: translateY(-18px) rotate(-1.5deg); }
+  }
+  @keyframes floatC {
+    0%,100% { transform: translateY(0px) rotate(-1deg); }
+    50%      { transform: translateY(-30px) rotate(2deg); }
+  }
+
+  /* ── photo strip decorations ── */
+  .strip-deco {
+    position: absolute;
+    display: flex; flex-direction: column; gap: 3px;
+    opacity: 0.12;
+  }
+  .strip-deco-cell {
+    width: 60px; height: 72px;
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 4px;
+    background: rgba(255,255,255,0.05);
+  }
+  .sd1 { top: 5%; left: 50%; transform: translateX(-50%) rotate(15deg); }
+  .sd2 { top: 72%; right: 1%; transform: rotate(-8deg); }
+
+  /* ── particle dots ── */
+  .particles {
+    position: absolute; inset: 0;
+    pointer-events: none;
+  }
+  .particle {
+    position: absolute;
+    border-radius: 50%;
+    animation: particleFloat linear infinite;
+    opacity: 0;
+  }
+  @keyframes particleFloat {
+    0%   { opacity: 0;   transform: translateY(0) scale(0.5); }
+    15%  { opacity: 1; }
+    85%  { opacity: 0.7; }
+    100% { opacity: 0;   transform: translateY(-120px) scale(1); }
+  }
+
+  /* ── top status bar ── */
+  .status-bar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 72px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 48px;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.5), transparent);
+    z-index: 10;
+  }
+  .status-brand {
+    font-family: 'Playfair Display', serif;
+    font-weight: 900; font-size: 20px; color: #fff;
+    letter-spacing: -0.3px;
+  }
+  .status-brand em { color: var(--gold); font-style: normal; }
+  .status-right {
+    display: flex; align-items: center; gap: 20px;
+  }
+  .status-time {
+    font-family: 'Space Mono', monospace;
+    font-size: 14px; color: rgba(255,255,255,0.5);
+  }
+  .status-dot {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 11px; color: rgba(255,255,255,0.3);
+  }
+  .dot-green {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: #3DAA6C;
+    box-shadow: 0 0 8px rgba(61,170,108,0.6);
+    animation: dotBlink 2.5s ease-in-out infinite;
+  }
+  @keyframes dotBlink {
+    0%,100% { opacity: 1; }
+    50%      { opacity: 0.4; }
+  }
+
+  /* ── main content ── */
+  .main {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 5;
+    padding: 120px 80px;
+  }
+
+  /* flash icon */
+  .flash-wrap {
+    position: relative;
+    margin-bottom: 52px;
+    animation: iconEntrance 1.2s cubic-bezier(0.34,1.56,0.64,1) both;
+  }
+  @keyframes iconEntrance {
+    from { opacity:0; transform: scale(0.4) rotate(-20deg); }
+    to   { opacity:1; transform: scale(1) rotate(0deg); }
+  }
+  .flash-ring-outer {
+    width: 180px; height: 180px; border-radius: 50%;
+    border: 1px solid rgba(232,197,71,0.2);
+    display: flex; align-items: center; justify-content: center;
+    animation: ringRotate 20s linear infinite;
+  }
+  @keyframes ringRotate {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+  .flash-ring-inner {
+    width: 150px; height: 150px; border-radius: 50%;
+    border: 1.5px dashed rgba(232,197,71,0.15);
+    display: flex; align-items: center; justify-content: center;
+    animation: ringRotate 12s linear infinite reverse;
+  }
+  .flash-core {
+    width: 110px; height: 110px; border-radius: 50%;
+    background: linear-gradient(135deg, #2A2410, #1A1810);
+    border: 1.5px solid rgba(232,197,71,0.4);
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+    box-shadow: 0 0 40px rgba(232,197,71,0.12), inset 0 0 30px rgba(232,197,71,0.05);
+  }
+  .flash-svg {
+    width: 52px; height: 52px;
+    animation: flashPulse 3s ease-in-out infinite;
+  }
+  @keyframes flashPulse {
+    0%,100% { filter: drop-shadow(0 0 8px rgba(232,197,71,0.4)); transform: scale(1); }
+    50%      { filter: drop-shadow(0 0 20px rgba(232,197,71,0.9)); transform: scale(1.08); }
+  }
+  /* orbit dots */
+  .orbit-dot {
+    position: absolute;
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--gold);
+    animation: orbitPulse 2s ease-in-out infinite;
+  }
+  .od1 { top: -4px; left: 50%; transform: translateX(-50%); animation-delay: 0s; }
+  .od2 { bottom: -4px; left: 50%; transform: translateX(-50%); animation-delay: 0.5s; }
+  .od3 { left: -4px; top: 50%; transform: translateY(-50%); animation-delay: 1s; background: var(--rose); }
+  .od4 { right: -4px; top: 50%; transform: translateY(-50%); animation-delay: 1.5s; background: var(--rose); }
+  @keyframes orbitPulse {
+    0%,100% { opacity: 0.3; transform: translateX(-50%) scale(0.8); }
+    50%      { opacity: 1;   transform: translateX(-50%) scale(1.3); }
+  }
+  .od2 { transform: translateX(-50%); }
+  .od3, .od4 { transform: translateY(-50%); }
+
+  /* headline */
+  .headline {
+    text-align: center;
+    margin-bottom: 28px;
+    animation: fadeUp 1s 0.3s both;
+  }
+  @keyframes fadeUp {
+    from { opacity:0; transform: translateY(30px); }
+    to   { opacity:1; transform: translateY(0); }
+  }
+  .hl-eyebrow {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px; letter-spacing: 4px;
+    color: var(--gold); text-transform: uppercase;
+    margin-bottom: 20px;
+    opacity: 0.8;
+  }
+  .hl-main {
+    font-family: 'Playfair Display', serif;
+    font-weight: 900;
+    font-size: 88px;
+    line-height: 0.95;
+    color: #fff;
+    letter-spacing: -2px;
+    margin-bottom: 16px;
+  }
+  .hl-main em {
+    font-style: italic;
+    color: var(--gold);
+    display: block;
+  }
+  .hl-amp {
+    font-style: normal;
+    color: rgba(255,255,255,0.15);
+    font-size: 72px;
+  }
+  .hl-sub {
+    font-size: 22px; font-weight: 300;
+    color: rgba(255,255,255,0.45);
+    letter-spacing: 0.5px;
+    line-height: 1.5;
+  }
+  .hl-sub strong { color: rgba(255,255,255,0.7); font-weight: 500; }
+
+  /* divider */
+  .divider-line {
+    display: flex; align-items: center; gap: 20px;
+    margin: 48px 0;
+    width: 100%; max-width: 600px;
+    animation: fadeUp 1s 0.5s both;
+  }
+  .dl { flex:1; height:1px; background: linear-gradient(to right, transparent, rgba(232,197,71,0.3)); }
+  .dr { flex:1; height:1px; background: linear-gradient(to left,  transparent, rgba(232,197,71,0.3)); }
+  .dm {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px; letter-spacing: 3px;
+    color: rgba(232,197,71,0.5);
+  }
+
+  /* packages preview */
+  .packages-preview {
+    display: flex; gap: 16px; margin-bottom: 64px;
+    animation: fadeUp 1s 0.6s both;
+  }
+  .pkg-pill {
+    padding: 10px 22px;
+    border-radius: 40px;
+    border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.03);
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+  }
+  .pkg-pill-name { font-size: 13px; color: rgba(255,255,255,0.6); font-weight: 500; }
+  .pkg-pill-price { font-family: 'Space Mono', monospace; font-size: 12px; color: var(--gold); }
+
+  /* CTA button */
+  .cta-wrap {
+    display: flex; flex-direction: column; align-items: center; gap: 20px;
+    animation: fadeUp 1s 0.8s both;
+  }
+  .cta-btn {
+    position: relative;
+    width: 420px; height: 96px;
+    border-radius: 48px;
+    border: none;
+    cursor: pointer;
+    overflow: hidden;
+    background: linear-gradient(135deg, var(--gold) 0%, #D4892A 100%);
+    transition: transform 0.15s;
+  }
+  .cta-btn:active { transform: scale(0.97); }
+  .cta-btn-shine {
+    position: absolute; inset: 0;
+    background: linear-gradient(105deg, transparent 35%, rgba(255,255,255,0.25) 50%, transparent 65%);
+    animation: btnShine 3s ease-in-out infinite;
+  }
+  @keyframes btnShine {
+    0%   { transform: translateX(-150%); }
+    40%  { transform: translateX(150%); }
+    100% { transform: translateX(150%); }
+  }
+  .cta-btn-inner {
+    position: relative; z-index: 1;
+    display: flex; align-items: center; justify-content: center; gap: 14px;
+    height: 100%;
+  }
+  .cta-icon {
+    width: 36px; height: 36px;
+    animation: tapBounce 2s ease-in-out infinite;
+  }
+  @keyframes tapBounce {
+    0%,100% { transform: scale(1) rotate(0deg); }
+    30%      { transform: scale(1.2) rotate(-10deg); }
+    60%      { transform: scale(0.95) rotate(5deg); }
+  }
+  .cta-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px; font-weight: 700;
+    color: #1A1200;
+    letter-spacing: -0.3px;
+  }
+  .cta-pulse-ring {
+    position: absolute;
+    inset: -3px; border-radius: 52px;
+    border: 2px solid rgba(232,197,71,0.4);
+    animation: pulseRing 2.5s ease-out infinite;
+  }
+  .cta-pulse-ring2 {
+    position: absolute;
+    inset: -3px; border-radius: 52px;
+    border: 2px solid rgba(232,197,71,0.2);
+    animation: pulseRing 2.5s ease-out infinite 0.8s;
+  }
+  @keyframes pulseRing {
+    0%   { inset: -3px;  opacity: 1; }
+    100% { inset: -28px; opacity: 0; }
+  }
+
+  .cta-hint {
+    font-size: 16px; color: rgba(255,255,255,0.2);
+    letter-spacing: 0.5px;
+    font-weight: 300;
+  }
+
+  /* features strip */
+  .features {
+    position: absolute;
+    bottom: 110px; left: 0; right: 0;
+    display: flex; justify-content: center; gap: 0;
+    z-index: 5;
+    animation: fadeUp 1s 1s both;
+  }
+  .feat-item {
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
+    padding: 24px 52px;
+    border-right: 1px solid rgba(255,255,255,0.06);
+  }
+  .feat-item:last-child { border-right: none; }
+  .feat-icon-wrap {
+    width: 48px; height: 48px; border-radius: 14px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .feat-label { font-size: 15px; color: rgba(255,255,255,0.45); font-weight: 400; text-align: center; }
+  .feat-value { font-size: 13px; color: var(--gold); font-family: 'Space Mono', monospace; }
+
+  /* bottom bar */
+  .bottom-bar {
+    position: absolute;
+    bottom: 0; left: 0; right: 0; height: 72px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 48px;
+    background: linear-gradient(to top, rgba(0,0,0,0.6), transparent);
+    z-index: 10;
+  }
+  .bb-gcash {
+    display: flex; align-items: center; gap: 10px;
+  }
+  .gcash-badge {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: #007AFF;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 15px; font-weight: 900; color: #fff;
+  }
+  .bb-gcash-text { font-size: 13px; color: rgba(255,255,255,0.35); }
+  .bb-gcash-text strong { color: rgba(255,255,255,0.6); font-weight: 500; }
+  .bb-location {
+    font-size: 12px; color: rgba(255,255,255,0.2);
+    font-family: 'Space Mono', monospace;
+    text-align: right;
+  }
+
+  /* ── tap ripple ── */
+  .ripple {
+    position: fixed;
+    border-radius: 50%;
+    background: rgba(232,197,71,0.25);
+    pointer-events: none;
+    animation: rippleOut 0.6s ease-out forwards;
+    z-index: 100;
+    transform: translate(-50%,-50%) scale(0);
+  }
+  @keyframes rippleOut {
+    to { transform: translate(-50%,-50%) scale(6); opacity: 0; }
+  }
+
+  /* ── flash overlay (tap effect) ── */
+  .flash-overlay {
+    position: fixed; inset: 0;
+    background: #fff;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 200;
+    transition: opacity 0.05s;
+  }
+  .flash-overlay.flash { opacity: 0.4; }
+
+  /* ── screensaver marquee ── */
+  .marquee-wrap {
+    position: absolute;
+    bottom: 88px; left: 0; right: 0;
+    overflow: hidden; height: 32px;
+    z-index: 6;
+    mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+  }
+  .marquee-track {
+    display: flex; gap: 80px;
+    white-space: nowrap;
+    animation: marqueeScroll 30s linear infinite;
+    width: max-content;
+  }
+  @keyframes marqueeScroll {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+  .marquee-item {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px; letter-spacing: 2px;
+    color: rgba(232,197,71,0.25);
+    text-transform: uppercase;
+    display: flex; align-items: center; gap: 20px;
+  }
+  .marquee-dot { width: 4px; height: 4px; border-radius: 50%; background: rgba(232,197,71,0.25); }
+
+  /* ── idle countdown ring (shows after 30s) ── */
+  .idle-ring {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 500px; height: 500px;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 1s;
+    z-index: 3;
+  }
+  .idle-ring.visible { opacity: 1; }
+  .idle-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+</style>
+</head>
+<body>
+
+<!-- background layers -->
+<div class="bg-base"></div>
+<div class="bg-grid"></div>
+<div class="bg-glow-gold"></div>
+<div class="bg-glow-rose" style="animation: glowPulse2 5.5s ease-in-out infinite reverse;"></div>
+
+<!-- floating photo frames -->
+<div class="frames-layer">
+  <div class="frame f1"><div class="frame-inner">📷</div></div>
+  <div class="frame f2"><div class="frame-inner">🌸</div></div>
+  <div class="frame f3"><div class="frame-inner">✨</div></div>
+  <div class="frame f4"><div class="frame-inner">💫</div></div>
+  <div class="frame f5"><div class="frame-inner">🎞️</div></div>
+  <div class="frame f6"><div class="frame-inner">🌟</div></div>
+
+  <!-- strip decorations -->
+  <div class="strip-deco sd1">
+    <div class="strip-deco-cell"></div>
+    <div class="strip-deco-cell"></div>
+    <div class="strip-deco-cell"></div>
+    <div class="strip-deco-cell"></div>
+  </div>
+  <div class="strip-deco sd2">
+    <div class="strip-deco-cell"></div>
+    <div class="strip-deco-cell"></div>
+    <div class="strip-deco-cell"></div>
+  </div>
+</div>
+
+<!-- particles -->
+<div class="particles" id="particles"></div>
+
+<!-- idle pulse ring -->
+<div class="idle-ring" id="idleRing">
+  <svg viewBox="0 0 500 500">
+    <circle cx="250" cy="250" r="230" fill="none" stroke="rgba(232,197,71,0.06)" stroke-width="1"/>
+    <circle cx="250" cy="250" r="230" fill="none" stroke="rgba(232,197,71,0.2)" stroke-width="1.5"
+      stroke-dasharray="1445" stroke-dashoffset="1445" id="ringProgress"/>
+  </svg>
+</div>
+
+<!-- top status bar -->
+<div class="status-bar">
+  <div class="status-brand"><em>Flash</em> &amp; Prints</div>
+  <div class="status-right">
+    <div class="status-dot">
+      <div class="dot-green"></div>
+      booth ready
+    </div>
+    <div class="status-time" id="clock">--:-- --</div>
+  </div>
+</div>
+
+<!-- main content -->
+<div class="main" id="mainContent">
+
+  <!-- flash icon -->
+  <div class="flash-wrap">
+    <div class="flash-ring-outer">
+      <div class="flash-ring-inner">
+        <div class="flash-core">
+          <div class="orbit-dot od1"></div>
+          <div class="orbit-dot od2"></div>
+          <div class="orbit-dot od3"></div>
+          <div class="orbit-dot od4"></div>
+          <svg class="flash-svg" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <polygon points="30,4 12,28 24,28 22,48 40,24 28,24" fill="#E8C547"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- headline -->
+  <div class="headline">
+    <div class="hl-eyebrow">✦ photobooth experience ✦</div>
+    <div class="hl-main">
+      Flash<br/>
+      <span class="hl-amp">&amp;</span><br/>
+      <em>Prints</em>
+    </div>
+    <div class="hl-sub">
+      Professional photos. <strong>Printed instantly.</strong><br/>
+      Pay with GCash — no staff needed.
+    </div>
+  </div>
+
+  <!-- divider -->
+  <div class="divider-line">
+    <div class="dl"></div>
+    <div class="dm">✦ choose · shoot · print ✦</div>
+    <div class="dr"></div>
+  </div>
+
+  <!-- package pills -->
+  <div class="packages-preview">
+    <div class="pkg-pill">
+      <div class="pkg-pill-name">Classic Strip</div>
+      <div class="pkg-pill-price">₱89</div>
+    </div>
+    <div class="pkg-pill">
+      <div class="pkg-pill-name">Solo Frame</div>
+      <div class="pkg-pill-price">₱59</div>
+    </div>
+    <div class="pkg-pill">
+      <div class="pkg-pill-name">Party Mode</div>
+      <div class="pkg-pill-price">₱149</div>
+    </div>
+    <div class="pkg-pill">
+      <div class="pkg-pill-name">GIF Booth</div>
+      <div class="pkg-pill-price">₱99</div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-wrap">
+    <div style="position:relative; display:inline-block;">
+      <div class="cta-pulse-ring"></div>
+      <div class="cta-pulse-ring2"></div>
+      <button class="cta-btn" id="ctaBtn" onclick="handleTap(event)">
+        <div class="cta-btn-shine"></div>
+        <div class="cta-btn-inner">
+          <svg class="cta-icon" viewBox="0 0 36 36" fill="none">
+            <circle cx="18" cy="18" r="16" fill="rgba(26,18,0,0.3)"/>
+            <path d="M18 8 L18 20 M14 16 L18 20 L22 16" stroke="#1A1200" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M12 26 L24 26" stroke="#1A1200" stroke-width="2.5" stroke-linecap="round"/>
+          </svg>
+          <span class="cta-text">tap to start</span>
+        </div>
+      </button>
+    </div>
+    <div class="cta-hint">touch anywhere to begin your session</div>
+  </div>
+</div>
+
+<!-- features strip -->
+<div class="features">
+  <div class="feat-item">
+    <div class="feat-icon-wrap">
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+        <rect x="3" y="6" width="16" height="12" rx="2" stroke="rgba(232,197,71,0.7)" stroke-width="1.5"/>
+        <circle cx="11" cy="12" r="3" stroke="rgba(232,197,71,0.7)" stroke-width="1.5"/>
+        <path d="M8 6 L9.5 3.5 L12.5 3.5 L14 6" stroke="rgba(232,197,71,0.7)" stroke-width="1.5" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="feat-label">DSLR Quality</div>
+    <div class="feat-value">pro camera</div>
+  </div>
+  <div class="feat-item">
+    <div class="feat-icon-wrap">
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+        <rect x="4" y="4" width="14" height="14" rx="2" stroke="rgba(232,197,71,0.7)" stroke-width="1.5"/>
+        <path d="M7 8 L15 8 M7 11 L15 11 M7 14 L12 14" stroke="rgba(232,197,71,0.7)" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="feat-label">Instant Print</div>
+    <div class="feat-value">~12 seconds</div>
+  </div>
+  <div class="feat-item">
+    <div class="feat-icon-wrap">
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+        <rect x="2" y="5" width="18" height="13" rx="2" stroke="rgba(232,197,71,0.7)" stroke-width="1.5"/>
+        <path d="M6 11 Q9 8 11 11 Q13 14 16 11" stroke="rgba(232,197,71,0.7)" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="feat-label">GCash Payment</div>
+    <div class="feat-value">scan QR · done</div>
+  </div>
+  <div class="feat-item">
+    <div class="feat-icon-wrap">
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+        <path d="M4 6 L4 16 L8 13 L11 15 L14 13 L18 16 L18 6 Z" stroke="rgba(232,197,71,0.7)" stroke-width="1.5" stroke-linejoin="round"/>
+        <path d="M8 9 L14 9 M8 11.5 L12 11.5" stroke="rgba(232,197,71,0.7)" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="feat-label">5 Filters</div>
+    <div class="feat-value">your vibe</div>
+  </div>
+</div>
+
+<!-- marquee -->
+<div class="marquee-wrap">
+  <div class="marquee-track" id="marqueeTrack"></div>
+</div>
+
+<!-- bottom bar -->
+<div class="bottom-bar">
+  <div class="bb-gcash">
+    <div class="gcash-badge">G</div>
+    <div class="bb-gcash-text"><strong>GCash</strong> accepted · contactless payment</div>
+  </div>
+  <div class="bb-location" id="boothLocation">BOOTH #001 · SM CITY NORTH EDSA</div>
+</div>
+
+<!-- tap flash overlay -->
+<div class="flash-overlay" id="flashOverlay"></div>
+
+<script>
+  // ── clock ──
+  function updateClock() {
+    const now = new Date();
+    let h = now.getHours(), m = now.getMinutes(), ampm = h >= 12 ? 'PM' : 'AM';
+    h = h % 12 || 12;
+    document.getElementById('clock').textContent =
+      `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')} ${ampm}`;
+  }
+  updateClock();
+  setInterval(updateClock, 1000);
+
+  // ── marquee ──
+  const marqueeItems = [
+    'classic strip · ₱89',
+    'solo frame · ₱59',
+    'party mode · ₱149',
+    'gif booth · ₱99',
+    'vintage filter',
+    'black & white',
+    'pastel dreams',
+    'neon nights',
+    'prints in 12 seconds',
+    'gcash accepted',
+    'flash & prints',
+  ];
+  const track = document.getElementById('marqueeTrack');
+  const doubled = [...marqueeItems, ...marqueeItems, ...marqueeItems];
+  doubled.forEach(item => {
+    const el = document.createElement('div');
+    el.className = 'marquee-item';
+    el.innerHTML = `<div class="marquee-dot"></div>${item.toUpperCase()}<div class="marquee-dot"></div>`;
+    track.appendChild(el);
+  });
+
+  // ── particles ──
+  const particleContainer = document.getElementById('particles');
+  function spawnParticle() {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const size = Math.random() * 4 + 2;
+    const x = Math.random() * 1080;
+    const y = 400 + Math.random() * 1200;
+    const dur = 4 + Math.random() * 6;
+    const color = Math.random() > 0.5 ? 'rgba(232,197,71,' : 'rgba(200,75,110,';
+    const alpha = (0.3 + Math.random() * 0.5).toFixed(2);
+    p.style.cssText = `
+      width:${size}px; height:${size}px;
+      left:${x}px; top:${y}px;
+      background:${color}${alpha});
+      animation-duration:${dur}s;
+      animation-delay:${Math.random()*2}s;
+    `;
+    particleContainer.appendChild(p);
+    setTimeout(() => p.remove(), (dur + 2) * 1000);
+  }
+  setInterval(spawnParticle, 400);
+  for(let i = 0; i < 12; i++) setTimeout(spawnParticle, i * 200);
+
+  // ── tap / touch handler ──
+  function handleTap(e) {
+    // ripple
+    const ripple = document.createElement('div');
+    ripple.className = 'ripple';
+    const x = e.clientX || 540, y = e.clientY || 960;
+    ripple.style.cssText = `left:${x}px; top:${y}px; width:60px; height:60px;`;
+    document.body.appendChild(ripple);
+    setTimeout(() => ripple.remove(), 700);
+
+    // flash
+    const overlay = document.getElementById('flashOverlay');
+    overlay.classList.add('flash');
+    setTimeout(() => overlay.classList.remove('flash'), 120);
+
+    // in production: navigate to package selection screen
+    // window.location.href = 'package-selection.html';
+    // For demo: show a quick message
+    showStartMessage();
+  }
+
+  // make whole screen tappable
+  document.body.addEventListener('click', handleTap);
+  document.body.addEventListener('touchstart', e => {
+    handleTap(e.touches[0] || e);
+  });
+
+  function showStartMessage() {
+    // In real kiosk: this navigates to screen 2
+    // This is a placeholder to show the transition would happen
+    const overlay = document.getElementById('flashOverlay');
+    overlay.style.transition = 'opacity 0.3s';
+    overlay.style.opacity = '0.8';
+    setTimeout(() => {
+      overlay.style.opacity = '0';
+      overlay.style.transition = 'opacity 0.05s';
+    }, 300);
+  }
+
+  // ── idle ring (shows after 30s of no touch — for demo it's 15s) ──
+  let idleTimer, idleProgress = 0, idleInterval;
+  const idleRing = document.getElementById('idleRing');
+  const ringProgress = document.getElementById('ringProgress');
+  const IDLE_TIMEOUT = 15000; // 15s for demo (set 180000 for production 3min)
+  const IDLE_RESET   = 10000; // 10s to show ring before reset
+
+  function resetIdle() {
+    clearTimeout(idleTimer);
+    clearInterval(idleInterval);
+    idleRing.classList.remove('visible');
+    idleProgress = 0;
+    if(ringProgress) ringProgress.style.strokeDashoffset = '1445';
+    idleTimer = setTimeout(startIdleRing, IDLE_TIMEOUT);
+  }
+
+  function startIdleRing() {
+    idleRing.classList.add('visible');
+    idleProgress = 0;
+    const totalMs = IDLE_RESET;
+    const step = 16;
+    idleInterval = setInterval(() => {
+      idleProgress += step / totalMs;
+      if(idleProgress >= 1) {
+        clearInterval(idleInterval);
+        // auto-reset: in production, reload the page / restart app
+        idleRing.classList.remove('visible');
+        idleProgress = 0;
+        resetIdle();
+      }
+      const offset = 1445 * (1 - idleProgress);
+      if(ringProgress) ringProgress.style.strokeDashoffset = offset;
+    }, step);
+  }
+
+  document.body.addEventListener('click',    resetIdle);
+  document.body.addEventListener('touchstart', resetIdle);
+  document.body.addEventListener('mousemove', resetIdle);
+  resetIdle();
+
+  // ── config (change these per booth) ──
+  const BOOTH_CONFIG = {
+    boothId: '001',
+    location: 'SM CITY NORTH EDSA',
+    floor: 'LEVEL 2',
+  };
+  document.getElementById('boothLocation').textContent =
+    `BOOTH #${BOOTH_CONFIG.boothId} · ${BOOTH_CONFIG.location} · ${BOOTH_CONFIG.floor}`;
+</script>
+<script src="../assets/fp-bridge.js"></script>
+</body>
+</html>

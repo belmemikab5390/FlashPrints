@@ -1,0 +1,92 @@
+/*
+ * responsive.css — Flash & Prints
+ * Makes all screens fill actual display. Landscape support for portable monitors.
+ */
+
+/* ── Always fill screen, never scroll ── */
+html, body {
+  width:    100vw !important;
+  height:   100vh !important;
+  overflow: hidden !important;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   LANDSCAPE OVERRIDES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+@media (orientation: landscape) {
+
+  /* ── topbar ── */
+  .topbar { height: 64px !important; padding: 0 32px !important; }
+  .brand  { font-size: 16px !important; }
+
+  /* ── WELCOME ── */
+  .main {
+    padding: 40px 80px !important;
+    justify-content: center !important;
+    gap: 0 !important;
+  }
+  .flash-wrap { margin-bottom: 20px !important; }
+  .flash-wrap svg,
+  .flash-wrap .flash-icon { width: 80px !important; height: 80px !important; }
+  .glow-ring-1 { width: 120px !important; height: 120px !important; }
+  .glow-ring-2 { width: 100px !important; height: 100px !important; }
+  .glow-ring-3 { width: 76px !important; height: 76px !important; }
+  .title-block { margin-bottom: 16px !important; }
+  .title-main  { font-size: 64px !important; line-height: 0.9 !important; }
+  .title-amp   { font-size: 40px !important; }
+  .title-sub   { font-size: 14px !important; margin-bottom: 12px !important; }
+  .divider-row { margin-bottom: 12px !important; }
+  .features-row { gap: 24px !important; margin-bottom: 16px !important; }
+  .feature-item { gap: 6px !important; }
+  .feature-icon-wrap { width: 40px !important; height: 40px !important; }
+  .feature-label { font-size: 10px !important; }
+  .feature-val   { font-size: 12px !important; }
+  .cta-wrap  { gap: 10px !important; }
+  .cta-btn   { width: 320px !important; height: 68px !important; border-radius: 34px !important; }
+  .cta-text  { font-size: 20px !important; }
+  .cta-icon  { width: 24px !important; height: 24px !important; }
+  .ticker-wrap { display: none !important; }  /* hide scrolling ticker */
+  .floating-cards { display: none !important; } /* hide floating card decorations */
+  .f1,.f2,.f3,.f4,.f5,.f6 { display: none !important; }
+
+  /* ── PACKAGES ── */
+  .pkg-grid {
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 12px !important;
+  }
+  .pkg-card  { padding: 16px 12px !important; }
+  .filter-section { margin-top: 12px !important; }
+  .filter-grid    { gap: 8px !important; }
+
+  /* ── PAYMENT ── */
+  /* (handled inline in payment.html landscape block) */
+
+  /* ── CAMERA ── */
+  /* (handled inline in camera.html landscape block) */
+
+  /* ── PREVIEW ── */
+  .preview-strip-wrap { max-height: calc(100vh - 160px) !important; }
+
+  /* ── PRINTING ── */
+  .printer-scene   { width: 260px !important; height: 240px !important; margin-bottom: 6px !important; }
+  .printer-body    { width: 260px !important; height: 140px !important; }
+  .paper-wrap      { max-height: 140px !important; overflow: hidden !important; }
+  .center-info     { margin: 8px 0 !important; }
+  .printing-title  { font-size: 32px !important; }
+  .printing-sub    { font-size: 13px !important; }
+  .progress-section { width: 380px !important; gap: 10px !important; }
+  .warning-card    { width: 380px !important; padding: 10px 14px !important; margin-top: 4px !important; }
+  .specs-row       { width: 380px !important; margin-top: 4px !important; }
+  .warning-text    { font-size: 12px !important; }
+  .top-label       { margin-bottom: 8px !important; }
+
+  /* ── RECEIPT ── */
+  .receipt-main {
+    padding: 12px 40px !important;
+    gap: 12px !important;
+  }
+
+  /* ── DONE ── */
+  .done-main { padding: 20px 60px !important; }
+  .done-title { font-size: 40px !important; }
+}

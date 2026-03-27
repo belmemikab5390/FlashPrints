@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=1080"/>
+<title>Flash &amp; Prints — Choose Your Package</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&family=Space+Mono&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --gold: #E8C547;
+    --gold-dim: #C8A030;
+    --gold-faint: rgba(232,197,71,0.08);
+    --rose: #C84B6E;
+    --rose-light: rgba(200,75,110,0.12);
+    --sage: #3DAA6C;
+    --sage-light: rgba(61,170,108,0.12);
+    --charcoal: #111118;
+    --charcoal2: #1A1A26;
+    --charcoal3: #20202E;
+    --ink: #0A0A12;
+    --muted: rgba(255,255,255,0.35);
+    --faint: rgba(255,255,255,0.06);
+    --border: rgba(255,255,255,0.07);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    width: 1080px;
+    height: 1920px;
+    overflow: hidden;
+    background: var(--ink);
+    font-family: 'DM Sans', sans-serif;
+    cursor: none;
+    user-select: none;
+  }
+
+  /* ── background ── */
+  .bg {
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 800px 600px at 50% 20%, #1A1628 0%, #0A0A12 60%);
+  }
+  .bg-grid {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(232,197,71,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(232,197,71,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+  .bg-accent {
+    position: absolute;
+    width: 600px; height: 600px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(232,197,71,0.05) 0%, transparent 70%);
+    top: -100px; right: -100px;
+    pointer-events: none;
+  }
+
+  /* ── top bar ── */
+  .topbar {
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 100px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 56px;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.5), transparent);
+    z-index: 20;
+  }
+  .topbar-left { display: flex; align-items: center; gap: 20px; }
+  .back-btn {
+    width: 52px; height: 52px; border-radius: 14px;
+    border: 1px solid var(--border);
+    background: var(--faint);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .back-btn:active { background: rgba(255,255,255,0.1); transform: scale(0.95); }
+  .brand {
+    font-family: 'Playfair Display', serif;
+    font-weight: 900; font-size: 20px; color: #fff;
+  }
+  .brand em { color: var(--gold); font-style: normal; }
+  .step-indicator {
+    display: flex; align-items: center; gap: 8px;
+  }
+  .step { display: flex; align-items: center; gap: 8px; }
+  .step-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: rgba(255,255,255,0.12);
+    transition: all 0.3s;
+  }
+  .step-dot.done { background: var(--sage); width: 10px; }
+  .step-dot.active { background: var(--gold); width: 28px; border-radius: 5px; }
+  .step-line { width: 24px; height: 1px; background: rgba(255,255,255,0.08); }
+  .topbar-clock {
+    font-family: 'Space Mono', monospace;
+    font-size: 14px; color: rgba(255,255,255,0.3);
+  }
+
+  /* ── main layout ── */
+  .main {
+    position: absolute;
+    top: 100px; left: 0; right: 0; bottom: 0;
+    display: flex; flex-direction: column;
+    padding: 40px 56px 56px;
+    z-index: 10;
+  }
+
+  /* ── header ── */
+  .header {
+    margin-bottom: 44px;
+    animation: slideDown 0.6s cubic-bezier(0.34,1.2,0.64,1) both;
+  }
+  @keyframes slideDown {
+    from { opacity:0; transform: translateY(-20px); }
+    to   { opacity:1; transform: translateY(0); }
+  }
+  .header-eyebrow {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px; letter-spacing: 4px;
+    color: var(--gold); text-transform: uppercase;
+    opacity: 0.7; margin-bottom: 10px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .header-eyebrow::before {
+    content: '';
+    display: inline-block;
+    width: 20px; height: 1px;
+    background: var(--gold);
+    opacity: 0.5;
+  }
+  .header-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 56px; font-weight: 900;
+    color: #fff; line-height: 1;
+    letter-spacing: -1px;
+    margin-bottom: 10px;
+  }
+  .header-title em { color: var(--gold); font-style: italic; }
+  .header-sub {
+    font-size: 18px; color: rgba(255,255,255,0.35);
+    font-weight: 300;
+  }
+
+  /* ── packages grid ── */
+  .packages-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 36px;
+    animation: fadeUp 0.6s 0.1s both;
+  }
+  @keyframes fadeUp {
+    from { opacity:0; transform: translateY(24px); }
+    to   { opacity:1; transform: translateY(0); }
+  }
+
+  .pkg-card {
+    border-radius: 24px;
+    border: 1.5px solid var(--border);
+    background: var(--charcoal2);
+    padding: 32px 28px;
+    cursor: pointer;
+    position: relative; overflow: hidden;
+    transition: border-color 0.2s, transform 0.15s, background 0.2s;
+    display: flex; flex-direction: column;
+  }
+  .pkg-card::before {
+    content: '';
+    position: absolute; inset: 0;
+    opacity: 0; transition: opacity 0.3s;
+    border-radius: 24px;
+  }
+  .pkg-card:active { transform: scale(0.98); }
+  .pkg-card.selected {
+    border-color: var(--gold);
+    background: linear-gradient(145deg, #1E1C10, #1A1A26);
+  }
+  .pkg-card.selected::before { opacity: 1; }
+
+  /* card glow on select */
+  .pkg-card.selected { box-shadow: 0 0 40px rgba(232,197,71,0.08), inset 0 0 60px rgba(232,197,71,0.03); }
+
+  /* card top row */
+  .pkg-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+  .pkg-icon-wrap {
+    width: 72px; height: 72px; border-radius: 20px;
+    background: var(--faint);
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.3s;
+    position: relative; overflow: hidden;
+  }
+  .pkg-card.selected .pkg-icon-wrap {
+    background: rgba(232,197,71,0.1);
+    border-color: rgba(232,197,71,0.3);
+  }
+  .pkg-icon-wrap svg { width: 34px; height: 34px; }
+  .pkg-badges { display: flex; flex-direction: column; gap: 6px; align-items: flex-end; }
+  .badge-pop {
+    background: var(--rose);
+    color: #fff; font-size: 10px; font-weight: 600;
+    padding: 4px 10px; border-radius: 20px;
+    letter-spacing: 0.5px;
+  }
+  .badge-new {
+    background: rgba(61,170,108,0.2);
+    color: var(--sage); font-size: 10px; font-weight: 600;
+    border: 1px solid rgba(61,170,108,0.3);
+    padding: 4px 10px; border-radius: 20px;
+    letter-spacing: 0.5px;
+  }
+  .check-circle {
+    width: 28px; height: 28px; border-radius: 50%;
+    border: 1.5px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+  .pkg-card.selected .check-circle {
+    background: var(--gold); border-color: var(--gold);
+  }
+
+  /* card content */
+  .pkg-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px; font-weight: 700; color: #fff;
+    margin-bottom: 6px;
+    transition: color 0.2s;
+  }
+  .pkg-card.selected .pkg-name { color: var(--gold); }
+  .pkg-tagline { font-size: 14px; color: rgba(255,255,255,0.35); margin-bottom: 20px; font-weight: 300; }
+  .pkg-divider { height: 1px; background: var(--border); margin-bottom: 20px; }
+  .pkg-details { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; flex: 1; }
+  .pkg-detail {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 14px; color: rgba(255,255,255,0.5);
+  }
+  .pkg-detail svg { width: 16px; height: 16px; flex-shrink: 0; opacity: 0.6; }
+  .pkg-card.selected .pkg-detail { color: rgba(255,255,255,0.7); }
+  .pkg-card.selected .pkg-detail svg { opacity: 1; }
+  .pkg-price-row {
+    display: flex; align-items: baseline; gap: 8px;
+    margin-top: auto;
+  }
+  .pkg-price {
+    font-family: 'Playfair Display', serif;
+    font-size: 48px; font-weight: 900;
+    color: rgba(255,255,255,0.3);
+    line-height: 1;
+    transition: color 0.2s;
+  }
+  .pkg-card.selected .pkg-price { color: var(--gold); }
+  .pkg-per { font-size: 13px; color: rgba(255,255,255,0.2); }
+
+  /* ── filter section ── */
+  .filter-section {
+    background: var(--charcoal2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 24px 28px;
+    margin-bottom: 32px;
+    animation: fadeUp 0.6s 0.2s both;
+  }
+  .filter-title {
+    font-size: 12px; letter-spacing: 3px;
+    color: rgba(255,255,255,0.3);
+    text-transform: uppercase;
+    font-family: 'Space Mono', monospace;
+    margin-bottom: 16px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .filter-title::after {
+    content: ''; flex: 1; height: 1px;
+    background: var(--border);
+  }
+  .filter-chips { display: flex; gap: 10px; }
+  .filter-chip {
+    flex: 1;
+    padding: 14px 10px;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    background: var(--faint);
+    cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    transition: all 0.2s;
+  }
+  .filter-chip:active { transform: scale(0.96); }
+  .filter-chip.selected {
+    border-color: var(--gold);
+    background: rgba(232,197,71,0.06);
+  }
+  .filter-swatch {
+    width: 40px; height: 40px; border-radius: 10px;
+    position: relative; overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.05);
+  }
+  .filter-swatch-inner {
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, #4A8C6A, #C84B6E);
+  }
+  /* filter overlays */
+  .f-vintage .filter-swatch-inner { filter: sepia(0.8) contrast(1.1); }
+  .f-bw .filter-swatch-inner { filter: grayscale(1); }
+  .f-pastel .filter-swatch-inner { filter: saturate(0.4) brightness(1.3); }
+  .f-neon .filter-swatch-inner { filter: saturate(2) hue-rotate(30deg); }
+  .f-none .filter-swatch-inner {}
+  .filter-name { font-size: 12px; color: rgba(255,255,255,0.4); font-weight: 500; transition: color 0.2s; }
+  .filter-chip.selected .filter-name { color: var(--gold); }
+
+  /* ── bottom summary + CTA ── */
+  .bottom-area {
+    display: flex; gap: 20px; align-items: stretch;
+    animation: fadeUp 0.6s 0.3s both;
+  }
+  .summary-card {
+    flex: 1;
+    background: var(--charcoal3);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 20px 24px;
+    display: flex; flex-direction: column; justify-content: center;
+    gap: 10px;
+  }
+  .summary-label {
+    font-size: 11px; letter-spacing: 2px;
+    color: rgba(255,255,255,0.25);
+    text-transform: uppercase;
+    font-family: 'Space Mono', monospace;
+    margin-bottom: 4px;
+  }
+  .summary-row {
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .summary-key { font-size: 14px; color: rgba(255,255,255,0.4); }
+  .summary-val { font-size: 14px; color: rgba(255,255,255,0.7); font-weight: 500; }
+  .summary-divider { height: 1px; background: var(--border); }
+  .summary-total-key { font-size: 16px; color: rgba(255,255,255,0.6); font-weight: 500; }
+  .summary-total-val {
+    font-family: 'Playfair Display', serif;
+    font-size: 32px; font-weight: 900;
+    color: var(--gold);
+  }
+
+  .cta-btn {
+    width: 340px;
+    border-radius: 20px; border: none;
+    background: linear-gradient(145deg, var(--gold), #C8892A);
+    cursor: pointer;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 6px;
+    position: relative; overflow: hidden;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .cta-btn:active { transform: scale(0.97); }
+  .cta-btn.disabled {
+    background: var(--charcoal3);
+    border: 1px solid var(--border);
+    cursor: not-allowed;
+  }
+  .cta-btn-shine {
+    position: absolute; inset: 0;
+    background: linear-gradient(105deg, transparent 35%, rgba(255,255,255,0.2) 50%, transparent 65%);
+    animation: shine 3s ease-in-out infinite;
+  }
+  @keyframes shine {
+    0%   { transform: translateX(-150%); }
+    40%  { transform: translateX(150%); }
+    100% { transform: translateX(150%); }
+  }
+  .cta-btn.disabled .cta-btn-shine { display: none; }
+  .cta-main-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px; font-weight: 700;
+    color: #1A1200; position: relative; z-index: 1;
+    transition: color 0.2s;
+  }
+  .cta-btn.disabled .cta-main-text { color: rgba(255,255,255,0.2); }
+  .cta-sub-text {
+    font-size: 13px; color: rgba(26,18,0,0.5);
+    position: relative; z-index: 1;
+    transition: color 0.2s;
+  }
+  .cta-btn.disabled .cta-sub-text { color: rgba(255,255,255,0.15); }
+
+  /* ── no-selection hint ── */
+  .select-hint {
+    position: absolute;
+    bottom: 200px; left: 50%; transform: translateX(-50%);
+    background: rgba(232,197,71,0.1);
+    border: 1px solid rgba(232,197,71,0.2);
+    border-radius: 40px; padding: 10px 24px;
+    font-size: 14px; color: rgba(232,197,71,0.7);
+    white-space: nowrap;
+    animation: hintBounce 2s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 30;
+    opacity: 0; transition: opacity 0.4s;
+  }
+  .select-hint.show { opacity: 1; }
+  @keyframes hintBounce {
+    0%,100% { transform: translateX(-50%) translateY(0); }
+    50%      { transform: translateX(-50%) translateY(-6px); }
+  }
+
+  /* ── tap ripple ── */
+  .ripple {
+    position: fixed; border-radius: 50%;
+    background: rgba(232,197,71,0.15);
+    pointer-events: none;
+    animation: rippleOut 0.5s ease-out forwards;
+    z-index: 100;
+    transform: translate(-50%,-50%) scale(0);
+  }
+  @keyframes rippleOut {
+    to { transform: translate(-50%,-50%) scale(5); opacity: 0; }
+  }
+
+  /* ── entrance animations ── */
+  .pkg-card { animation: cardIn 0.5s both; }
+  .pkg-card:nth-child(1) { animation-delay: 0.15s; }
+  .pkg-card:nth-child(2) { animation-delay: 0.22s; }
+  .pkg-card:nth-child(3) { animation-delay: 0.29s; }
+  .pkg-card:nth-child(4) { animation-delay: 0.36s; }
+  @keyframes cardIn {
+    from { opacity:0; transform: translateY(20px) scale(0.97); }
+    to   { opacity:1; transform: translateY(0) scale(1); }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg"></div>
+<div class="bg-grid"></div>
+<div class="bg-accent"></div>
+
+<!-- top bar -->
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="back-btn" onclick="goBack()">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <path d="M13 4 L7 10 L13 16" stroke="rgba(255,255,255,0.5)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="brand"><em>Flash</em> &amp; Prints</div>
+  </div>
+  <div class="step-indicator">
+    <div class="step-dot done"></div>
+    <div class="step-line"></div>
+    <div class="step-dot active"></div>
+    <div class="step-line"></div>
+    <div class="step-dot"></div>
+    <div class="step-line"></div>
+    <div class="step-dot"></div>
+    <div class="step-line"></div>
+    <div class="step-dot"></div>
+  </div>
+  <div class="topbar-clock" id="clock">--:-- --</div>
+</div>
+
+<!-- hint -->
+<div class="select-hint" id="hint">👆 tap a package to select</div>
+
+<!-- main -->
+<div class="main">
+
+  <!-- header -->
+  <div class="header">
+    <div class="header-eyebrow">step 2 of 5 · package selection</div>
+    <div class="header-title">choose your<br/><em>package</em></div>
+    <div class="header-sub">pick a set · choose a filter · then pay with GCash</div>
+  </div>
+
+  <!-- packages -->
+  <div class="packages-grid" id="packagesGrid">
+
+    <!-- Classic Strip -->
+    <div class="pkg-card" id="pkg-0" onclick="selectPackage(0, event)">
+      <div class="pkg-top">
+        <div class="pkg-icon-wrap">
+          <svg viewBox="0 0 34 34" fill="none">
+            <rect x="8" y="3" width="18" height="28" rx="3" stroke="rgba(232,197,71,0.7)" stroke-width="1.5"/>
+            <rect x="11" y="7" width="12" height="7" rx="1" fill="rgba(232,197,71,0.15)" stroke="rgba(232,197,71,0.4)" stroke-width="1"/>
+            <rect x="11" y="17" width="12" height="7" rx="1" fill="rgba(232,197,71,0.1)" stroke="rgba(232,197,71,0.3)" stroke-width="1"/>
+          </svg>
+        </div>
+        <div class="pkg-badges">
+          <div class="badge-pop">POPULAR</div>
+          <div class="check-circle" id="chk-0">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M3 7 L6 10 L11 4" stroke="#1A1200" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+      <div class="pkg-name">Classic Strip</div>
+      <div class="pkg-tagline">the timeless photobooth experience</div>
+      <div class="pkg-divider"></div>
+      <div class="pkg-details">
+        <div class="pkg-detail">
+          <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="rgba(232,197,71,0.6)" stroke-width="1.2"/><path d="M8 5 L8 8 L10 10" stroke="rgba(232,197,71,0.6)" stroke-width="1.2" stroke-linecap="round"/></svg>
+          4 photos · 3-second countdown each
+        </div>
+        <div class="pkg-detail">
+          <svg viewBox="0 0 16 16" fill="none"><rect x="2" y="4" width="12" height="9" rx="1.5" stroke="rgba(232,197,71,0.6)" stroke-width="1.2"/><path d="M5 4 V3 M11 4 V3" stroke="rgba(232,197,71,0.6)" stroke-width="1.2" stroke-linecap="round"/></svg>
+          1 printed strip · 2×6 inch · dye-sub
+        </div>
+        <div class="pkg-detail">
+          <svg viewBox="0 0 16 16" fill="none"><path d="M8 2 L10 6 L14 6.5 L11 9.5 L11.8 14 L8 12 L4.2 14 L5 9.5 L2 6.5 L6 6 Z" stroke="rgba(232,197,71,0.6)" stroke-width="1.2" stroke-linejoin="round"/></svg>
+          all 5 filters available
+        </div>
+        <div class="pkg-detail">
+          <svg viewBox="0 0 16 16" fill="none"><rect x="3" y="2" width="10" height="12" rx="1.5" stroke="rgba(232,197,71,0.6)" stroke-width="1.2"/><path d="M5 6 L11 6 M5 9 L9 9" stroke="rgba(232,197,71,0.6)" stroke-width="1.2" stroke-linecap="round"/></svg>
+          digital receipt · GCash confirmed
+        </div>
+      </div>
+      <div class="pkg-price-row">
+        <div class="pkg-price" id="price-0">₱89</div>
+        <div class="pkg-per">/ session</div>
+      </div>
+    </div>
+
+    <!-- Solo Frame -->
+    <div class="pkg-card" id="pkg-1" onclick="selectPackage(1, event)">
+      <div class="pkg-top">
+        <div class="pkg-icon-wrap">
+          <svg viewBox="0 0 34 34" fill="none">
+            <rect x="5" y="5" width="24" height="24" rx="3" stroke="rgba(232,197,71,0.7)" stroke-width="1.5"/>
+            <rect x="9" y="9" width="16" height="16" rx="2" fill="rgba(232,197,71,0.1)" stroke="rgba(232,197,71,0.3)" stroke-width="1"/>
+            <circle cx="17" cy="17" r="3" fill="rgba(232,197,71,0.3)"/>
+          </svg>
+        </div>
+        <div class="pkg-badges">
+          <div class="check-circle" id="chk-1">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M3 7 L6 10 L11 4" stroke="#1A1200" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+      <div class="pkg-name">Solo Frame</div>
+      <div class="pkg-tagline">one perfect shot, beautifully printed</div>
+      <div class="pkg-divider"></div>
+      <div class="pkg-details">
+        <div class="pkg-detail">
+          <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="rgba(232,197,71,0.6)" stroke-width="1.2"/><path d="M8 5 L8 8 L10 10" stroke="rgba(232,197,71,0.6)" stroke-width="1.2" stroke-linecap="round"/></svg>
+          1 photo · 5-second pose time
+        </div>
+        <div class="pkg-detail">
+          <svg viewBox="0 0 16 16" fill="none"><rect x="2" y="4" width="12" height="9" rx="1.5" stroke="rgba(232,197,71,0.6)" stroke-width="1.2"/><path d="M5 4 V3 M11 4 V3" stroke="rgba(232,197,71,0.6)" stroke-width="1.2" stroke-linecap="round"/></svg>
+          2 prints · 4R size (4×6 inch)
+        </div>
+        <div class="pkg-detail">
+          <svg viewBox="0 0 16 16" fill="none"><path d="M8 2 L10 6 L14 6.5 L11 9.5 L11.8 14 L8 12 L4.2 14 L5 9.5 L2 6.5 L6 6 Z" stroke="rgba(232,197,71,0.6)" stroke-width="1.2" stroke-linejoin="round"/></svg>
+          all 5 filters available
+        </div>
+        <div class="pkg-detail">
+          <svg viewBox="0 0 16 16" fill="none"><rect x="3" y="2" width="10" height="12" rx="1.5" stroke="rgba(232,197,71,0.6)" stroke-width="1.2"/><path d="M5 6 L11 6 M5 9 L9 9" stroke="rgba(232,197,71,0.6)" stroke-width="1.2" stroke-linecap="round"/></svg>
+          digital receipt · GCash confirmed
+        </div>
+      </div>
+      <div class="pkg-price-row">
+        <div class="pkg-price" id="price-1">₱59</div>
+        <div class="pkg-per">/ session</div>
+      </div>
+    </div>
+
+    <!-- Party Mode -->
+    <div class="pkg-card" id="pkg-2" onclick="selectPackage(2, event)">
+      <div class="pkg-top">
+        <div class="pkg-icon-wrap">
+          <svg viewBox="0 0 34 34" fill="none">
+            <path d="M17 4 L20 12 L28 12 L22 17 L24 26 L17 21 L10 26 L12 17 L6 12 L14 12 Z" stroke="rgba(232,197,71,0.7)" stroke-width="1.5" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="pkg-badges">
+          <div class="badge-new">BEST VALUE</div>
+          <div class="check-circle" id="chk-2">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M3 7 L6 10 L11 4" stroke="#1A1200" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+      <div class="pkg-name">Party Mode</div>
+      <div class="pkg-tagline">more photos, more fun, more prints</div>
+      <div class="pkg-divider"></div>
+      <div class="pkg-details">
+        <div class="pkg-detail">
+          <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="rgba(232,197,71,0.6)" stroke-width="1.2"/><path d="M8 5 L8 8 L10 10" stroke="rgba(232,197,71,0.6)" stroke-width="1.2" stroke-linecap="round"/></svg>
+          6 photos · 3-second countdown each
+        </div>
+        <div class="pkg-detail">
+          <svg viewBox="0 0 16 16" fill="none"><rect x="2" y="4" width="12" height="9" rx="1.5" stroke="rgba(232,197,71,0.6)" stroke-width="1.2"/><path d="M5 4 V3 M11 4 V3" stroke="rgba(232,197,71,0.6)" stroke-width="1.2" stroke-linecap="round"/></svg>
+          2 printed strips · share with friends
+        </div>
+        <div class="pkg-detail">
+          <svg viewBox="0 0 16 16" fill="none"><path d="M8 2 L10 6 L14 6.5 L11 9.5 L11.8 14 L8 12 L4.2 14 L5 9.5 L2 6.5 L6 6 Z" stroke="rgba(232,197,71,0.6)" stroke-width="1.2" stroke-linejoin="round"/></svg>
+          all 5 filters · digital copy via QR
+        </div>
+        <div class="pkg-detail">
+          <svg viewBox="0 0 16 16" fill="none"><rect x="3" y="2" width="10" height="12" rx="1.5" stroke="rgba(232,197,71,0.6)" stroke-width="1.2"/><path d="M5 6 L11 6 M5 9 L9 9" stroke="rgba(232,197,71,0.6)" stroke-width="1.2" stroke-linecap="round"/></svg>
+          digital receipt · GCash confirmed
+        </div>
+      </div>
+      <div class="pkg-price-row">
+        <div class="pkg-price" id="price-2">₱149</div>
+        <div class="pkg-per">/ session</div>
+      </div>
+    </div>
+
+    <!-- GIF Booth -->
+    <div class="pkg-card" id="pkg-3" onclick="selectPackage(3, event)">
+      <div class="pkg-top">
+        <div class="pkg-icon-wrap">
+          <svg viewBox="0 0 34 34" fill="none">
+            <rect x="4" y="8" width="26" height="18" rx="3" stroke="rgba(232,197,71,0.7)" stroke-width="1.5"/>
+            <path d="M13 17 L16 14 L19 18 L21 16 L24 19" stroke="rgba(232,197,71,0.5)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="10" cy="13" r="1.5" fill="rgba(232,197,71,0.5)"/>
+          </svg>
+        </div>
+        <div class="pkg-badges">
+          <div class="badge-new">DIGITAL</div>
+          <div class="check-circle" id="chk-3">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M3 7 L6 10 L11 4" stroke="#1A1200" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+      <div class="pkg-name">GIF Booth</div>
+      <div class="pkg-tagline">animated · shareable · social-ready</div>
+      <div class="pkg-divider"></div>
+      <div class="pkg-details">
+        <div class="pkg-detail">
+          <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="rgba(232,197,71,0.6)" stroke-width="1.2"/><path d="M8 5 L8 8 L10 10" stroke="rgba(232,197,71,0.6)" stroke-width="1.2" stroke-linecap="round"/></svg>
+          5 frames · burst mode · animated GIF
+        </div>
+        <div class="pkg-detail">
+          <svg viewBox="0 0 16 16" fill="none"><rect x="2" y="4" width="12" height="9" rx="1.5" stroke="rgba(232,197,71,0.6)" stroke-width="1.2"/><path d="M5 4 V3 M11 4 V3" stroke="rgba(232,197,71,0.6)" stroke-width="1.2" stroke-linecap="round"/></svg>
+          1 printed strip + GIF via QR code
+        </div>
+        <div class="pkg-detail">
+          <svg viewBox="0 0 16 16" fill="none"><path d="M8 2 L10 6 L14 6.5 L11 9.5 L11.8 14 L8 12 L4.2 14 L5 9.5 L2 6.5 L6 6 Z" stroke="rgba(232,197,71,0.6)" stroke-width="1.2" stroke-linejoin="round"/></svg>
+          neon &amp; pastel filters recommended
+        </div>
+        <div class="pkg-detail">
+          <svg viewBox="0 0 16 16" fill="none"><rect x="3" y="2" width="10" height="12" rx="1.5" stroke="rgba(232,197,71,0.6)" stroke-width="1.2"/><path d="M5 6 L11 6 M5 9 L9 9" stroke="rgba(232,197,71,0.6)" stroke-width="1.2" stroke-linecap="round"/></svg>
+          share on Instagram · TikTok ready
+        </div>
+      </div>
+      <div class="pkg-price-row">
+        <div class="pkg-price" id="price-3">₱99</div>
+        <div class="pkg-per">/ session</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- filter section -->
+  <div class="filter-section">
+    <div class="filter-title">choose your filter preset</div>
+    <div class="filter-chips">
+      <div class="filter-chip f-none selected" id="fchip-0" onclick="selectFilter(0, event)">
+        <div class="filter-swatch"><div class="filter-swatch-inner"></div></div>
+        <div class="filter-name">Original</div>
+      </div>
+      <div class="filter-chip f-vintage" id="fchip-1" onclick="selectFilter(1, event)">
+        <div class="filter-swatch"><div class="filter-swatch-inner"></div></div>
+        <div class="filter-name">Vintage</div>
+      </div>
+      <div class="filter-chip f-bw" id="fchip-2" onclick="selectFilter(2, event)">
+        <div class="filter-swatch"><div class="filter-swatch-inner"></div></div>
+        <div class="filter-name">B&amp;W</div>
+      </div>
+      <div class="filter-chip f-pastel" id="fchip-3" onclick="selectFilter(3, event)">
+        <div class="filter-swatch"><div class="filter-swatch-inner"></div></div>
+        <div class="filter-name">Pastel</div>
+      </div>
+      <div class="filter-chip f-neon" id="fchip-4" onclick="selectFilter(4, event)">
+        <div class="filter-swatch"><div class="filter-swatch-inner"></div></div>
+        <div class="filter-name">Neon</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- bottom CTA -->
+  <div class="bottom-area">
+    <div class="summary-card">
+      <div class="summary-label">your selection</div>
+      <div class="summary-row">
+        <span class="summary-key">Package</span>
+        <span class="summary-val" id="sum-package">— select a package</span>
+      </div>
+      <div class="summary-row">
+        <span class="summary-key">Photos</span>
+        <span class="summary-val" id="sum-photos">—</span>
+      </div>
+      <div class="summary-row">
+        <span class="summary-key">Filter</span>
+        <span class="summary-val" id="sum-filter">Original</span>
+      </div>
+      <div class="summary-divider"></div>
+      <div class="summary-row">
+        <span class="summary-total-key">Total</span>
+        <span class="summary-total-val" id="sum-total">₱—</span>
+      </div>
+    </div>
+
+    <button class="cta-btn disabled" id="ctaBtn" onclick="proceedToPayment(event)">
+      <div class="cta-btn-shine"></div>
+      <div class="cta-main-text">pay with GCash</div>
+      <div class="cta-sub-text" id="cta-sub">select a package first</div>
+    </button>
+  </div>
+
+</div>
+
+<script>
+  const packages = [
+    { name:'Classic Strip', photos:'4 photos · 1 strip', price:'₱89', amount:89 },
+    { name:'Solo Frame',    photos:'1 photo · 2 prints', price:'₱59', amount:59 },
+    { name:'Party Mode',    photos:'6 photos · 2 strips', price:'₱149', amount:149 },
+    { name:'GIF Booth',     photos:'5 frames · 1 strip + GIF', price:'₱99', amount:99 },
+  ];
+  const filters = ['Original','Vintage','B&W','Pastel','Neon'];
+
+  let selectedPkg = null;
+  let selectedFilter = 0;
+
+  function selectPackage(idx, e) {
+    addRipple(e);
+    if(selectedPkg === idx) return;
+    // deselect all
+    packages.forEach((_,i) => {
+      document.getElementById('pkg-'+i).classList.remove('selected');
+    });
+    // select
+    selectedPkg = idx;
+    document.getElementById('pkg-'+idx).classList.add('selected');
+
+    // update summary
+    const p = packages[idx];
+    document.getElementById('sum-package').textContent = p.name;
+    document.getElementById('sum-photos').textContent = p.photos;
+    document.getElementById('sum-total').textContent = p.price;
+
+    // enable CTA
+    const btn = document.getElementById('ctaBtn');
+    btn.classList.remove('disabled');
+    document.getElementById('cta-sub').textContent = p.price + ' · scan GCash QR →';
+
+    // hide hint
+    document.getElementById('hint').classList.remove('show');
+  }
+
+  function selectFilter(idx, e) {
+    addRipple(e);
+    selectedFilter = idx;
+    document.querySelectorAll('.filter-chip').forEach((c,i) => {
+      c.classList.toggle('selected', i === idx);
+    });
+    document.getElementById('sum-filter').textContent = filters[idx];
+  }
+
+  function proceedToPayment(e) {
+    if(selectedPkg === null) {
+      document.getElementById('hint').classList.add('show');
+      setTimeout(() => document.getElementById('hint').classList.remove('show'), 3000);
+      return;
+    }
+    addRipple(e);
+    // store selection
+    const session = {
+      package: packages[selectedPkg],
+      filter: filters[selectedFilter],
+      timestamp: Date.now(),
+    };
+    try { localStorage.setItem('fp_session', JSON.stringify(session)); } catch(e){}
+    // In production: navigate to GCash payment screen
+    // window.location.href = 'gcash-payment.html';
+    flashTransition();
+  }
+
+  function flashTransition() {
+    const d = document.createElement('div');
+    d.style.cssText = 'position:fixed;inset:0;background:#fff;opacity:0;z-index:999;pointer-events:none;transition:opacity 0.2s;';
+    document.body.appendChild(d);
+    requestAnimationFrame(() => { d.style.opacity = '0.5'; });
+    setTimeout(() => { d.style.opacity = '0'; setTimeout(() => d.remove(), 300); }, 300);
+  }
+
+  function goBack() {
+    // window.location.href = 'welcome.html';
+    flashTransition();
+  }
+
+  function addRipple(e) {
+    const r = document.createElement('div');
+    r.className = 'ripple';
+    const x = e ? (e.clientX || 540) : 540;
+    const y = e ? (e.clientY || 960) : 960;
+    r.style.cssText = `left:${x}px;top:${y}px;width:50px;height:50px;`;
+    document.body.appendChild(r);
+    setTimeout(() => r.remove(), 600);
+  }
+
+  // clock
+  function updateClock() {
+    const now = new Date();
+    let h = now.getHours(), m = now.getMinutes(), ampm = h >= 12 ? 'PM' : 'AM';
+    h = h % 12 || 12;
+    document.getElementById('clock').textContent =
+      `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')} ${ampm}`;
+  }
+  updateClock(); setInterval(updateClock, 1000);
+
+  // show hint after 4 seconds if no selection
+  setTimeout(() => {
+    if(selectedPkg === null) document.getElementById('hint').classList.add('show');
+  }, 4000);
+</script>
+<script src="../assets/fp-bridge.js"></script>
+</body>
+</html>

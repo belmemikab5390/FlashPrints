@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=1080"/>
+<title>Flash &amp; Prints — Preview &amp; Filter</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&family=Space+Mono&display=swap" rel="stylesheet"/>
+<style>
+  :root{
+    --gold:#E8C547;--gold-faint:rgba(232,197,71,0.08);
+    --rose:#C84B6E;--sage:#3DAA6C;
+    --charcoal:#111118;--charcoal2:#1A1A26;--charcoal3:#20202E;
+    --ink:#0A0A12;--border:rgba(255,255,255,0.07);--faint:rgba(255,255,255,0.04);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{width:1080px;height:1920px;overflow:hidden;background:var(--ink);font-family:'DM Sans',sans-serif;cursor:none;user-select:none;}
+
+  /* bg */
+  .bg{position:absolute;inset:0;background:radial-gradient(ellipse 900px 700px at 50% 20%,#1A1218 0%,#0A0A12 60%);}
+  .bg-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(200,75,110,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(200,75,110,0.025) 1px,transparent 1px);background-size:60px 60px;}
+  .bg-glow{position:absolute;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(200,75,110,0.05) 0%,transparent 70%);top:-100px;right:-100px;pointer-events:none;}
+
+  /* topbar */
+  .topbar{position:absolute;top:0;left:0;right:0;height:100px;display:flex;align-items:center;justify-content:space-between;padding:0 56px;background:linear-gradient(to bottom,rgba(0,0,0,0.6),transparent);z-index:20;}
+  .back-btn{width:52px;height:52px;border-radius:14px;border:1px solid var(--border);background:var(--faint);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.15s;}
+  .back-btn:active{background:rgba(255,255,255,0.1);transform:scale(0.95);}
+  .topbar-left{display:flex;align-items:center;gap:20px;}
+  .brand{font-family:'Playfair Display',serif;font-weight:900;font-size:20px;color:#fff;}
+  .brand em{color:var(--gold);font-style:normal;}
+  .step-indicator{display:flex;align-items:center;gap:8px;}
+  .step-dot{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,0.12);transition:all 0.3s;}
+  .step-dot.done{background:var(--sage);}
+  .step-dot.active{background:var(--gold);width:28px;border-radius:5px;}
+  .step-line{width:24px;height:1px;background:rgba(255,255,255,0.08);}
+  .topbar-clock{font-family:'Space Mono',monospace;font-size:14px;color:rgba(255,255,255,0.3);}
+
+  /* main */
+  .main{position:absolute;top:100px;left:0;right:0;bottom:0;display:flex;flex-direction:column;padding:36px 56px 48px;z-index:10;gap:24px;}
+
+  /* header */
+  .header{animation:slideDown 0.5s cubic-bezier(0.34,1.2,0.64,1) both;}
+  @keyframes slideDown{from{opacity:0;transform:translateY(-16px)}to{opacity:1;transform:translateY(0)}}
+  .header-eyebrow{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:4px;color:var(--rose);text-transform:uppercase;opacity:0.8;margin-bottom:8px;display:flex;align-items:center;gap:10px;}
+  .header-eyebrow::before{content:'';display:inline-block;width:20px;height:1px;background:var(--rose);opacity:0.5;}
+  .header-row{display:flex;align-items:flex-end;justify-content:space-between;}
+  .header-title{font-family:'Playfair Display',serif;font-size:52px;font-weight:900;color:#fff;line-height:1;letter-spacing:-1px;}
+  .header-title em{color:var(--rose);font-style:italic;}
+  .header-sub{font-size:17px;color:rgba(255,255,255,0.3);font-weight:300;}
+  .retake-chip{display:flex;align-items:center;gap:8px;padding:12px 20px;border-radius:30px;border:1px solid var(--border);background:var(--faint);cursor:pointer;transition:all 0.2s;}
+  .retake-chip:hover{border-color:rgba(255,255,255,0.15);background:rgba(255,255,255,0.06);}
+  .retake-chip:active{transform:scale(0.97);}
+  .retake-chip-text{font-size:14px;color:rgba(255,255,255,0.4);font-weight:500;}
+
+  /* middle: strip + filter */
+  .middle-row{display:flex;gap:24px;flex:1;animation:fadeUp 0.5s 0.1s both;min-height:0;}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+  /* photo strip */
+  .strip-panel{display:flex;flex-direction:column;gap:0;width:340px;flex-shrink:0;}
+  .strip-card{
+    background:var(--charcoal2);border:1px solid var(--border);border-radius:24px;
+    padding:20px;display:flex;flex-direction:column;gap:0;
+    height:100%;position:relative;overflow:hidden;
+  }
+  .strip-card::before{
+    content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);
+    width:60px;height:4px;background:rgba(255,255,255,0.06);border-radius:0 0 4px 4px;
+  }
+  .strip-label{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:3px;color:rgba(255,255,255,0.2);text-transform:uppercase;text-align:center;margin-bottom:14px;}
+  .strip-photos{display:flex;flex-direction:column;gap:8px;flex:1;}
+  .strip-photo{
+    flex:1;border-radius:14px;overflow:hidden;position:relative;
+    background:#000;min-height:0;
+    border:1px solid rgba(255,255,255,0.05);
+    cursor:pointer;transition:transform 0.2s;
+  }
+  .strip-photo:active{transform:scale(0.98);}
+  .strip-photo-img{
+    width:100%;height:100%;object-fit:cover;display:block;
+    transition:filter 0.4s ease;
+  }
+  /* gradient overlay */
+  .strip-photo::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,transparent 60%,rgba(0,0,0,0.3));pointer-events:none;}
+  /* photo placeholder when no real photo */
+  .strip-photo-placeholder{
+    position:absolute;inset:0;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:6px;
+    background:linear-gradient(135deg,var(--charcoal3),var(--charcoal2));
+  }
+  .placeholder-emoji{font-size:32px;}
+  .placeholder-num{font-family:'Space Mono',monospace;font-size:9px;color:rgba(255,255,255,0.2);letter-spacing:2px;}
+  /* selected outline */
+  .strip-photo.selected-photo{outline:2px solid var(--gold);outline-offset:-2px;}
+
+  /* strip branding */
+  .strip-branding{
+    margin-top:10px;padding:10px 0 0;
+    border-top:1px solid rgba(255,255,255,0.05);
+    display:flex;align-items:center;justify-content:space-between;
+  }
+  .strip-brand-name{font-family:'Playfair Display',serif;font-size:13px;font-weight:900;color:rgba(255,255,255,0.25);}
+  .strip-brand-name em{color:rgba(232,197,71,0.4);font-style:normal;}
+  .strip-brand-date{font-family:'Space Mono',monospace;font-size:9px;color:rgba(255,255,255,0.15);}
+
+  /* right panel */
+  .right-panel{flex:1;display:flex;flex-direction:column;gap:20px;min-height:0;}
+
+  /* filter section */
+  .filter-card{background:var(--charcoal2);border:1px solid var(--border);border-radius:20px;padding:22px 24px;}
+  .section-label{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:3px;color:rgba(255,255,255,0.2);text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:10px;}
+  .section-label::after{content:'';flex:1;height:1px;background:var(--border);}
+
+  .filter-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;}
+  .filter-option{
+    display:flex;flex-direction:column;align-items:center;gap:8px;
+    cursor:pointer;padding:12px 6px;border-radius:16px;
+    border:1.5px solid transparent;transition:all 0.2s;
+  }
+  .filter-option:active{transform:scale(0.96);}
+  .filter-option.active-filter{border-color:var(--gold);background:rgba(232,197,71,0.05);}
+  .filter-preview{
+    width:72px;height:72px;border-radius:12px;overflow:hidden;
+    border:1px solid rgba(255,255,255,0.06);
+    position:relative;flex-shrink:0;
+  }
+  .filter-preview-bg{
+    position:absolute;inset:0;
+    background:linear-gradient(135deg,#3D6B52 0%,#C84B6E 50%,#E8C547 100%);
+    transition:filter 0.3s;
+  }
+  /* filter CSS classes */
+  .f-original .filter-preview-bg{}
+  .f-vintage .filter-preview-bg{filter:sepia(0.75) contrast(1.1) brightness(0.95);}
+  .f-bw .filter-preview-bg{filter:grayscale(1) contrast(1.1);}
+  .f-pastel .filter-preview-bg{filter:saturate(0.35) brightness(1.25) contrast(0.9);}
+  .f-neon .filter-preview-bg{filter:saturate(2.2) hue-rotate(25deg) contrast(1.1);}
+  /* filter applied to real photos */
+  .apply-original{filter:none;}
+  .apply-vintage{filter:sepia(0.75) contrast(1.1) brightness(0.95);}
+  .apply-bw{filter:grayscale(1) contrast(1.1);}
+  .apply-pastel{filter:saturate(0.35) brightness(1.25) contrast(0.9);}
+  .apply-neon{filter:saturate(2.2) hue-rotate(25deg) contrast(1.1);}
+
+  .filter-name{font-size:12px;font-weight:500;color:rgba(255,255,255,0.35);transition:color 0.2s;text-align:center;}
+  .filter-option.active-filter .filter-name{color:var(--gold);}
+  .filter-check{width:18px;height:18px;border-radius:50%;border:1.5px solid rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;transition:all 0.2s;}
+  .filter-option.active-filter .filter-check{background:var(--gold);border-color:var(--gold);}
+
+  /* photo selector */
+  .selector-card{background:var(--charcoal2);border:1px solid var(--border);border-radius:20px;padding:22px 24px;}
+  .photo-selector-row{display:flex;gap:10px;}
+  .photo-thumb-sel{
+    flex:1;aspect-ratio:3/4;border-radius:12px;overflow:hidden;
+    border:1.5px solid var(--border);cursor:pointer;
+    position:relative;transition:all 0.2s;background:#000;
+  }
+  .photo-thumb-sel:active{transform:scale(0.95);}
+  .photo-thumb-sel.selected-sel{border-color:var(--gold);box-shadow:0 0 16px rgba(232,197,71,0.15);}
+  .photo-thumb-sel-img{width:100%;height:100%;object-fit:cover;display:block;transition:filter 0.4s;}
+  .photo-thumb-placeholder{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:20px;background:linear-gradient(135deg,#1A1A26,#20202E);}
+  .sel-num{position:absolute;bottom:6px;left:50%;transform:translateX(-50%);font-family:'Space Mono',monospace;font-size:9px;color:rgba(255,255,255,0.4);background:rgba(0,0,0,0.5);padding:2px 6px;border-radius:4px;}
+
+  /* summary + print */
+  .bottom-row{display:flex;gap:16px;animation:fadeUp 0.5s 0.25s both;}
+
+  .summary-card{
+    flex:1;background:var(--charcoal2);border:1px solid var(--border);
+    border-radius:20px;padding:20px 24px;display:flex;flex-direction:column;gap:8px;
+  }
+  .sum-row{display:flex;justify-content:space-between;align-items:center;}
+  .sum-key{font-size:14px;color:rgba(255,255,255,0.35);}
+  .sum-val{font-size:14px;color:rgba(255,255,255,0.7);font-weight:500;}
+  .sum-divider{height:1px;background:var(--border);margin:4px 0;}
+  .sum-filter-badge{
+    display:inline-flex;align-items:center;gap:6px;
+    background:rgba(232,197,71,0.08);border:1px solid rgba(232,197,71,0.2);
+    border-radius:20px;padding:4px 12px;
+    font-size:12px;color:var(--gold);font-weight:500;
+  }
+  .sum-filter-dot{width:8px;height:8px;border-radius:50%;background:var(--gold);}
+
+  /* print button */
+  .print-btn{
+    width:300px;border-radius:20px;border:none;
+    background:linear-gradient(145deg,var(--rose),#8C2F4A);
+    cursor:pointer;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:6px;
+    position:relative;overflow:hidden;transition:transform 0.15s;
+  }
+  .print-btn:active{transform:scale(0.97);}
+  .print-btn-shine{position:absolute;inset:0;background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,0.15) 50%,transparent 65%);animation:shine 3s ease-in-out infinite;}
+  @keyframes shine{0%{transform:translateX(-150%)}40%{transform:translateX(150%)}100%{transform:translateX(150%)}}
+  .print-btn-icon{position:relative;z-index:1;}
+  .print-btn-text{font-family:'Playfair Display',serif;font-size:26px;font-weight:700;color:#fff;position:relative;z-index:1;}
+  .print-btn-sub{font-size:12px;color:rgba(255,255,255,0.5);position:relative;z-index:1;}
+
+  /* ripple */
+  .ripple{position:fixed;border-radius:50%;background:rgba(200,75,110,0.2);pointer-events:none;animation:rippleOut 0.5s ease-out forwards;z-index:100;transform:translate(-50%,-50%) scale(0);}
+  @keyframes rippleOut{to{transform:translate(-50%,-50%) scale(5);opacity:0}}
+
+  /* confirm overlay */
+  .confirm-overlay{position:fixed;inset:0;z-index:500;background:rgba(10,10,18,0.88);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.4s;}
+  .confirm-overlay.show{opacity:1;pointer-events:all;}
+  .confirm-box{background:var(--charcoal2);border:1px solid rgba(200,75,110,0.25);border-radius:28px;padding:48px 56px;display:flex;flex-direction:column;align-items:center;gap:18px;text-align:center;max-width:500px;animation:popIn 0.5s cubic-bezier(0.34,1.4,0.64,1) both;}
+  @keyframes popIn{from{opacity:0;transform:scale(0.8)}to{opacity:1;transform:scale(1)}}
+  .confirm-strip{display:flex;gap:6px;margin:4px 0;}
+  .confirm-cell{width:72px;height:96px;border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,0.08);background:var(--charcoal3);display:flex;align-items:center;justify-content:center;font-size:24px;animation:cellIn 0.4s cubic-bezier(0.34,1.4,0.64,1) both;}
+  .confirm-cell:nth-child(1){animation-delay:0.05s;}
+  .confirm-cell:nth-child(2){animation-delay:0.12s;}
+  .confirm-cell:nth-child(3){animation-delay:0.19s;}
+  .confirm-cell:nth-child(4){animation-delay:0.26s;}
+  @keyframes cellIn{from{opacity:0;transform:scale(0.5) rotate(-8deg)}to{opacity:1;transform:scale(1) rotate(0)}}
+  .confirm-title{font-family:'Playfair Display',serif;font-size:34px;font-weight:900;color:#fff;}
+  .confirm-detail{font-size:15px;color:rgba(255,255,255,0.35);line-height:1.6;}
+  .confirm-filter-show{font-family:'Space Mono',monospace;font-size:12px;color:var(--gold);background:rgba(232,197,71,0.08);border:1px solid rgba(232,197,71,0.2);border-radius:20px;padding:6px 16px;}
+  .confirm-btns{display:flex;gap:12px;width:100%;}
+  .confirm-cancel{flex:1;padding:14px;border-radius:14px;border:1px solid var(--border);background:transparent;color:rgba(255,255,255,0.4);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:all 0.15s;}
+  .confirm-cancel:active{background:rgba(255,255,255,0.05);}
+  .confirm-print{flex:2;padding:14px;border-radius:14px;border:none;background:linear-gradient(135deg,var(--rose),#8C2F4A);color:#fff;font-family:'Playfair Display',serif;font-size:18px;font-weight:700;cursor:pointer;transition:transform 0.15s;}
+  .confirm-print:active{transform:scale(0.97);}
+  .confirm-bar-wrap{width:100%;height:4px;background:rgba(255,255,255,0.08);border-radius:2px;overflow:hidden;}
+  .confirm-bar{height:100%;background:var(--rose);width:0%;border-radius:2px;transition:width 0.05s linear;}
+</style>
+</head>
+<body>
+
+<div class="bg"></div>
+<div class="bg-grid"></div>
+<div class="bg-glow"></div>
+
+<!-- topbar -->
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="back-btn" onclick="goBack()">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <path d="M13 4 L7 10 L13 16" stroke="rgba(255,255,255,0.5)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="brand"><em>Flash</em> &amp; Prints</div>
+  </div>
+  <div class="step-indicator">
+    <div class="step-dot done"></div><div class="step-line"></div>
+    <div class="step-dot done"></div><div class="step-line"></div>
+    <div class="step-dot done"></div><div class="step-line"></div>
+    <div class="step-dot done"></div><div class="step-line"></div>
+    <div class="step-dot active"></div>
+  </div>
+  <div class="topbar-clock" id="clock">--:-- --</div>
+</div>
+
+<div class="main">
+
+  <!-- header -->
+  <div class="header">
+    <div class="header-eyebrow">step 5 of 5 · preview &amp; print</div>
+    <div class="header-row">
+      <div>
+        <div class="header-title">love your<br/><em>shots?</em></div>
+        <div class="header-sub" style="margin-top:8px;">choose a filter · then send to print</div>
+      </div>
+      <div class="retake-chip" onclick="retakeAll(event)">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M3 8 C3 5.24 5.24 3 8 3 C9.66 3 11.13 3.81 12.07 5" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M10 2 L12.5 5 L10 8" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M13 8 C13 10.76 10.76 13 8 13 C6.34 13 4.87 12.19 3.93 11" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <span class="retake-chip-text">retake all</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- middle: strip + right panel -->
+  <div class="middle-row">
+
+    <!-- photo strip -->
+    <div class="strip-panel">
+      <div class="strip-card">
+        <div class="strip-label">your strip preview</div>
+        <div class="strip-photos" id="stripPhotos">
+          <!-- populated by JS -->
+        </div>
+        <div class="strip-branding">
+          <div class="strip-brand-name"><em>Flash</em> &amp; Prints</div>
+          <div class="strip-brand-date" id="stripDate"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- right panel -->
+    <div class="right-panel">
+
+      <!-- filter picker -->
+      <div class="filter-card">
+        <div class="section-label">apply filter</div>
+        <div class="filter-grid" id="filterGrid">
+          <!-- populated by JS -->
+        </div>
+      </div>
+
+      <!-- individual photo selector -->
+      <div class="selector-card">
+        <div class="section-label">tap a photo to preview</div>
+        <div class="photo-selector-row" id="photoSelectorRow">
+          <!-- populated by JS -->
+        </div>
+      </div>
+
+      <!-- enlarged preview -->
+      <div style="flex:1;border-radius:20px;overflow:hidden;border:1px solid var(--border);position:relative;background:#000;min-height:0;">
+        <div id="enlargedPlaceholder" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;">
+          <div style="font-size:48px;" id="enlargedEmoji">🌸</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.15);font-family:'Space Mono',monospace;letter-spacing:2px;">PHOTO 1 SELECTED</div>
+        </div>
+        <div style="position:absolute;bottom:14px;right:14px;background:rgba(0,0,0,0.5);border-radius:8px;padding:5px 10px;font-family:'Space Mono',monospace;font-size:9px;color:rgba(255,255,255,0.3);letter-spacing:1px;" id="enlargedFilterLabel">FILTER: ORIGINAL</div>
+        <!-- filter applied here in real build via canvas -->
+      </div>
+    </div>
+  </div>
+
+  <!-- bottom: summary + print -->
+  <div class="bottom-row">
+    <div class="summary-card">
+      <div class="section-label" style="margin-bottom:10px;">order summary</div>
+      <div class="sum-row"><span class="sum-key">Package</span><span class="sum-val" id="sumPkg">Classic Strip</span></div>
+      <div class="sum-row"><span class="sum-key">Photos</span><span class="sum-val" id="sumPhotos">4 shots · 1 strip</span></div>
+      <div class="sum-row"><span class="sum-key">Booth</span><span class="sum-val">#001 · SM North EDSA</span></div>
+      <div class="sum-divider"></div>
+      <div class="sum-row">
+        <span class="sum-key">Filter applied</span>
+        <span class="sum-filter-badge"><div class="sum-filter-dot" id="sumFilterDot"></div><span id="sumFilter">Original</span></span>
+      </div>
+      <div class="sum-row"><span class="sum-key">Total paid</span><span class="sum-val" style="color:var(--sage);" id="sumTotal">₱89 · GCash ✓</span></div>
+    </div>
+
+    <button class="print-btn" id="printBtn" onclick="confirmPrint(event)">
+      <div class="print-btn-shine"></div>
+      <div class="print-btn-icon">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+          <rect x="4" y="10" width="24" height="16" rx="3" stroke="rgba(255,255,255,0.7)" stroke-width="2"/>
+          <path d="M10 10 V6 C10 5.45 10.45 5 11 5 L21 5 C21.55 5 22 5.45 22 6 V10" stroke="rgba(255,255,255,0.7)" stroke-width="2"/>
+          <rect x="8" y="19" width="16" height="8" rx="1" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/>
+          <circle cx="24" cy="15" r="2" fill="rgba(255,255,255,0.5)"/>
+        </svg>
+      </div>
+      <div class="print-btn-text">print now!</div>
+      <div class="print-btn-sub" id="printBtnSub">1 strip · dye-sublimation</div>
+    </button>
+  </div>
+
+</div>
+
+<!-- confirm overlay -->
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <div class="confirm-strip" id="confirmStrip"></div>
+    <div class="confirm-title">ready to print?</div>
+    <div class="confirm-detail">your strip will be printed with the<br/>filter you selected below</div>
+    <div class="confirm-filter-show" id="confirmFilterShow">✦ Original</div>
+    <div class="confirm-detail" style="font-size:13px;">printing takes about 12 seconds.<br/>collect your strip from the slot below the screen.</div>
+    <div class="confirm-btns">
+      <button class="confirm-cancel" onclick="closeConfirm()">← change filter</button>
+      <button class="confirm-print" onclick="proceedToPrint(event)">🖨️ print it!</button>
+    </div>
+    <div class="confirm-bar-wrap"><div class="confirm-bar" id="confirmBar"></div></div>
+  </div>
+</div>
+
+<script>
+/* ── session ── */
+const PACKAGES = {
+  'Classic Strip':{ photos:4, label:'4 shots · 1 strip',   price:'₱89',  prints:'1 printed strip' },
+  'Solo Frame':   { photos:1, label:'1 shot · 2 prints',    price:'₱59',  prints:'2 prints (4R)' },
+  'Party Mode':   { photos:6, label:'6 shots · 2 strips',   price:'₱149', prints:'2 printed strips' },
+  'GIF Booth':    { photos:5, label:'5 frames · GIF',       price:'₱99',  prints:'1 strip + GIF QR' },
+};
+const EMOJIS = ['🌸','💫','🦋','✨','🌟','🎀'];
+const FILTERS = [
+  { id:'original', label:'Original', cls:'f-original', applyCls:'apply-original' },
+  { id:'vintage',  label:'Vintage',  cls:'f-vintage',  applyCls:'apply-vintage'  },
+  { id:'bw',       label:'B&W',      cls:'f-bw',       applyCls:'apply-bw'       },
+  { id:'pastel',   label:'Pastel',   cls:'f-pastel',   applyCls:'apply-pastel'   },
+  { id:'neon',     label:'Neon',     cls:'f-neon',     applyCls:'apply-neon'     },
+];
+
+let session = { package:'Classic Strip', filter:'Original', amount:89 };
+try {
+  const s = JSON.parse(localStorage.getItem('fp_session')||'{}');
+  if(s.package){ session.package=s.package.name||session.package; session.amount=s.package.amount||session.amount; }
+  if(s.filter){ session.filter=s.filter; }
+} catch(e){}
+
+const pkgData    = PACKAGES[session.package] || PACKAGES['Classic Strip'];
+const TOTAL      = pkgData.photos;
+let activeFilter = 0;
+let selectedPhoto = 0;
+
+/* pre-select filter from prev screen */
+const preFilter = FILTERS.findIndex(f=>f.label===session.filter);
+if(preFilter>=0) activeFilter = preFilter;
+
+/* ── clock ── */
+function updateClock(){
+  const now=new Date();
+  let h=now.getHours(),m=now.getMinutes(),ap=h>=12?'PM':'AM';
+  h=h%12||12;
+  document.getElementById('clock').textContent=String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+' '+ap;
+}
+updateClock(); setInterval(updateClock,1000);
+
+/* ── date ── */
+const now = new Date();
+document.getElementById('stripDate').textContent = now.toLocaleDateString('en-PH',{month:'short',day:'numeric',year:'numeric'}).toUpperCase();
+
+/* ── populate UI ── */
+document.getElementById('sumPkg').textContent    = session.package;
+document.getElementById('sumPhotos').textContent = pkgData.label;
+document.getElementById('sumTotal').textContent  = pkgData.price + ' · GCash ✓';
+document.getElementById('printBtnSub').textContent = pkgData.prints + ' · dye-sublimation';
+
+buildStrip();
+buildFilters();
+buildSelector();
+applyFilter(activeFilter, false);
+selectPhoto(0, false);
+
+/* ── strip ── */
+function buildStrip(){
+  const container = document.getElementById('stripPhotos');
+  container.innerHTML = '';
+  for(let i=0;i<TOTAL;i++){
+    const div = document.createElement('div');
+    div.className = 'strip-photo' + (i===0?' selected-photo':'');
+    div.id = 'sphoto-'+i;
+    div.onclick = (e)=>{ addRipple(e); selectPhoto(i); };
+    div.innerHTML = `
+      <div class="strip-photo-placeholder">
+        <div class="placeholder-emoji">${EMOJIS[i]}</div>
+        <div class="placeholder-num">PHOTO ${i+1}</div>
+      </div>`;
+    container.appendChild(div);
+  }
+}
+
+/* ── filters ── */
+function buildFilters(){
+  const grid = document.getElementById('filterGrid');
+  grid.innerHTML = '';
+  FILTERS.forEach((f,i)=>{
+    const div = document.createElement('div');
+    div.className = 'filter-option '+f.cls+(i===activeFilter?' active-filter':'');
+    div.id = 'foption-'+i;
+    div.onclick = (e)=>{ addRipple(e); applyFilter(i); };
+    div.innerHTML = `
+      <div class="filter-preview"><div class="filter-preview-bg"></div></div>
+      <div class="filter-name">${f.label}</div>
+      <div class="filter-check">
+        ${i===activeFilter?`<svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5 L4 7 L8 3" stroke="#1A1200" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`:''}
+      </div>`;
+    grid.appendChild(div);
+  });
+}
+
+/* ── selector row ── */
+function buildSelector(){
+  const row = document.getElementById('photoSelectorRow');
+  row.innerHTML = '';
+  for(let i=0;i<TOTAL;i++){
+    const div = document.createElement('div');
+    div.className = 'photo-thumb-sel'+(i===0?' selected-sel':'');
+    div.id = 'thumbsel-'+i;
+    div.onclick = (e)=>{ addRipple(e); selectPhoto(i); };
+    div.innerHTML = `
+      <div class="photo-thumb-placeholder">${EMOJIS[i]}</div>
+      <div class="sel-num">${i+1}</div>`;
+    row.appendChild(div);
+  }
+}
+
+/* ── apply filter ── */
+function applyFilter(idx, animate=true){
+  activeFilter = idx;
+  const f = FILTERS[idx];
+
+  /* update filter options UI */
+  FILTERS.forEach((_,i)=>{
+    const opt = document.getElementById('foption-'+i);
+    if(!opt) return;
+    opt.className = 'filter-option '+FILTERS[i].cls+(i===idx?' active-filter':'');
+    opt.querySelector('.filter-check').innerHTML = i===idx
+      ? `<svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5 L4 7 L8 3" stroke="#1A1200" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+      : '';
+  });
+
+  /* apply CSS filter to all strip photos */
+  for(let i=0;i<TOTAL;i++){
+    const ph = document.getElementById('sphoto-'+i);
+    if(ph){ ph.style.filter = getFilterCSS(idx); }
+    const ts = document.getElementById('thumbsel-'+i);
+    if(ts){ ts.style.filter = getFilterCSS(idx); }
+  }
+
+  /* update labels */
+  document.getElementById('sumFilter').textContent = f.label;
+  document.getElementById('enlargedFilterLabel').textContent = 'FILTER: '+f.label.toUpperCase();
+
+  /* dot color */
+  const dotColors = { original:'#E8C547', vintage:'#C8932A', bw:'#888', pastel:'#ED93B1', neon:'#3DAA6C' };
+  document.getElementById('sumFilterDot').style.background = dotColors[f.id]||'#E8C547';
+}
+
+function getFilterCSS(idx){
+  const filters = ['none','sepia(0.75) contrast(1.1) brightness(0.95)','grayscale(1) contrast(1.1)','saturate(0.35) brightness(1.25) contrast(0.9)','saturate(2.2) hue-rotate(25deg) contrast(1.1)'];
+  return filters[idx]||'none';
+}
+
+/* ── select photo ── */
+function selectPhoto(idx, animate=true){
+  selectedPhoto = idx;
+  /* strip highlight */
+  for(let i=0;i<TOTAL;i++){
+    const ph = document.getElementById('sphoto-'+i);
+    if(ph) ph.classList.toggle('selected-photo', i===idx);
+    const ts = document.getElementById('thumbsel-'+i);
+    if(ts) ts.classList.toggle('selected-sel', i===idx);
+  }
+  /* update enlarged */
+  document.getElementById('enlargedEmoji').textContent = EMOJIS[idx];
+  document.querySelector('#enlargedPlaceholder div:last-of-type') && (document.querySelectorAll('#enlargedPlaceholder div')[1].textContent = 'PHOTO '+(idx+1)+' SELECTED');
+}
+
+/* ── confirm print ── */
+function confirmPrint(e){
+  addRipple(e);
+  /* build confirm strip */
+  const strip = document.getElementById('confirmStrip');
+  strip.innerHTML='';
+  for(let i=0;i<Math.min(TOTAL,4);i++){
+    const cell=document.createElement('div');
+    cell.className='confirm-cell';
+    cell.style.filter=getFilterCSS(activeFilter);
+    cell.textContent=EMOJIS[i];
+    strip.appendChild(cell);
+  }
+  document.getElementById('confirmFilterShow').textContent='✦ '+FILTERS[activeFilter].label;
+  document.getElementById('confirmOverlay').classList.add('show');
+  document.getElementById('confirmBar').style.width='0%';
+}
+
+function closeConfirm(){ document.getElementById('confirmOverlay').classList.remove('show'); }
+
+function proceedToPrint(e){
+  addRipple(e);
+  const bar=document.getElementById('confirmBar');
+  let elapsed=0,total=1500,step=30;
+  const prog=setInterval(()=>{
+    elapsed+=step;
+    bar.style.width=Math.min(elapsed/total*100,100)+'%';
+    if(elapsed>=total){ clearInterval(prog); flashTransition(); }
+  },step);
+}
+
+/* ── retake ── */
+function retakeAll(e){
+  addRipple(e);
+  flashTransition(); /* → camera screen */
+}
+
+function goBack(){ flashTransition(); }
+
+/* ── helpers ── */
+function addRipple(e){
+  const r=document.createElement('div');
+  r.className='ripple';
+  const x=e?(e.clientX||540):540,y=e?(e.clientY||960):960;
+  r.style.cssText=`left:${x}px;top:${y}px;width:50px;height:50px;`;
+  document.body.appendChild(r);
+  setTimeout(()=>r.remove(),600);
+}
+
+function flashTransition(){
+  const d=document.createElement('div');
+  d.style.cssText='position:fixed;inset:0;background:#fff;opacity:0;z-index:999;pointer-events:none;transition:opacity 0.2s;';
+  document.body.appendChild(d);
+  requestAnimationFrame(()=>{ d.style.opacity='0.6'; });
+  setTimeout(()=>{ d.style.opacity='0'; setTimeout(()=>d.remove(),300); },300);
+}
+</script>
+<script src="../assets/fp-bridge.js"></script>
+</body>
+</html>

@@ -1,0 +1,1358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Flash &amp; Prints — Pay with GCash</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&family=Space+Mono&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="responsive.css"/>
+<style>
+  :root {
+    --gold:#E8C547; --gold-dim:#C8A030; --gold-faint:rgba(232,197,71,0.08);
+    --rose:#C84B6E; --sage:#3DAA6C; --sage-light:rgba(61,170,108,0.12);
+    --gcash:#0070E0; --gcash-dark:#0052A3; --gcash-light:rgba(0,112,224,0.1);
+    --charcoal:#111118; --charcoal2:#1A1A26; --charcoal3:#20202E;
+    --ink:#0A0A12; --border:rgba(255,255,255,0.07); --faint:rgba(255,255,255,0.04);
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{
+    width:100vw; height:100vh; overflow:hidden;
+    background:var(--ink); font-family:'DM Sans',sans-serif;
+    cursor:none; user-select:none;
+  }
+
+  /* ── background ── */
+  .bg{ position:absolute; inset:0; background:radial-gradient(ellipse 900px 700px at 50% 15%,#121A2A 0%,#0A0A12 55%); }
+  .bg-grid{
+    position:absolute; inset:0;
+    background-image:linear-gradient(rgba(0,112,224,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,112,224,0.03) 1px,transparent 1px);
+    background-size:60px 60px;
+  }
+  .bg-glow-blue{
+    position:absolute; width:700px; height:700px; border-radius:50%;
+    background:radial-gradient(circle,rgba(0,112,224,0.06) 0%,transparent 70%);
+    top:-150px; left:50%; transform:translateX(-50%);
+    animation:glowPulse 5s ease-in-out infinite;
+  }
+  .bg-glow-gold{
+    position:absolute; width:400px; height:400px; border-radius:50%;
+    background:radial-gradient(circle,rgba(232,197,71,0.05) 0%,transparent 70%);
+    bottom:200px; right:-50px;
+    animation:glowPulse 7s ease-in-out infinite reverse;
+  }
+  @keyframes glowPulse{ 0%,100%{opacity:0.6} 50%{opacity:1} }
+
+  /* ── topbar ── */
+  .topbar{
+    position:absolute; top:0; left:0; right:0; height:100px;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:0 56px;
+    background:linear-gradient(to bottom,rgba(0,0,0,0.5),transparent);
+    z-index:20;
+  }
+  .topbar-left{ display:flex; align-items:center; gap:20px; }
+  .back-btn{
+    width:52px; height:52px; border-radius:14px;
+    border:1px solid var(--border); background:var(--faint);
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+    transition:all 0.15s;
+  }
+  .back-btn:active{ background:rgba(255,255,255,0.1); transform:scale(0.95); }
+  .brand{ font-family:'Playfair Display',serif; font-weight:900; font-size:20px; color:#fff; }
+  .brand em{ color:var(--gold); font-style:normal; }
+  .step-indicator{ display:flex; align-items:center; gap:8px; }
+  .step-dot{ width:10px; height:10px; border-radius:50%; background:rgba(255,255,255,0.12); transition:all 0.3s; }
+  .step-dot.done{ background:var(--sage); }
+  .step-dot.active{ background:var(--gold); width:28px; border-radius:5px; }
+  .step-line{ width:24px; height:1px; background:rgba(255,255,255,0.08); }
+  .topbar-clock{ font-family:'Space Mono',monospace; font-size:14px; color:rgba(255,255,255,0.3); }
+
+  /* ── main layout ── */
+  .main{
+    position:absolute; top:100px; left:0; right:0; bottom:0;
+    display:grid; grid-template-columns:1fr 1fr; gap:0;
+    padding:44px 56px 56px; z-index:10;
+  }
+
+  /* ── Landscape: reduce padding, shrink fonts so everything fits ── */
+  @media (orientation: landscape) {
+    .topbar { height:56px !important; padding:0 28px !important; }
+    .brand  { font-size:15px !important; }
+    .main   { top:56px !important; padding:10px 24px 10px !important; overflow:hidden !important; }
+
+    /* left column — hide how-to section, shrink everything */
+    .header         { margin-bottom:8px !important; }
+    .header-eyebrow { display:none !important; }
+    .header-title   { font-size:28px !important; margin-bottom:4px !important; line-height:1 !important; }
+    .header-sub     { font-size:12px !important; }
+    .order-card     { padding:10px 14px !important; margin-bottom:8px !important; }
+    .order-row      { padding:3px 0 !important; }
+    .order-key,.order-val { font-size:11px !important; }
+    .order-total-key { font-size:13px !important; }
+    .order-total-val { font-size:22px !important; }
+    .order-divider  { margin:4px 0 !important; }
+    .how-card       { display:none !important; } /* hide how-to steps */
+    .timer-card     { padding:8px 12px !important; }
+    .timer-icon     { width:30px !important; height:30px !important; }
+    .timer-text     { font-size:11px !important; }
+    .timer-countdown { font-size:18px !important; }
+    .attempt-badge  { margin-bottom:6px !important; padding:6px 12px !important; }
+
+    /* right column — smaller QR card */
+    .qr-card        { padding:12px 10px 10px !important; border-radius:16px !important; }
+    .gcash-header   { margin-bottom:4px !important; }
+    .gcash-logo-box { width:30px !important; height:30px !important; }
+    .gcash-name     { font-size:16px !important; }
+    .gcash-tagline  { font-size:10px !important; margin-bottom:10px !important; }
+    .qr-wrap        { width:140px !important; height:140px !important; margin-bottom:8px !important; }
+    .qr-svg         { width:120px !important; height:120px !important; }
+    .qr-amount      { font-size:22px !important; }
+    .qr-amount-label { font-size:10px !important; margin-top:1px !important; }
+    .merchant-row   { padding:8px 10px !important; margin-bottom:8px !important; }
+    .merchant-name  { font-size:11px !important; }
+    .merchant-ref   { font-size:9px !important; }
+    .gcash-verified { padding:5px 10px !important; margin-bottom:5px !important; }
+    .verified-text  { font-size:9px !important; }
+    .qr-expire      { font-size:9px !important; }
+    .status-card    { margin-top:8px !important; padding:10px 12px !important; }
+    .status-title   { font-size:13px !important; }
+    .status-desc    { font-size:10px !important; }
+    .status-icon-wrap { width:36px !important; height:36px !important; }
+    .conn-badge     { margin-top:6px !important; font-size:9px !important; }
+    .demo-controls  { margin-top:8px !important; gap:8px !important; }
+    .demo-btn       { padding:10px 8px !important; font-size:12px !important; border-radius:10px !important; }
+    .demo-label     { font-size:8px !important; margin-top:4px !important; }
+  }
+
+  /* ── LEFT COLUMN ── */
+  .left{ display:flex; flex-direction:column; padding-right:32px; }
+
+  .header{ margin-bottom:36px; animation:slideDown 0.5s cubic-bezier(0.34,1.2,0.64,1) both; }
+  @keyframes slideDown{ from{opacity:0;transform:translateY(-16px)} to{opacity:1;transform:translateY(0)} }
+  .header-eyebrow{
+    font-family:'Space Mono',monospace; font-size:11px; letter-spacing:4px;
+    color:var(--gcash); text-transform:uppercase; opacity:0.8; margin-bottom:10px;
+    display:flex; align-items:center; gap:10px;
+  }
+  .header-eyebrow::before{ content:''; display:inline-block; width:20px; height:1px; background:var(--gcash); opacity:0.5; }
+  .header-title{ font-family:'Playfair Display',serif; font-size:52px; font-weight:900; color:#fff; line-height:1; letter-spacing:-1px; margin-bottom:10px; }
+  .header-title em{ color:var(--gcash); font-style:italic; }
+  .header-sub{ font-size:17px; color:rgba(255,255,255,0.35); font-weight:300; line-height:1.5; }
+
+  /* order summary */
+  .order-card{
+    background:var(--charcoal2); border:1px solid var(--border);
+    border-radius:20px; padding:24px 26px; margin-bottom:24px;
+    animation:fadeUp 0.5s 0.1s both;
+  }
+  @keyframes fadeUp{ from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+  .order-label{
+    font-family:'Space Mono',monospace; font-size:10px; letter-spacing:3px;
+    color:rgba(255,255,255,0.25); text-transform:uppercase; margin-bottom:16px;
+    display:flex; align-items:center; gap:10px;
+  }
+  .order-label::after{ content:''; flex:1; height:1px; background:var(--border); }
+  .order-row{ display:flex; justify-content:space-between; align-items:center; padding:7px 0; }
+  .order-key{ font-size:14px; color:rgba(255,255,255,0.38); }
+  .order-val{ font-size:14px; color:rgba(255,255,255,0.75); font-weight:500; }
+  .order-divider{ height:1px; background:var(--border); margin:8px 0; }
+  .order-total-key{ font-size:16px; color:rgba(255,255,255,0.6); font-weight:500; }
+  .order-total-val{ font-family:'Playfair Display',serif; font-size:40px; font-weight:900; color:var(--gold); }
+
+  /* gcash steps */
+  .how-card{
+    background:var(--charcoal2); border:1px solid var(--border);
+    border-radius:20px; padding:24px 26px; margin-bottom:24px;
+    animation:fadeUp 0.5s 0.15s both; flex:1;
+  }
+  .how-label{
+    font-family:'Space Mono',monospace; font-size:10px; letter-spacing:3px;
+    color:rgba(255,255,255,0.25); text-transform:uppercase; margin-bottom:16px;
+    display:flex; align-items:center; gap:10px;
+  }
+  .how-label::after{ content:''; flex:1; height:1px; background:var(--border); }
+  .how-steps{ display:flex; flex-direction:column; gap:16px; }
+  .how-step{ display:flex; align-items:flex-start; gap:14px; }
+  .how-num{
+    width:32px; height:32px; border-radius:10px; flex-shrink:0;
+    background:var(--gcash-light); border:1px solid rgba(0,112,224,0.2);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Space Mono',monospace; font-size:12px; font-weight:700; color:var(--gcash);
+  }
+  .how-text{ padding-top:4px; }
+  .how-title{ font-size:14px; font-weight:500; color:rgba(255,255,255,0.7); margin-bottom:2px; }
+  .how-desc{ font-size:12px; color:rgba(255,255,255,0.3); line-height:1.4; }
+
+  /* timer card */
+  .timer-card{
+    background:rgba(232,197,71,0.05); border:1px solid rgba(232,197,71,0.15);
+    border-radius:16px; padding:16px 20px;
+    display:flex; align-items:center; justify-content:space-between;
+    animation:fadeUp 0.5s 0.2s both;
+    transition:background 0.4s, border-color 0.4s;
+  }
+  .timer-card.urgent{
+    background:rgba(200,75,110,0.08);
+    border-color:rgba(200,75,110,0.25);
+  }
+  .timer-left{ display:flex; align-items:center; gap:12px; }
+  .timer-icon{
+    width:40px; height:40px; border-radius:12px;
+    background:rgba(232,197,71,0.1); border:1px solid rgba(232,197,71,0.2);
+    display:flex; align-items:center; justify-content:center;
+    transition:all 0.4s;
+  }
+  .timer-card.urgent .timer-icon{
+    background:rgba(200,75,110,0.12); border-color:rgba(200,75,110,0.3);
+  }
+  .timer-text{ font-size:13px; color:rgba(255,255,255,0.4); }
+  .timer-text strong{ color:rgba(255,255,255,0.65); display:block; font-size:14px; margin-bottom:1px; }
+  .timer-countdown{
+    font-family:'Space Mono',monospace; font-size:28px; font-weight:700;
+    color:var(--gold); letter-spacing:2px;
+  }
+  .timer-countdown.warning{ color:var(--rose); animation:urgentPulse 0.8s ease-in-out infinite; }
+  @keyframes urgentPulse{ 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(1.06)} }
+
+  /* retry attempt badge */
+  .attempt-badge{
+    display:none; align-items:center; gap:8px;
+    background:rgba(232,197,71,0.06); border:1px solid rgba(232,197,71,0.15);
+    border-radius:12px; padding:10px 16px; margin-bottom:16px;
+    font-size:13px; color:rgba(255,255,255,0.5);
+  }
+  .attempt-badge.visible{ display:flex; animation:fadeUp 0.4s both; }
+  .attempt-pip{
+    width:10px; height:10px; border-radius:50%;
+    background:rgba(232,197,71,0.25);
+    transition:background 0.3s;
+  }
+  .attempt-pip.used{ background:var(--gold); }
+  .attempt-pip.failed-pip{ background:var(--rose); }
+
+  /* ── RIGHT COLUMN ── */
+  .right{ display:flex; flex-direction:column; align-items:center; justify-content:center; padding-left:32px; border-left:1px solid var(--border); }
+
+  /* QR card wrapper — enables in-place flip animation */
+  .qr-stage{
+    width:100%; position:relative;
+    perspective:1200px;
+  }
+
+  /* gcash QR card */
+  .qr-card{
+    width:100%; background:#fff;
+    border-radius:28px; padding:32px 28px 28px;
+    display:flex; flex-direction:column; align-items:center;
+    position:relative; overflow:hidden;
+    animation:qrEntrance 0.7s cubic-bezier(0.34,1.3,0.64,1) 0.2s both;
+    box-shadow:0 0 0 1px rgba(0,0,0,0.06),0 40px 80px rgba(0,0,0,0.4);
+    transform-origin:center center;
+    transition:transform 0.35s cubic-bezier(0.4,0,0.2,1), opacity 0.35s;
+  }
+  .qr-card.refreshing{
+    transform:rotateY(90deg) scale(0.9);
+    opacity:0;
+  }
+  @keyframes qrEntrance{ from{opacity:0;transform:scale(0.85) translateY(20px)} to{opacity:1;transform:scale(1) translateY(0)} }
+
+  .gcash-header{ display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:6px; }
+  .gcash-logo-box{
+    width:40px; height:40px; border-radius:11px;
+    background:linear-gradient(135deg,var(--gcash),var(--gcash-dark));
+    display:flex; align-items:center; justify-content:center;
+  }
+  .gcash-logo-box svg{ width:22px; height:22px; }
+  .gcash-name{ font-family:'DM Sans',sans-serif; font-size:22px; font-weight:700; color:var(--gcash); }
+  .gcash-tagline{ font-size:12px; color:#aaa; text-align:center; margin-bottom:20px; }
+
+  .qr-wrap{
+    position:relative; width:240px; height:240px;
+    background:#fff; border-radius:16px;
+    display:flex; align-items:center; justify-content:center;
+    margin-bottom:16px;
+  }
+  .qr-corner{ position:absolute; width:24px; height:24px; }
+  .qr-corner.tl{ top:0;left:0;border-top:3px solid var(--gcash);border-left:3px solid var(--gcash);border-radius:4px 0 0 0; }
+  .qr-corner.tr{ top:0;right:0;border-top:3px solid var(--gcash);border-right:3px solid var(--gcash);border-radius:0 4px 0 0; }
+  .qr-corner.bl{ bottom:0;left:0;border-bottom:3px solid var(--gcash);border-left:3px solid var(--gcash);border-radius:0 0 0 4px; }
+  .qr-corner.br{ bottom:0;right:0;border-bottom:3px solid var(--gcash);border-right:3px solid var(--gcash);border-radius:0 0 4px 0; }
+  .scan-line{
+    position:absolute; left:4px; right:4px; height:2px;
+    background:linear-gradient(to right,transparent,rgba(0,112,224,0.8),transparent);
+    border-radius:1px; animation:scanDown 2.5s ease-in-out infinite; z-index:2;
+  }
+  @keyframes scanDown{
+    0%{top:4px;opacity:0;} 10%{opacity:1;} 90%{opacity:1;} 100%{top:232px;opacity:0;}
+  }
+  .qr-svg{ width:210px; height:210px; }
+
+  .qr-amount-row{ display:flex; flex-direction:column; align-items:center; margin-bottom:12px; }
+  .qr-amount{ font-family:'DM Sans',sans-serif; font-size:42px; font-weight:700; color:var(--gcash); line-height:1; }
+  .qr-amount-label{ font-size:13px; color:#bbb; margin-top:3px; }
+
+  .merchant-row{
+    width:100%; background:#F8F9FA; border-radius:12px;
+    padding:12px 16px; display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:14px;
+  }
+  .merchant-name{ font-size:13px; font-weight:600; color:#333; }
+  .merchant-ref{ font-family:'Space Mono',monospace; font-size:10px; color:#999; }
+  .gcash-verified{
+    display:flex; align-items:center; gap:6px;
+    background:#EBF5FF; border-radius:8px; padding:8px 14px;
+    margin-bottom:8px; width:100%;
+  }
+  .verified-dot{ width:8px; height:8px; border-radius:50%; background:#3DAA6C; flex-shrink:0; }
+  .verified-text{ font-size:11px; color:#555; }
+  .verified-text strong{ color:#0070E0; }
+  .qr-expire{ font-size:11px; color:#bbb; text-align:center; }
+
+  /* payment status card */
+  .status-card{
+    width:100%; margin-top:24px;
+    border-radius:18px; padding:20px 22px;
+    display:flex; align-items:center; gap:16px;
+    animation:fadeUp 0.5s 0.4s both;
+    transition:all 0.5s;
+  }
+  .status-card.waiting{ background:rgba(232,197,71,0.06); border:1px solid rgba(232,197,71,0.15); }
+  .status-card.confirmed{ background:rgba(61,170,108,0.1); border:1px solid rgba(61,170,108,0.3); }
+  .status-card.failed{ background:rgba(200,75,110,0.08); border:1px solid rgba(200,75,110,0.2); }
+  .status-icon-wrap{
+    width:48px; height:48px; border-radius:14px; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .waiting  .status-icon-wrap{ background:rgba(232,197,71,0.1); }
+  .confirmed .status-icon-wrap{ background:rgba(61,170,108,0.15); }
+  .failed   .status-icon-wrap{ background:rgba(200,75,110,0.1); }
+  .status-text{ flex:1; }
+  .status-title{ font-size:15px; font-weight:600; color:#fff; margin-bottom:3px; }
+  .status-desc{ font-size:12px; color:rgba(255,255,255,0.35); line-height:1.4; }
+  .status-blink{
+    width:10px; height:10px; border-radius:50%; flex-shrink:0;
+    animation:statusBlink 1.2s ease-in-out infinite;
+  }
+  .waiting  .status-blink{ background:var(--gold); }
+  .confirmed .status-blink{ background:var(--sage); animation:none; }
+  .failed   .status-blink{ background:var(--rose); animation:none; }
+  @keyframes statusBlink{ 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.2;transform:scale(0.7)} }
+
+  /* connection badge */
+  .conn-badge{
+    display:inline-flex; align-items:center; gap:6px;
+    background:rgba(61,170,108,0.08); border:1px solid rgba(61,170,108,0.2);
+    border-radius:20px; padding:5px 12px; margin-top:12px;
+    font-family:'Space Mono',monospace; font-size:10px; color:rgba(61,170,108,0.7);
+    letter-spacing:1px; text-transform:uppercase; transition:all 0.4s;
+  }
+  .conn-badge.polling{ background:rgba(232,197,71,0.06); border-color:rgba(232,197,71,0.2); color:rgba(232,197,71,0.6); }
+  .conn-badge.offline{ background:rgba(200,75,110,0.06); border-color:rgba(200,75,110,0.2); color:rgba(200,75,110,0.6); }
+  .conn-dot{ width:6px; height:6px; border-radius:50%; background:currentColor; animation:connBlink 2s ease-in-out infinite; }
+  @keyframes connBlink{ 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  /* demo controls */
+  .demo-controls{ width:100%; margin-top:16px; display:flex; gap:10px; }
+  .demo-btn{
+    flex:1; padding:14px 10px; border-radius:14px; cursor:pointer;
+    font-family:'DM Sans',sans-serif; font-size:13px; font-weight:600;
+    border:1px solid var(--border); transition:all 0.15s;
+  }
+  .demo-btn:active{ transform:scale(0.97); }
+  .demo-btn.confirm{ background:linear-gradient(135deg,var(--sage),#2A8A52); color:#fff; border-color:transparent; }
+  .demo-btn.fail{ background:var(--faint); color:rgba(255,255,255,0.4); }
+  .demo-label{
+    width:100%; text-align:center; margin-top:8px;
+    font-family:'Space Mono',monospace; font-size:9px;
+    color:rgba(255,255,255,0.15); letter-spacing:2px; text-transform:uppercase;
+  }
+
+  /* ── ripple ── */
+  .ripple{
+    position:fixed; border-radius:50%;
+    background:rgba(0,112,224,0.15); pointer-events:none;
+    animation:rippleOut 0.5s ease-out forwards; z-index:100;
+    transform:translate(-50%,-50%) scale(0);
+  }
+  @keyframes rippleOut{ to{transform:translate(-50%,-50%) scale(5);opacity:0} }
+
+  /* ═══════════════════════════════════
+     OVERLAYS
+  ═══════════════════════════════════ */
+  .overlay{
+    position:fixed; inset:0; z-index:500;
+    display:flex; align-items:center; justify-content:center;
+    opacity:0; pointer-events:none;
+    transition:opacity 0.4s;
+  }
+  .overlay.show{ opacity:1; pointer-events:all; }
+
+  /* ── SUCCESS overlay ── */
+  .confirmed-overlay{ background:rgba(10,10,18,0.88); }
+  .confirmed-box{
+    background:var(--charcoal2); border:1px solid rgba(61,170,108,0.3);
+    border-radius:28px; padding:48px 56px;
+    display:flex; flex-direction:column; align-items:center; gap:16px;
+    animation:popIn 0.5s cubic-bezier(0.34,1.4,0.64,1) both; text-align:center;
+  }
+  @keyframes popIn{ from{opacity:0;transform:scale(0.8)} to{opacity:1;transform:scale(1)} }
+  .confirmed-check{
+    width:88px; height:88px; border-radius:50%;
+    background:rgba(61,170,108,0.12); border:2px solid var(--sage);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .confirmed-title{ font-family:'Playfair Display',serif; font-size:36px; font-weight:900; color:#fff; }
+  .confirmed-sub{ font-size:16px; color:rgba(255,255,255,0.4); line-height:1.5; }
+  .confirmed-amount{ font-family:'Playfair Display',serif; font-size:48px; font-weight:900; color:var(--sage); }
+  .confirmed-next{ font-size:13px; color:rgba(255,255,255,0.25); }
+  .confirmed-bar{ width:200px; height:4px; background:rgba(255,255,255,0.08); border-radius:2px; overflow:hidden; margin-top:8px; }
+  .confirmed-bar-fill{ height:100%; background:var(--sage); border-radius:2px; width:0%; transition:width 0.05s linear; }
+
+  /* ── EXPIRED overlay ── */
+  .expired-overlay{ background:rgba(10,10,18,0.92); }
+  .expired-box{
+    background:var(--charcoal2); border:1px solid rgba(232,197,71,0.2);
+    border-radius:28px; padding:52px 60px;
+    display:flex; flex-direction:column; align-items:center; gap:20px;
+    animation:popIn 0.5s cubic-bezier(0.34,1.4,0.64,1) both; text-align:center;
+    min-width:520px;
+  }
+
+  /* countdown ring for auto-reset */
+  .ring-wrap{ position:relative; width:120px; height:120px; }
+  .ring-svg{ width:120px; height:120px; transform:rotate(-90deg); }
+  .ring-track{ fill:none; stroke:rgba(232,197,71,0.1); stroke-width:4; }
+  .ring-fill{
+    fill:none; stroke:var(--gold); stroke-width:4;
+    stroke-linecap:round;
+    stroke-dasharray:339.3; /* 2π × 54 */
+    stroke-dashoffset:0;
+    transition:stroke-dashoffset 1s linear;
+  }
+  .ring-fill.rose{ stroke:var(--rose); }
+  .ring-label{
+    position:absolute; inset:0;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+  }
+  .ring-num{ font-family:'Space Mono',monospace; font-size:28px; font-weight:700; color:var(--gold); }
+  .ring-num.rose{ color:var(--rose); }
+  .ring-sub{ font-size:10px; color:rgba(255,255,255,0.3); letter-spacing:1px; margin-top:2px; }
+
+  .expired-icon{
+    width:72px; height:72px; border-radius:50%;
+    background:rgba(232,197,71,0.08); border:2px solid rgba(232,197,71,0.3);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .expired-title{ font-family:'Playfair Display',serif; font-size:32px; font-weight:900; color:#fff; }
+  .expired-sub{ font-size:15px; color:rgba(255,255,255,0.38); line-height:1.6; max-width:380px; }
+  .expired-attempts{ font-size:12px; color:rgba(255,255,255,0.22); font-family:'Space Mono',monospace; }
+
+  .overlay-btn{
+    padding:18px 40px; border-radius:18px; cursor:pointer;
+    font-family:'DM Sans',sans-serif; font-size:17px; font-weight:700;
+    border:none; transition:all 0.15s; width:100%; max-width:360px;
+  }
+  .overlay-btn:active{ transform:scale(0.97); }
+  .overlay-btn.primary{
+    background:linear-gradient(135deg,var(--gcash),var(--gcash-dark)); color:#fff;
+  }
+  .overlay-btn.secondary{
+    background:var(--faint); color:rgba(255,255,255,0.45);
+    border:1px solid var(--border); margin-top:4px;
+  }
+
+  /* ── FAILED overlay ── */
+  .failed-overlay{ background:rgba(10,10,18,0.92); }
+  .failed-box{
+    background:var(--charcoal2); border:1px solid rgba(200,75,110,0.25);
+    border-radius:28px; padding:52px 60px;
+    display:flex; flex-direction:column; align-items:center; gap:20px;
+    animation:popIn 0.5s cubic-bezier(0.34,1.4,0.64,1) both; text-align:center;
+    min-width:520px;
+  }
+  .failed-icon{
+    width:72px; height:72px; border-radius:50%;
+    background:rgba(200,75,110,0.1); border:2px solid rgba(200,75,110,0.3);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .failed-title{ font-family:'Playfair Display',serif; font-size:32px; font-weight:900; color:#fff; }
+  .failed-reason{
+    background:rgba(200,75,110,0.07); border:1px solid rgba(200,75,110,0.15);
+    border-radius:12px; padding:12px 20px;
+    font-family:'Space Mono',monospace; font-size:12px; color:rgba(200,75,110,0.8);
+    width:100%; max-width:360px;
+  }
+  .failed-sub{ font-size:15px; color:rgba(255,255,255,0.38); line-height:1.6; max-width:380px; }
+
+  /* ── MAX RETRIES overlay ── */
+  .maxretry-overlay{ background:rgba(10,10,18,0.96); }
+  .maxretry-box{
+    background:var(--charcoal2); border:1px solid rgba(200,75,110,0.2);
+    border-radius:28px; padding:52px 60px;
+    display:flex; flex-direction:column; align-items:center; gap:24px;
+    animation:popIn 0.5s cubic-bezier(0.34,1.4,0.64,1) both; text-align:center;
+    min-width:520px;
+  }
+  .maxretry-icon{
+    width:80px; height:80px; border-radius:50%;
+    background:rgba(200,75,110,0.08); border:2px solid rgba(200,75,110,0.25);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .maxretry-title{ font-family:'Playfair Display',serif; font-size:30px; font-weight:900; color:#fff; line-height:1.2; }
+  .maxretry-sub{ font-size:15px; color:rgba(255,255,255,0.38); line-height:1.7; max-width:380px; }
+  .maxretry-reset-bar-wrap{
+    width:100%; max-width:360px;
+    background:rgba(255,255,255,0.05); border-radius:4px; height:4px; overflow:hidden;
+  }
+  .maxretry-reset-bar{ height:100%; background:var(--rose); width:0%; transition:width 0.05s linear; }
+  .maxretry-note{ font-size:12px; color:rgba(255,255,255,0.2); font-family:'Space Mono',monospace; }
+</style>
+</head>
+<body>
+<script src="network-monitor.js"></script>
+<script src="fp-bridge.js"></script>
+<script src="booth-reporter.js"></script>
+<script src="error-overlay.js"></script>
+
+<div class="bg"></div>
+<div class="bg-grid"></div>
+<div class="bg-glow-blue"></div>
+<div class="bg-glow-gold"></div>
+
+<!-- topbar -->
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="back-btn" onclick="goBack()">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <path d="M13 4 L7 10 L13 16" stroke="rgba(255,255,255,0.5)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="brand"><em>Flash</em> &amp; Prints</div>
+  </div>
+  <div class="step-indicator">
+    <div class="step-dot done"></div><div class="step-line"></div>
+    <div class="step-dot done"></div><div class="step-line"></div>
+    <div class="step-dot active"></div><div class="step-line"></div>
+    <div class="step-dot"></div><div class="step-line"></div>
+    <div class="step-dot"></div>
+  </div>
+  <div class="topbar-clock" id="clock">--:-- --</div>
+</div>
+
+<!-- main -->
+<div class="main">
+
+  <!-- LEFT -->
+  <div class="left">
+    <div class="header">
+      <div class="header-eyebrow">step 3 of 5 · payment</div>
+      <div class="header-title">pay with<br/><em>GCash</em></div>
+      <div class="header-sub">scan the QR code using<br/>your GCash app to proceed</div>
+    </div>
+
+    <!-- retry attempt pips (hidden until 2nd attempt) -->
+    <div class="attempt-badge" id="attemptBadge">
+      <div class="attempt-pip" id="pip1"></div>
+      <div class="attempt-pip" id="pip2"></div>
+      <div class="attempt-pip" id="pip3"></div>
+      <span id="attemptLabel">attempt 1 of 3</span>
+    </div>
+
+    <!-- order summary -->
+    <div class="order-card">
+      <div class="order-label">order summary</div>
+      <div class="order-row">
+        <span class="order-key">Package</span>
+        <span class="order-val" id="sum-pkg">Classic Strip</span>
+      </div>
+      <div class="order-row">
+        <span class="order-key">Photos</span>
+        <span class="order-val" id="sum-photos">4 shots · 1 strip</span>
+      </div>
+      <div class="order-row">
+        <span class="order-key">Filter</span>
+        <span class="order-val" id="sum-filter">Original</span>
+      </div>
+      <div class="order-row">
+        <span class="order-key">Booth</span>
+        <span class="order-val" id="sum-booth">#001 · SM North EDSA</span>
+      </div>
+      <div class="order-divider"></div>
+      <div class="order-row">
+        <span class="order-total-key">Total</span>
+        <span class="order-total-val" id="sum-total">₱89</span>
+      </div>
+    </div>
+
+    <!-- how to pay -->
+    <div class="how-card">
+      <div class="how-label">how to pay</div>
+      <div class="how-steps">
+        <div class="how-step">
+          <div class="how-num">1</div>
+          <div class="how-text">
+            <div class="how-title">open your GCash app</div>
+            <div class="how-desc">tap "Pay QR" or the scan icon on your GCash home screen</div>
+          </div>
+        </div>
+        <div class="how-step">
+          <div class="how-num">2</div>
+          <div class="how-text">
+            <div class="how-title">scan the QR code</div>
+            <div class="how-desc">point your camera at the QR code on the right side of the screen</div>
+          </div>
+        </div>
+        <div class="how-step">
+          <div class="how-num">3</div>
+          <div class="how-text">
+            <div class="how-title">confirm ₱<span id="confirm-amt">89</span>.00</div>
+            <div class="how-desc">review the amount and tap "Pay Now" in your GCash app</div>
+          </div>
+        </div>
+        <div class="how-step">
+          <div class="how-num">4</div>
+          <div class="how-text">
+            <div class="how-title">booth unlocks automatically</div>
+            <div class="how-desc">payment confirmed instantly — your session starts right away</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- timer -->
+    <div class="timer-card" id="timerCard">
+      <div class="timer-left">
+        <div class="timer-icon" id="timerIcon">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+            <circle cx="11" cy="12" r="8" stroke="rgba(232,197,71,0.6)" stroke-width="1.5"/>
+            <path d="M11 8 L11 12 L14 14" stroke="rgba(232,197,71,0.6)" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M9 3 L13 3" stroke="rgba(232,197,71,0.4)" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="timer-text">
+          <strong id="timerLabel">QR expires in</strong>
+          <span id="timerHint">scan before the timer runs out</span>
+        </div>
+      </div>
+      <div class="timer-countdown" id="timerDisplay">09:59</div>
+    </div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="right">
+
+    <div class="qr-stage">
+      <!-- GCash QR card -->
+      <div class="qr-card" id="qrCard">
+        <div class="gcash-header">
+          <div class="gcash-logo-box">
+            <svg viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="11" cy="11" r="9" fill="white" opacity="0.15"/>
+              <path d="M15.5 10H12V12.5H14.2C13.8 13.7 12.7 14.5 11 14.5C9 14.5 7.5 13 7.5 11C7.5 9 9 7.5 11 7.5C11.9 7.5 12.7 7.8 13.3 8.3L14.9 6.7C13.9 5.8 12.5 5.3 11 5.3C7.8 5.3 5.3 7.8 5.3 11C5.3 14.2 7.8 16.7 11 16.7C14.2 16.7 16.7 14.2 16.7 11C16.7 10.7 16.6 10.3 16.5 10H15.5Z" fill="white"/>
+            </svg>
+          </div>
+          <span class="gcash-name">GCash</span>
+        </div>
+        <div class="gcash-tagline">Scan to pay · Flash &amp; Prints Photobooth</div>
+
+        <div class="qr-wrap">
+          <div class="qr-corner tl"></div><div class="qr-corner tr"></div>
+          <div class="qr-corner bl"></div><div class="qr-corner br"></div>
+          <div class="scan-line" id="scanLine"></div>
+          <svg class="qr-svg" viewBox="0 0 210 210" xmlns="http://www.w3.org/2000/svg">
+            <rect width="210" height="210" fill="white"/>
+            <rect x="10" y="10" width="56" height="56" rx="6" fill="none" stroke="#000" stroke-width="4"/>
+            <rect x="20" y="20" width="36" height="36" rx="3" fill="#000"/>
+            <rect x="144" y="10" width="56" height="56" rx="6" fill="none" stroke="#000" stroke-width="4"/>
+            <rect x="154" y="20" width="36" height="36" rx="3" fill="#000"/>
+            <rect x="10" y="144" width="56" height="56" rx="6" fill="none" stroke="#000" stroke-width="4"/>
+            <rect x="20" y="154" width="36" height="36" rx="3" fill="#000"/>
+            <rect x="78" y="10" width="8" height="8" fill="#000"/><rect x="90" y="10" width="8" height="8" fill="#000"/><rect x="102" y="10" width="8" height="8" fill="#000"/><rect x="126" y="10" width="8" height="8" fill="#000"/>
+            <rect x="78" y="22" width="8" height="8" fill="#000"/><rect x="102" y="22" width="8" height="8" fill="#000"/><rect x="114" y="22" width="8" height="8" fill="#000"/>
+            <rect x="90" y="34" width="8" height="8" fill="#000"/><rect x="114" y="34" width="8" height="8" fill="#000"/><rect x="126" y="34" width="8" height="8" fill="#000"/>
+            <rect x="78" y="46" width="8" height="8" fill="#000"/><rect x="90" y="46" width="8" height="8" fill="#000"/><rect x="114" y="46" width="8" height="8" fill="#000"/>
+            <rect x="78" y="58" width="8" height="8" fill="#000"/><rect x="102" y="58" width="8" height="8" fill="#000"/><rect x="126" y="58" width="8" height="8" fill="#000"/>
+            <rect x="10" y="78" width="8" height="8" fill="#000"/><rect x="22" y="78" width="8" height="8" fill="#000"/><rect x="46" y="78" width="8" height="8" fill="#000"/><rect x="58" y="78" width="8" height="8" fill="#000"/>
+            <rect x="78" y="78" width="8" height="8" fill="#000"/><rect x="90" y="78" width="8" height="8" fill="#000"/><rect x="114" y="78" width="8" height="8" fill="#000"/><rect x="126" y="78" width="8" height="8" fill="#000"/>
+            <rect x="144" y="78" width="8" height="8" fill="#000"/><rect x="168" y="78" width="8" height="8" fill="#000"/><rect x="192" y="78" width="8" height="8" fill="#000"/>
+            <rect x="10" y="90" width="8" height="8" fill="#000"/><rect x="34" y="90" width="8" height="8" fill="#000"/><rect x="58" y="90" width="8" height="8" fill="#000"/>
+            <rect x="78" y="90" width="8" height="8" fill="#000"/><rect x="102" y="90" width="8" height="8" fill="#000"/><rect x="126" y="90" width="8" height="8" fill="#000"/>
+            <rect x="144" y="90" width="8" height="8" fill="#000"/><rect x="156" y="90" width="8" height="8" fill="#000"/><rect x="180" y="90" width="8" height="8" fill="#000"/>
+            <rect x="10" y="102" width="8" height="8" fill="#000"/><rect x="22" y="102" width="8" height="8" fill="#000"/><rect x="46" y="102" width="8" height="8" fill="#000"/>
+            <rect x="78" y="102" width="8" height="8" fill="#000"/><rect x="90" y="102" width="8" height="8" fill="#000"/><rect x="114" y="102" width="8" height="8" fill="#000"/>
+            <rect x="144" y="102" width="8" height="8" fill="#000"/><rect x="168" y="102" width="8" height="8" fill="#000"/><rect x="192" y="102" width="8" height="8" fill="#000"/>
+            <rect x="10" y="114" width="8" height="8" fill="#000"/><rect x="34" y="114" width="8" height="8" fill="#000"/><rect x="58" y="114" width="8" height="8" fill="#000"/>
+            <rect x="90" y="114" width="8" height="8" fill="#000"/><rect x="102" y="114" width="8" height="8" fill="#000"/><rect x="126" y="114" width="8" height="8" fill="#000"/>
+            <rect x="144" y="114" width="8" height="8" fill="#000"/><rect x="156" y="114" width="8" height="8" fill="#000"/><rect x="192" y="114" width="8" height="8" fill="#000"/>
+            <rect x="10" y="126" width="8" height="8" fill="#000"/><rect x="22" y="126" width="8" height="8" fill="#000"/><rect x="58" y="126" width="8" height="8" fill="#000"/>
+            <rect x="78" y="126" width="8" height="8" fill="#000"/><rect x="102" y="126" width="8" height="8" fill="#000"/>
+            <rect x="144" y="126" width="8" height="8" fill="#000"/><rect x="168" y="126" width="8" height="8" fill="#000"/><rect x="180" y="126" width="8" height="8" fill="#000"/>
+            <rect x="78" y="144" width="8" height="8" fill="#000"/><rect x="90" y="144" width="8" height="8" fill="#000"/><rect x="114" y="144" width="8" height="8" fill="#000"/><rect x="126" y="144" width="8" height="8" fill="#000"/>
+            <rect x="144" y="144" width="8" height="8" fill="#000"/><rect x="168" y="144" width="8" height="8" fill="#000"/><rect x="192" y="144" width="8" height="8" fill="#000"/>
+            <rect x="78" y="156" width="8" height="8" fill="#000"/><rect x="102" y="156" width="8" height="8" fill="#000"/>
+            <rect x="144" y="156" width="8" height="8" fill="#000"/><rect x="156" y="156" width="8" height="8" fill="#000"/><rect x="180" y="156" width="8" height="8" fill="#000"/>
+            <rect x="90" y="168" width="8" height="8" fill="#000"/><rect x="114" y="168" width="8" height="8" fill="#000"/><rect x="126" y="168" width="8" height="8" fill="#000"/>
+            <rect x="144" y="168" width="8" height="8" fill="#000"/><rect x="168" y="168" width="8" height="8" fill="#000"/><rect x="192" y="168" width="8" height="8" fill="#000"/>
+            <rect x="78" y="180" width="8" height="8" fill="#000"/><rect x="90" y="180" width="8" height="8" fill="#000"/><rect x="114" y="180" width="8" height="8" fill="#000"/>
+            <rect x="144" y="180" width="8" height="8" fill="#000"/><rect x="156" y="180" width="8" height="8" fill="#000"/><rect x="180" y="180" width="8" height="8" fill="#000"/>
+            <rect x="78" y="192" width="8" height="8" fill="#000"/><rect x="102" y="192" width="8" height="8" fill="#000"/><rect x="126" y="192" width="8" height="8" fill="#000"/>
+            <rect x="144" y="192" width="8" height="8" fill="#000"/><rect x="168" y="192" width="8" height="8" fill="#000"/><rect x="192" y="192" width="8" height="8" fill="#000"/>
+            <rect x="88" y="88" width="34" height="34" rx="6" fill="white"/>
+            <rect x="91" y="91" width="28" height="28" rx="4" fill="#0070E0"/>
+            <path d="M105 98 L108 104 L114 104 L109 108 L111 115 L105 111 L99 115 L101 108 L96 104 L102 104 Z" fill="white" opacity="0.9"/>
+          </svg>
+        </div>
+
+        <div class="qr-amount-row">
+          <div class="qr-amount" id="qr-amount">₱89.00</div>
+          <div class="qr-amount-label">scan to pay this exact amount</div>
+        </div>
+
+        <div class="merchant-row">
+          <div>
+            <div class="merchant-name">Flash &amp; Prints Photobooth</div>
+            <div class="merchant-ref">Verified Merchant · GCash QR PH</div>
+          </div>
+          <div style="font-family:'Space Mono',monospace;font-size:11px;color:#aaa;text-align:right;">
+            Ref: <span id="ref-no">FP-001-0001</span>
+          </div>
+        </div>
+
+        <div class="gcash-verified">
+          <div class="verified-dot"></div>
+          <span class="verified-text">Secured by <strong>GCash</strong> · encrypted · BangkoSentral regulated</span>
+        </div>
+
+        <div class="qr-expire">QR expires in <span id="qr-expire-txt">10:00</span> · do not close this screen</div>
+      </div>
+    </div>
+
+    <!-- status card -->
+    <div class="status-card waiting" id="statusCard">
+      <div class="status-icon-wrap">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="9" stroke="rgba(232,197,71,0.6)" stroke-width="1.5"/>
+          <path d="M12 7 L12 12 L15 15" stroke="rgba(232,197,71,0.6)" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="status-text">
+        <div class="status-title" id="status-title">waiting for payment...</div>
+        <div class="status-desc" id="status-desc">open GCash → Pay QR → scan the code above</div>
+      </div>
+      <div class="status-blink"></div>
+    </div>
+
+    <!-- connection badge -->
+    <div class="conn-badge" id="connBadge">
+      <div class="conn-dot"></div>
+      <span id="connLabel">live · waiting</span>
+    </div>
+
+    <!-- demo controls -->
+    <div class="demo-controls" id="demoControls" style="display:none">
+      <button class="demo-btn confirm" onclick="demoSimulate('confirmed',event)">✓ simulate payment</button>
+      <button class="demo-btn fail"    onclick="demoSimulate('failed',event)">✕ simulate fail</button>
+    </div>
+    <div class="demo-label" id="demoLabel" style="display:none">demo controls — not visible in production</div>
+
+  </div>
+</div>
+
+<!-- ═══════ SUCCESS overlay ═══════ -->
+<div class="overlay confirmed-overlay" id="confirmedOverlay">
+  <div class="confirmed-box">
+    <div class="confirmed-check">
+      <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+        <path d="M10 20 L17 27 L30 13" stroke="#3DAA6C" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="confirmed-title">payment confirmed!</div>
+    <div class="confirmed-amount" id="overlay-amount">₱89.00</div>
+    <div class="confirmed-sub">your GCash payment was received.<br/>starting your photo session now.</div>
+    <div class="confirmed-next">navigating to camera in <span id="nav-count">3</span> seconds...</div>
+    <div class="confirmed-bar"><div class="confirmed-bar-fill" id="navBar"></div></div>
+  </div>
+</div>
+
+<!-- ═══════ EXPIRED overlay ═══════ -->
+<div class="overlay expired-overlay" id="expiredOverlay">
+  <div class="expired-box">
+    <div class="ring-wrap">
+      <svg class="ring-svg" viewBox="0 0 120 120">
+        <circle class="ring-track" cx="60" cy="60" r="54"/>
+        <circle class="ring-fill" id="expiredRingFill" cx="60" cy="60" r="54"/>
+      </svg>
+      <div class="ring-label">
+        <span class="ring-num" id="expiredCountNum">60</span>
+        <span class="ring-sub">AUTO-RESET</span>
+      </div>
+    </div>
+    <div class="expired-icon">
+      <svg width="34" height="34" viewBox="0 0 34 34" fill="none">
+        <circle cx="17" cy="18" r="12" stroke="rgba(232,197,71,0.7)" stroke-width="2"/>
+        <path d="M17 12 L17 18 L21 21" stroke="rgba(232,197,71,0.7)" stroke-width="2" stroke-linecap="round"/>
+        <path d="M13 5 L21 5" stroke="rgba(232,197,71,0.4)" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="expired-title">QR code expired</div>
+    <div class="expired-sub">Your payment window has closed.<br/>Tap below to generate a fresh QR code and try again.</div>
+    <div class="expired-attempts" id="expiredAttempts">attempt 1 of 3 · 2 remaining</div>
+    <button class="overlay-btn primary" onclick="retryFromOverlay('expired')">↺ try again with new QR</button>
+    <button class="overlay-btn secondary" onclick="goBack()">← change package</button>
+  </div>
+</div>
+
+<!-- ═══════ FAILED overlay ═══════ -->
+<div class="overlay failed-overlay" id="failedOverlay">
+  <div class="failed-box">
+    <div class="ring-wrap">
+      <svg class="ring-svg" viewBox="0 0 120 120">
+        <circle class="ring-track" cx="60" cy="60" r="54"/>
+        <circle class="ring-fill rose" id="failedRingFill" cx="60" cy="60" r="54"/>
+      </svg>
+      <div class="ring-label">
+        <span class="ring-num rose" id="failedCountNum">60</span>
+        <span class="ring-sub">AUTO-RESET</span>
+      </div>
+    </div>
+    <div class="failed-icon">
+      <svg width="34" height="34" viewBox="0 0 34 34" fill="none">
+        <circle cx="17" cy="17" r="12" stroke="rgba(200,75,110,0.7)" stroke-width="2"/>
+        <path d="M12 12 L22 22 M22 12 L12 22" stroke="rgba(200,75,110,0.7)" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="failed-title">payment declined</div>
+    <div class="failed-reason" id="failedReason">payment was not completed</div>
+    <div class="failed-sub">No amount was charged to your GCash wallet.<br/>Tap below to scan a fresh QR code.</div>
+    <button class="overlay-btn primary" onclick="retryFromOverlay('failed')">↺ try again</button>
+    <button class="overlay-btn secondary" onclick="goBack()">← change package</button>
+  </div>
+</div>
+
+<!-- ═══════ MAX RETRIES overlay ═══════ -->
+<div class="overlay maxretry-overlay" id="maxRetryOverlay">
+  <div class="maxretry-box">
+    <div class="maxretry-icon">
+      <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+        <path d="M20 14 L20 22" stroke="rgba(200,75,110,0.8)" stroke-width="2.5" stroke-linecap="round"/>
+        <circle cx="20" cy="28" r="1.5" fill="rgba(200,75,110,0.8)"/>
+        <path d="M8 34 L20 10 L32 34 Z" stroke="rgba(200,75,110,0.5)" stroke-width="2" fill="none" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="maxretry-title">payment could not<br/>be completed</div>
+    <div class="maxretry-sub">We were unable to process your payment after 3 attempts. Please check your GCash balance and internet connection, or try a different payment method.</div>
+    <div class="maxretry-reset-bar-wrap">
+      <div class="maxretry-reset-bar" id="maxRetryBar"></div>
+    </div>
+    <div class="maxretry-note" id="maxRetryNote">returning to start in 30s</div>
+    <button class="overlay-btn secondary" onclick="resetToWelcome()">return to start</button>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   PAYMENT SCREEN — timeout + retry logic
+   ─────────────────────────────────────────────────────────
+   States:      waiting → paid | expired | failed | maxRetry
+   Retry cap:   MAX_RETRIES = 3
+   QR timeout:  600s (10 min) per attempt
+   Idle reset:  IDLE_ABANDON_MS = 3 min (back to welcome if no payment)
+   Overlay reset: 60s auto-reset on expired/failed overlays
+   In-place retry: no page reload — timer + SSE restart in JS
+═══════════════════════════════════════════════════════════ */
+
+  const SERVER     = (window.location.hostname === 'localhost' || window.location.protocol === 'file:')
+                     ? 'http://localhost:3000' : '';
+  const DEMO_MODE  = new URLSearchParams(location.search).get('demo') === '1'
+                  || window.location.protocol === 'file:'
+                  || window.location.hostname === 'localhost'
+                  || window.location.hostname === '127.0.0.1';
+  const MAX_RETRIES        = 3;
+  const QR_DURATION_S      = 600;   /* 10 min per QR */
+  const IDLE_ABANDON_MS    = 180000; /* 3 min — auto-return to welcome */
+  const OVERLAY_RESET_S    = 60;    /* auto-reset overlay after 60s */
+  const MAXRETRY_RESET_S   = 30;    /* auto-reset max-retry screen */
+
+  /* ── session data ── */
+  const _fpBooth   = window.__FP__?.booth || {};
+  const _boothId   = _fpBooth.id       || '001';
+  const _boothLoc  = _fpBooth.location || 'SM North EDSA';
+  const _boothDefault = `#${_boothId} · ${_boothLoc}`;
+
+  const session = {
+    package:'Classic Strip', photos:'4 shots · 1 strip',
+    filter:'Original', price:'₱89', amount:89, booth: _boothDefault,
+  };
+  try {
+    const s = JSON.parse(localStorage.getItem('fp_session') || '{}');
+    if (s.package) {
+      session.package = s.package.name   || session.package;
+      session.photos  = s.package.photos || session.photos;
+      session.filter  = s.filter         || session.filter;
+      session.price   = s.package.price  || session.price;
+      session.amount  = s.package.amount || session.amount;
+    }
+    if (s.boothLabel) session.booth = s.boothLabel;
+  } catch(_){}
+
+  document.getElementById('sum-pkg').textContent     = session.package;
+  document.getElementById('sum-photos').textContent  = session.photos;
+  document.getElementById('sum-filter').textContent  = session.filter;
+  document.getElementById('sum-total').textContent   = session.price;
+  document.getElementById('sum-booth').textContent   = session.booth;
+  document.getElementById('qr-amount').textContent   = '₱' + session.amount + '.00';
+  document.getElementById('confirm-amt').textContent = session.amount;
+  document.getElementById('overlay-amount').textContent = '₱' + session.amount + '.00';
+
+  /* show demo controls — always visible on localhost */
+  if (DEMO_MODE) {
+    document.getElementById('demoControls').style.display = 'flex';
+    document.getElementById('demoLabel').style.display = 'block';
+    console.log('[PAYMENT] Demo mode active — simulate buttons visible');
+  } else {
+    console.log('[PAYMENT] Production mode — hostname:', window.location.hostname);
+  }
+
+  /* ── attempt state ── */
+  let attemptNum   = parseInt(localStorage.getItem('fp_attempt') || '1');
+  let paymentDone  = false;
+
+  /* ── clock ── */
+  function tick() {
+    const n = new Date(), h = n.getHours(), m = n.getMinutes(), ap = h >= 12 ? 'PM' : 'AM';
+    const hh = ((h % 12) || 12), mm = String(m).padStart(2,'0');
+    document.getElementById('clock').textContent = String(hh).padStart(2,'0') + ':' + mm + ' ' + ap;
+  }
+  tick(); setInterval(tick, 1000);
+
+  /* ── generate ref ── */
+  function freshRef() {
+    const r = 'FP-' + (localStorage.getItem('fp_booth_id') || '001') + '-' + String(Date.now()).slice(-6);
+    localStorage.setItem('fp_payment_ref', r);
+    return r;
+  }
+  let ref = localStorage.getItem('fp_payment_ref');
+  if (!ref || !ref.startsWith('FP-')) ref = freshRef();
+  document.getElementById('ref-no').textContent = ref;
+
+  /* ── attempt badge ── */
+  function updateAttemptBadge() {
+    const badge = document.getElementById('attemptBadge');
+    if (attemptNum > 1) {
+      badge.classList.add('visible');
+      document.getElementById('attemptLabel').textContent =
+        'attempt ' + attemptNum + ' of ' + MAX_RETRIES;
+      for (let i = 1; i <= MAX_RETRIES; i++) {
+        const pip = document.getElementById('pip' + i);
+        if (!pip) continue;
+        pip.classList.remove('used', 'failed-pip');
+        if (i < attemptNum) pip.classList.add('used');
+        if (i === attemptNum) pip.classList.add('used');
+      }
+    }
+  }
+  updateAttemptBadge();
+
+  /* ── status helpers ── */
+  function updateStatus(type, title, desc) {
+    const c = document.getElementById('statusCard');
+    c.className = 'status-card ' + type;
+    document.getElementById('status-title').textContent = title;
+    document.getElementById('status-desc').textContent  = desc;
+  }
+  function setConnBadge(mode, label) {
+    const b = document.getElementById('connBadge');
+    b.className = 'conn-badge' + (mode ? ' ' + mode : '');
+    document.getElementById('connLabel').textContent = label;
+  }
+
+  /* ════════════════════════════════════
+     QR COUNTDOWN TIMER
+  ════════════════════════════════════ */
+  let qrSeconds = QR_DURATION_S;
+  let timerInterval = null;
+
+  function startTimer() {
+    qrSeconds = QR_DURATION_S;
+    const display  = document.getElementById('timerDisplay');
+    const expTxt   = document.getElementById('qr-expire-txt');
+    const card     = document.getElementById('timerCard');
+    display.classList.remove('warning');
+    card.classList.remove('urgent');
+
+    timerInterval = setInterval(() => {
+      qrSeconds--;
+      if (qrSeconds <= 0) {
+        clearInterval(timerInterval);
+        if (!paymentDone) handleExpired();
+        return;
+      }
+      const m = Math.floor(qrSeconds / 60), s = qrSeconds % 60;
+      const fmt = String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+      display.textContent = fmt;
+      expTxt.textContent  = fmt;
+      if (qrSeconds <= 60 && !display.classList.contains('warning')) {
+        display.classList.add('warning');
+        card.classList.add('urgent');
+      }
+      /* reset idle timer on every tick (user is present = screen is active) */
+    }, 1000);
+  }
+
+  function stopTimer() {
+    clearInterval(timerInterval);
+  }
+
+  /* ════════════════════════════════════
+     IDLE ABANDONMENT TIMER
+     If the screen sits idle (no payment, no interaction) for
+     IDLE_ABANDON_MS, silently return to welcome screen.
+  ════════════════════════════════════ */
+  let idleTimeout = null;
+
+  function resetIdleTimer() {
+    clearTimeout(idleTimeout);
+    if (paymentDone) return;
+    idleTimeout = setTimeout(() => {
+      if (!paymentDone) resetToWelcome();
+    }, IDLE_ABANDON_MS);
+  }
+
+  /* reset on any touch/click */
+  document.addEventListener('click',     resetIdleTimer);
+  document.addEventListener('touchstart', resetIdleTimer);
+  resetIdleTimer();
+
+  /* ════════════════════════════════════
+     SSE + POLL
+  ════════════════════════════════════ */
+  let sseActive = false, sseRetries = 0, sseSource = null;
+  let pollInterval = null;
+
+  function startPaymentListeners() {
+    connectSSE();
+    startPoll();
+  }
+
+  function stopPaymentListeners() {
+    if (sseSource) { sseSource.close(); sseSource = null; }
+    sseActive = false;
+    clearInterval(pollInterval);
+  }
+
+  function connectSSE() {
+    if (paymentDone) return;
+    try {
+      sseSource = new EventSource(`${SERVER}/api/gcash/stream?ref=${encodeURIComponent(ref)}`);
+      sseActive = true;
+      setConnBadge('', 'live · waiting');
+
+      sseSource.addEventListener('payment', (e) => {
+        const d = JSON.parse(e.data);
+        if (d.status === 'PAID')   { sseSource.close(); handlePaid(); }
+        if (d.status === 'FAILED') { sseSource.close(); handleFailed(d.reason || 'payment declined by GCash'); }
+      });
+
+      sseSource.onerror = () => {
+        if (sseSource) sseSource.close();
+        sseActive = false;
+        sseRetries++;
+        setConnBadge('polling', 'polling · reconnecting...');
+        const delay = Math.min(1000 * Math.pow(1.5, sseRetries), 30000);
+        if (!paymentDone) setTimeout(connectSSE, delay);
+      };
+    } catch(_) {
+      sseActive = false;
+      setConnBadge('polling', 'polling mode');
+    }
+  }
+
+  function startPoll() {
+    clearInterval(pollInterval);
+    pollInterval = setInterval(async () => {
+      if (paymentDone) { clearInterval(pollInterval); return; }
+      try {
+        const res  = await fetch(`${SERVER}/api/gcash/status?ref=${encodeURIComponent(ref)}`);
+        const data = await res.json();
+        if (data.status === 'PAID')   { clearInterval(pollInterval); handlePaid(); }
+        if (data.status === 'FAILED') { clearInterval(pollInterval); handleFailed(data.reason || 'payment declined'); }
+        if (!sseActive) setConnBadge('polling', 'polling · server reachable');
+      } catch(_) {
+        if (!sseActive) setConnBadge('offline', 'no server connection');
+      }
+    }, 3000);
+  }
+
+  startPaymentListeners();
+  startTimer();
+
+  /* ════════════════════════════════════
+     OUTCOME HANDLERS
+  ════════════════════════════════════ */
+  function handlePaid() {
+    if (paymentDone) return;
+    paymentDone = true;
+    stopTimer(); stopPaymentListeners(); clearTimeout(idleTimeout);
+    localStorage.removeItem('fp_payment_ref');
+    localStorage.removeItem('fp_attempt');
+
+    updateStatus('confirmed', 'payment confirmed ✓',
+      'GCash ref: ' + ref + ' · ₱' + session.amount + '.00 received');
+    setConnBadge('', 'payment confirmed');
+
+    try { if (typeof reportSessionStart === 'function') reportSessionStart({ amount: session.amount, ref }); } catch(_){}
+    setTimeout(showConfirmedOverlay, 600);
+  }
+
+  function handleFailed(reason) {
+    if (paymentDone) return;
+    paymentDone = true;
+    stopTimer(); stopPaymentListeners(); clearTimeout(idleTimeout);
+
+    document.getElementById('failedReason').textContent = reason;
+
+    if (attemptNum >= MAX_RETRIES) {
+      showMaxRetryOverlay();
+    } else {
+      showFailedOverlay();
+    }
+  }
+
+  function handleExpired() {
+    if (paymentDone) return;
+    paymentDone = true;
+    stopPaymentListeners(); clearTimeout(idleTimeout);
+    document.getElementById('timerDisplay').textContent = '00:00';
+
+    if (attemptNum >= MAX_RETRIES) {
+      showMaxRetryOverlay();
+    } else {
+      showExpiredOverlay();
+    }
+  }
+
+  /* ════════════════════════════════════
+     IN-PLACE RETRY (no page reload)
+  ════════════════════════════════════ */
+  function retryFromOverlay(source) {
+    /* dismiss the overlay */
+    document.getElementById(source === 'expired' ? 'expiredOverlay' : 'failedOverlay')
+            .classList.remove('show');
+    stopOverlayCountdown();
+
+    attemptNum++;
+    localStorage.setItem('fp_attempt', String(attemptNum));
+
+    /* generate a new ref */
+    ref = freshRef();
+    document.getElementById('ref-no').textContent = ref;
+
+    /* update pip badge */
+    updateAttemptBadge();
+
+    /* flip QR card out → reset → flip back in */
+    const card = document.getElementById('qrCard');
+    card.classList.add('refreshing');
+
+    setTimeout(() => {
+      /* update QR expire text */
+      document.getElementById('qr-expire-txt').textContent = '10:00';
+      document.getElementById('timerDisplay').textContent  = '09:59';
+      document.getElementById('timerDisplay').classList.remove('warning');
+      document.getElementById('timerCard').classList.remove('urgent');
+
+      /* reset status */
+      updateStatus('waiting', 'waiting for payment...',
+        'open GCash → Pay QR → scan the code above');
+      setConnBadge('', 'live · waiting');
+
+      card.classList.remove('refreshing');
+
+      /* restart everything */
+      paymentDone = false;
+      sseRetries  = 0;
+      startTimer();
+      startPaymentListeners();
+      resetIdleTimer();
+    }, 380);
+  }
+
+  /* ════════════════════════════════════
+     OVERLAY DISPLAY + AUTO-COUNTDOWN
+  ════════════════════════════════════ */
+  let overlayCountdownInterval = null;
+
+  function stopOverlayCountdown() {
+    clearInterval(overlayCountdownInterval);
+    overlayCountdownInterval = null;
+  }
+
+  function startOverlayCountdown(numId, fillId, seconds, onComplete) {
+    stopOverlayCountdown();
+    let remaining = seconds;
+    const circumference = 339.3; /* 2π × 54 */
+    const numEl  = document.getElementById(numId);
+    const fillEl = document.getElementById(fillId);
+
+    function update() {
+      numEl.textContent = remaining;
+      const offset = circumference * (1 - remaining / seconds);
+      fillEl.style.strokeDashoffset = offset;
+    }
+    update();
+
+    overlayCountdownInterval = setInterval(() => {
+      remaining--;
+      update();
+      if (remaining <= 0) {
+        stopOverlayCountdown();
+        onComplete();
+      }
+    }, 1000);
+  }
+
+  function showExpiredOverlay() {
+    const overlay = document.getElementById('expiredOverlay');
+
+    const remaining = MAX_RETRIES - attemptNum;
+    document.getElementById('expiredAttempts').textContent =
+      'attempt ' + attemptNum + ' of ' + MAX_RETRIES +
+      ' · ' + remaining + ' remaining';
+
+    overlay.classList.add('show');
+    startOverlayCountdown('expiredCountNum', 'expiredRingFill', OVERLAY_RESET_S, () => {
+      overlay.classList.remove('show');
+      retryFromOverlay('expired');
+    });
+  }
+
+  function showFailedOverlay() {
+    const overlay = document.getElementById('failedOverlay');
+    overlay.classList.add('show');
+    startOverlayCountdown('failedCountNum', 'failedRingFill', OVERLAY_RESET_S, () => {
+      overlay.classList.remove('show');
+      retryFromOverlay('failed');
+    });
+  }
+
+  function showMaxRetryOverlay() {
+    /* mark all pips as failed */
+    for (let i = 1; i <= MAX_RETRIES; i++) {
+      const p = document.getElementById('pip' + i);
+      if (p) { p.classList.add('failed-pip'); p.classList.remove('used'); }
+    }
+
+    const overlay = document.getElementById('maxRetryOverlay');
+    overlay.classList.add('show');
+
+    /* report to dashboard */
+    try {
+      if (typeof reportBoothError === 'function')
+        reportBoothError({ type: 'payment_failed', attempts: MAX_RETRIES, ref });
+    } catch(_){}
+
+    /* progress bar + countdown to auto-reset */
+    let elapsed = 0;
+    const total = MAXRETRY_RESET_S * 1000, step = 50;
+    const bar   = document.getElementById('maxRetryBar');
+    const note  = document.getElementById('maxRetryNote');
+    const prog  = setInterval(() => {
+      elapsed += step;
+      bar.style.width = Math.min(elapsed / total * 100, 100) + '%';
+    }, step);
+    let secs = MAXRETRY_RESET_S;
+    const cd = setInterval(() => {
+      secs--;
+      note.textContent = 'returning to start in ' + secs + 's';
+      if (secs <= 0) {
+        clearInterval(cd); clearInterval(prog);
+        bar.style.width = '100%';
+        resetToWelcome();
+      }
+    }, 1000);
+  }
+
+  /* ── success overlay ── */
+  function showConfirmedOverlay() {
+    const overlay = document.getElementById('confirmedOverlay');
+    overlay.classList.add('show');
+    let count = 3;
+    const navBar = document.getElementById('navBar'), navCount = document.getElementById('nav-count');
+    const total = 3000, step = 50; let elapsed = 0;
+    const prog = setInterval(() => { elapsed += step; navBar.style.width = Math.min(elapsed/total*100,100)+'%'; }, step);
+    const cd   = setInterval(() => {
+      count--;
+      navCount.textContent = count;
+      if (count <= 0) {
+        clearInterval(cd); clearInterval(prog);
+        navBar.style.width = '100%';
+        const fade = document.createElement('div');
+        fade.style.cssText = 'position:fixed;inset:0;background:#fff;opacity:0;z-index:9999;pointer-events:none;transition:opacity 0.2s;';
+        document.body.appendChild(fade);
+        requestAnimationFrame(() => { fade.style.opacity = '0.8'; });
+        setTimeout(() => {
+          if (typeof fpNavigate === 'function') fpNavigate('camera');
+          else window.location.href = 'camera.html';
+        }, 220);
+      }
+    }, 1000);
+  }
+
+  /* ── navigate back / reset ── */
+  function resetToWelcome() {
+    stopTimer(); stopPaymentListeners(); clearTimeout(idleTimeout);
+    localStorage.removeItem('fp_payment_ref');
+    localStorage.removeItem('fp_attempt');
+    const fade = document.createElement('div');
+    fade.style.cssText = 'position:fixed;inset:0;background:var(--ink);opacity:0;z-index:9999;pointer-events:none;transition:opacity 0.3s;';
+    document.body.appendChild(fade);
+    requestAnimationFrame(() => { fade.style.opacity = '1'; });
+    setTimeout(() => {
+      if (typeof fpNavigate === 'function') fpNavigate('welcome');
+      else window.location.href = 'welcome.html';
+    }, 320);
+  }
+
+  function goBack() {
+    stopTimer(); stopPaymentListeners(); clearTimeout(idleTimeout);
+    stopOverlayCountdown();
+    localStorage.removeItem('fp_payment_ref');
+    localStorage.removeItem('fp_attempt');
+    if (typeof fpNavigate === 'function') fpNavigate('packages');
+    else window.location.href = 'packages.html';
+  }
+
+  /* ── demo simulate ── */
+  function demoSimulate(result, e) {
+    if (!DEMO_MODE) return;
+    addRipple(e);
+    /* try server first, fall back to direct UI trigger if server not running */
+    fetch(`${SERVER}/gcash/simulate-payment`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ referenceId:ref, fail: result === 'failed' }),
+    }).catch(() => {
+      /* server not running — trigger UI directly */
+      if (result === 'confirmed') handlePaid();
+      else handleFailed('simulated GCash decline');
+    });
+    /* also trigger directly after short delay in case SSE isn't connected */
+    setTimeout(() => {
+      if (!paymentDone) {
+        if (result === 'confirmed') handlePaid();
+        else handleFailed('simulated GCash decline');
+      }
+    }, 800);
+  }
+
+  /* ── ripple ── */
+  function addRipple(e) {
+    const r = document.createElement('div');
+    r.className = 'ripple';
+    const x = e ? (e.clientX || 540) : 540, y = e ? (e.clientY || 960) : 960;
+    r.style.cssText = `left:${x}px;top:${y}px;width:50px;height:50px;`;
+    document.body.appendChild(r);
+    setTimeout(() => r.remove(), 600);
+  }
+</script>
+</body>
+</html>

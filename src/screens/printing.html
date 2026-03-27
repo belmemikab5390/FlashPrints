@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=1080"/>
+<title>Flash &amp; Prints — Printing</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&family=Space+Mono&display=swap" rel="stylesheet"/>
+<style>
+  :root{
+    --gold:#E8C547;--gold-faint:rgba(232,197,71,0.08);
+    --rose:#C84B6E;--sage:#3DAA6C;--sage-light:rgba(61,170,108,0.12);
+    --charcoal:#111118;--charcoal2:#1A1A26;--charcoal3:#20202E;
+    --ink:#0A0A12;--border:rgba(255,255,255,0.07);--faint:rgba(255,255,255,0.04);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{
+    width:1080px;height:1920px;overflow:hidden;
+    background:var(--ink);font-family:'DM Sans',sans-serif;
+    cursor:none;user-select:none;
+  }
+
+  /* ── background ── */
+  .bg{position:absolute;inset:0;background:radial-gradient(ellipse 900px 900px at 50% 50%,#0D1A14 0%,#0A0A12 65%);}
+  .bg-grid{
+    position:absolute;inset:0;
+    background-image:linear-gradient(rgba(61,170,108,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(61,170,108,0.025) 1px,transparent 1px);
+    background-size:60px 60px;
+  }
+  .bg-glow{
+    position:absolute;width:800px;height:800px;border-radius:50%;
+    background:radial-gradient(circle,rgba(61,170,108,0.06) 0%,transparent 70%);
+    top:50%;left:50%;transform:translate(-50%,-50%);
+    animation:glowBreath 4s ease-in-out infinite;
+    pointer-events:none;
+  }
+  @keyframes glowBreath{0%,100%{opacity:0.5;transform:translate(-50%,-50%) scale(1)}50%{opacity:1;transform:translate(-50%,-50%) scale(1.1)}}
+
+  /* ── topbar ── */
+  .topbar{
+    position:absolute;top:0;left:0;right:0;height:100px;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:0 56px;background:linear-gradient(to bottom,rgba(0,0,0,0.6),transparent);z-index:20;
+  }
+  .brand{font-family:'Playfair Display',serif;font-weight:900;font-size:20px;color:#fff;}
+  .brand em{color:var(--gold);font-style:normal;}
+  .step-indicator{display:flex;align-items:center;gap:8px;}
+  .step-dot{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,0.12);transition:all 0.3s;}
+  .step-dot.done{background:var(--sage);}
+  .step-dot.active{background:var(--gold);width:28px;border-radius:5px;}
+  .step-line{width:24px;height:1px;background:rgba(255,255,255,0.08);}
+  .topbar-clock{font-family:'Space Mono',monospace;font-size:14px;color:rgba(255,255,255,0.3);}
+
+  /* ── main ── */
+  .main{
+    position:absolute;top:100px;left:0;right:0;bottom:0;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    padding:40px 80px 60px;z-index:10;gap:0;
+  }
+
+  /* ── top label ── */
+  .top-label{
+    font-family:'Space Mono',monospace;font-size:11px;letter-spacing:4px;
+    color:rgba(61,170,108,0.6);text-transform:uppercase;margin-bottom:20px;
+    display:flex;align-items:center;gap:12px;
+    animation:fadeIn 0.6s both;
+  }
+  @keyframes fadeIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+  .top-label::before,.top-label::after{content:'';width:40px;height:1px;background:rgba(61,170,108,0.3);}
+
+  /* ── PRINTER MACHINE ── */
+  .printer-scene{
+    position:relative;width:520px;height:440px;
+    display:flex;flex-direction:column;align-items:center;
+    margin-bottom:16px;
+    animation:sceneIn 0.8s cubic-bezier(0.34,1.2,0.64,1) 0.1s both;
+  }
+  @keyframes sceneIn{from{opacity:0;transform:scale(0.85) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)}}
+
+  /* machine body */
+  .printer-body{
+    width:420px;height:200px;
+    background:linear-gradient(160deg,#1E2A1E,#141E14);
+    border-radius:24px 24px 16px 16px;
+    border:1.5px solid rgba(61,170,108,0.15);
+    position:relative;
+    box-shadow:0 0 60px rgba(61,170,108,0.06), inset 0 1px 0 rgba(255,255,255,0.05);
+    overflow:hidden;
+  }
+
+  /* top panel */
+  .printer-top-panel{
+    position:absolute;top:0;left:0;right:0;height:52px;
+    background:linear-gradient(to bottom,rgba(255,255,255,0.04),transparent);
+    border-bottom:1px solid rgba(255,255,255,0.05);
+    display:flex;align-items:center;justify-content:space-between;
+    padding:0 24px;
+  }
+  .printer-brand-tag{font-family:'Space Mono',monospace;font-size:10px;color:rgba(255,255,255,0.2);letter-spacing:2px;}
+  .printer-model{font-family:'Space Mono',monospace;font-size:9px;color:rgba(255,255,255,0.12);letter-spacing:1px;}
+
+  /* status lights row */
+  .printer-lights{display:flex;gap:8px;align-items:center;}
+  .p-light{width:10px;height:10px;border-radius:50%;}
+  .p-light.green{background:#3DAA6C;box-shadow:0 0 8px rgba(61,170,108,0.8);animation:lightBlink 1.8s ease-in-out infinite;}
+  .p-light.amber{background:#E8C547;box-shadow:0 0 6px rgba(232,197,71,0.4);opacity:0.4;}
+  .p-light.red{background:#C84B6E;opacity:0.2;}
+  @keyframes lightBlink{0%,100%{opacity:1}50%{opacity:0.3}}
+
+  /* screen on printer */
+  .printer-screen{
+    position:absolute;top:64px;left:50%;transform:translateX(-50%);
+    width:180px;height:60px;border-radius:8px;
+    background:#000d08;border:1px solid rgba(61,170,108,0.2);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+    overflow:hidden;
+  }
+  .pscreen-line1{font-family:'Space Mono',monospace;font-size:9px;color:rgba(61,170,108,0.7);letter-spacing:1px;}
+  .pscreen-line2{font-family:'Space Mono',monospace;font-size:11px;color:#3DAA6C;font-weight:700;letter-spacing:1px;}
+  .pscreen-cursor{display:inline-block;width:2px;height:12px;background:#3DAA6C;margin-left:2px;animation:cursorBlink 0.8s step-end infinite;}
+  @keyframes cursorBlink{0%,100%{opacity:1}50%{opacity:0}}
+
+  /* paper feed slot */
+  .printer-slot-area{
+    position:absolute;bottom:0;left:50%;transform:translateX(-50%);
+    width:260px;
+  }
+  .printer-slot-housing{
+    width:100%;height:28px;
+    background:linear-gradient(to bottom,#0A100A,#080D08);
+    border-radius:4px 4px 0 0;
+    border:1px solid rgba(61,170,108,0.1);border-bottom:none;
+    display:flex;align-items:center;justify-content:center;
+    position:relative;overflow:hidden;
+  }
+  .slot-gap{width:200px;height:6px;background:#000;border-radius:1px;position:relative;}
+  .slot-gap::after{content:'';position:absolute;inset:0;background:linear-gradient(to right,rgba(61,170,108,0.2),rgba(61,170,108,0.05),rgba(61,170,108,0.2));animation:slotGlow 2s ease-in-out infinite;}
+  @keyframes slotGlow{0%,100%{opacity:0.4}50%{opacity:1}}
+
+  /* decorative vents */
+  .printer-vents{
+    position:absolute;right:24px;top:50%;transform:translateY(-50%);
+    display:flex;flex-direction:column;gap:5px;
+  }
+  .vent-line{width:32px;height:2px;background:rgba(255,255,255,0.04);border-radius:1px;}
+
+  /* roller indicators */
+  .printer-rollers{
+    position:absolute;left:24px;top:50%;transform:translateY(-50%);
+    display:flex;flex-direction:column;gap:8px;
+  }
+  .roller{width:16px;height:16px;border-radius:50%;background:rgba(61,170,108,0.08);border:1px solid rgba(61,170,108,0.15);}
+
+  /* ── PAPER / STRIP coming out ── */
+  .paper-wrap{
+    width:200px;
+    display:flex;flex-direction:column;align-items:center;
+    position:relative;
+    margin-top:-2px;
+  }
+  .paper-strip{
+    width:200px;
+    background:#fff;
+    border-radius:0 0 8px 8px;
+    overflow:hidden;
+    position:relative;
+    animation:paperEmerge 12s ease-out forwards;
+    box-shadow:0 8px 32px rgba(0,0,0,0.5);
+  }
+  @keyframes paperEmerge{
+    0%  {height:0px;}
+    8%  {height:20px;}
+    20% {height:80px;}
+    40% {height:180px;}
+    70% {height:280px;}
+    90% {height:340px;}
+    100%{height:360px;}
+  }
+
+  /* strip content */
+  .paper-content{
+    width:100%;padding:10px 8px;
+    display:flex;flex-direction:column;gap:5px;
+    background:#fff;
+  }
+  .paper-photo-cell{
+    width:100%;background:#F0F0F0;border-radius:4px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:22px;position:relative;overflow:hidden;
+  }
+  .paper-photo-cell::after{
+    content:'';position:absolute;inset:0;
+    background:linear-gradient(135deg,rgba(61,107,82,0.15),rgba(200,75,110,0.1));
+  }
+  .paper-branding{
+    text-align:center;padding:5px 0 2px;
+    border-top:0.5px solid #e0e0e0;margin-top:3px;
+  }
+  .paper-brand-text{font-family:'Playfair Display',serif;font-size:9px;font-weight:900;color:#333;}
+  .paper-brand-text em{color:#C8932A;font-style:normal;}
+  .paper-date-text{font-family:'Space Mono',monospace;font-size:7px;color:#aaa;margin-top:1px;}
+
+  /* ink roller animation line */
+  .ink-line{
+    position:absolute;left:0;right:0;height:3px;
+    background:linear-gradient(to right,transparent,rgba(61,170,108,0.6),transparent);
+    animation:inkPass 12s ease-out forwards;
+    top:0;pointer-events:none;z-index:3;
+  }
+  @keyframes inkPass{
+    0%  {top:0px;opacity:1;}
+    90% {opacity:1;}
+    100%{top:360px;opacity:0;}
+  }
+
+  /* ── progress section ── */
+  .progress-section{
+    width:520px;display:flex;flex-direction:column;gap:16px;
+    animation:fadeIn 0.6s 0.3s both;
+  }
+
+  /* big progress bar */
+  .progress-track{
+    width:100%;height:8px;background:rgba(255,255,255,0.06);
+    border-radius:4px;overflow:hidden;position:relative;
+  }
+  .progress-fill{
+    height:100%;border-radius:4px;
+    background:linear-gradient(90deg,var(--sage),#5DCAA5);
+    animation:progressGrow 12s ease-out forwards;
+    position:relative;overflow:hidden;
+  }
+  @keyframes progressGrow{
+    0%  {width:0%;}
+    5%  {width:8%;}
+    20% {width:30%;}
+    40% {width:55%;}
+    70% {width:78%;}
+    90% {width:92%;}
+    100%{width:100%;}
+  }
+  .progress-shimmer{
+    position:absolute;inset:0;
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,0.4),transparent);
+    animation:shimmer 1.5s ease-in-out infinite;
+  }
+  @keyframes shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(200%)}}
+
+  .progress-labels{display:flex;justify-content:space-between;align-items:center;}
+  .progress-pct{font-family:'Space Mono',monospace;font-size:22px;font-weight:700;color:var(--sage);}
+  .progress-time{font-family:'Space Mono',monospace;font-size:13px;color:rgba(255,255,255,0.25);}
+
+  /* stage indicators */
+  .stages{display:flex;gap:0;border-radius:14px;overflow:hidden;border:1px solid var(--border);}
+  .stage{
+    flex:1;padding:12px 8px;text-align:center;
+    background:var(--faint);border-right:1px solid var(--border);
+    transition:all 0.4s;
+  }
+  .stage:last-child{border-right:none;}
+  .stage.active-stage{background:rgba(61,170,108,0.08);border-bottom:2px solid var(--sage);}
+  .stage.done-stage{background:rgba(61,170,108,0.04);}
+  .stage-icon{font-size:16px;margin-bottom:4px;}
+  .stage-name{font-size:11px;font-weight:500;color:rgba(255,255,255,0.3);transition:color 0.3s;}
+  .stage.active-stage .stage-name{color:var(--sage);}
+  .stage.done-stage .stage-name{color:rgba(61,170,108,0.5);}
+  .stage-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.1);margin:4px auto 0;transition:all 0.3s;}
+  .stage.active-stage .stage-dot{background:var(--sage);animation:lightBlink 1s ease-in-out infinite;}
+  .stage.done-stage .stage-dot{background:rgba(61,170,108,0.4);}
+
+  /* ── center title ── */
+  .center-info{
+    display:flex;flex-direction:column;align-items:center;gap:10px;
+    margin:24px 0;
+    animation:fadeIn 0.6s 0.2s both;
+  }
+  .printing-title{font-family:'Playfair Display',serif;font-size:52px;font-weight:900;color:#fff;line-height:1;text-align:center;}
+  .printing-title em{color:var(--sage);font-style:italic;}
+  .printing-sub{font-size:18px;color:rgba(255,255,255,0.3);font-weight:300;text-align:center;}
+
+  /* ── warning card ── */
+  .warning-card{
+    width:520px;
+    background:rgba(232,197,71,0.05);border:1px solid rgba(232,197,71,0.15);
+    border-radius:16px;padding:16px 20px;
+    display:flex;align-items:center;gap:14px;
+    animation:fadeIn 0.6s 0.4s both;
+    margin-top:8px;
+  }
+  .warning-icon{width:40px;height:40px;border-radius:12px;background:rgba(232,197,71,0.1);border:1px solid rgba(232,197,71,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .warning-text{font-size:14px;color:rgba(255,255,255,0.4);line-height:1.5;}
+  .warning-text strong{color:rgba(255,255,255,0.65);display:block;margin-bottom:2px;font-size:15px;}
+
+  /* ── specs strip ── */
+  .specs-row{
+    display:flex;gap:0;width:520px;
+    border-radius:14px;overflow:hidden;border:1px solid var(--border);
+    animation:fadeIn 0.6s 0.5s both;margin-top:4px;
+  }
+  .spec{
+    flex:1;padding:14px 10px;text-align:center;
+    background:var(--faint);border-right:1px solid var(--border);
+  }
+  .spec:last-child{border-right:none;}
+  .spec-val{font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:rgba(255,255,255,0.5);margin-bottom:3px;}
+  .spec-key{font-size:11px;color:rgba(255,255,255,0.2);}
+
+  /* ── done overlay ── */
+  .done-overlay{
+    position:fixed;inset:0;z-index:500;
+    background:rgba(10,10,18,0.88);
+    display:flex;align-items:center;justify-content:center;
+    opacity:0;pointer-events:none;transition:opacity 0.5s;
+  }
+  .done-overlay.show{opacity:1;pointer-events:all;}
+  .done-box{
+    background:var(--charcoal2);border:1px solid rgba(61,170,108,0.3);
+    border-radius:28px;padding:52px 64px;
+    display:flex;flex-direction:column;align-items:center;gap:18px;
+    text-align:center;max-width:520px;
+    animation:popIn 0.6s cubic-bezier(0.34,1.4,0.64,1) both;
+  }
+  @keyframes popIn{from{opacity:0;transform:scale(0.8) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)}}
+  .done-check-ring{
+    width:100px;height:100px;border-radius:50%;
+    background:rgba(61,170,108,0.1);border:2px solid var(--sage);
+    display:flex;align-items:center;justify-content:center;
+    animation:ringPop 0.5s cubic-bezier(0.34,1.6,0.64,1) both;
+  }
+  @keyframes ringPop{from{transform:scale(0)}to{transform:scale(1)}}
+  .done-title{font-family:'Playfair Display',serif;font-size:42px;font-weight:900;color:#fff;}
+  .done-emoji-row{display:flex;gap:8px;font-size:32px;}
+  .done-sub{font-size:16px;color:rgba(255,255,255,0.35);line-height:1.7;}
+  .done-collect{
+    background:rgba(61,170,108,0.08);border:1px solid rgba(61,170,108,0.2);
+    border-radius:14px;padding:16px 24px;width:100%;
+    display:flex;align-items:center;gap:14px;
+  }
+  .collect-arrow{
+    width:44px;height:44px;border-radius:12px;
+    background:rgba(61,170,108,0.12);border:1px solid rgba(61,170,108,0.2);
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;
+    animation:arrowBounce 1.5s ease-in-out infinite;
+  }
+  @keyframes arrowBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(4px)}}
+  .collect-text{text-align:left;}
+  .collect-title{font-size:16px;font-weight:600;color:#fff;margin-bottom:3px;}
+  .collect-sub{font-size:13px;color:rgba(255,255,255,0.3);}
+  .done-next-btn{
+    width:100%;padding:18px;border-radius:16px;border:none;
+    background:linear-gradient(135deg,var(--sage),#2A8A52);
+    color:#fff;font-family:'Playfair Display',serif;
+    font-size:22px;font-weight:700;cursor:pointer;
+    transition:transform 0.15s;margin-top:4px;
+  }
+  .done-next-btn:active{transform:scale(0.98);}
+  .done-auto{font-size:12px;color:rgba(255,255,255,0.2);font-family:'Space Mono',monospace;}
+  .done-bar{width:100%;height:4px;background:rgba(255,255,255,0.08);border-radius:2px;overflow:hidden;}
+  .done-bar-fill{height:100%;background:var(--sage);border-radius:2px;width:0%;transition:width 0.05s linear;}
+</style>
+</head>
+<body>
+
+<div class="bg"></div>
+<div class="bg-grid"></div>
+<div class="bg-glow"></div>
+
+<!-- topbar -->
+<div class="topbar">
+  <div class="brand"><em>Flash</em> &amp; Prints</div>
+  <div class="step-indicator">
+    <div class="step-dot done"></div><div class="step-line"></div>
+    <div class="step-dot done"></div><div class="step-line"></div>
+    <div class="step-dot done"></div><div class="step-line"></div>
+    <div class="step-dot done"></div><div class="step-line"></div>
+    <div class="step-dot active"></div>
+  </div>
+  <div class="topbar-clock" id="clock">--:-- --</div>
+</div>
+
+<div class="main">
+
+  <!-- top label -->
+  <div class="top-label">printing in progress</div>
+
+  <!-- printer scene -->
+  <div class="printer-scene">
+
+    <!-- machine body -->
+    <div class="printer-body">
+      <div class="printer-top-panel">
+        <div class="printer-brand-tag">DNP DS620A</div>
+        <div class="printer-lights">
+          <div class="p-light green"></div>
+          <div class="p-light amber"></div>
+          <div class="p-light red"></div>
+        </div>
+        <div class="printer-model">DYE-SUB · 2×6</div>
+      </div>
+
+      <!-- mini screen -->
+      <div class="printer-screen">
+        <div class="pscreen-line1">PRINTING</div>
+        <div class="pscreen-line2" id="screenPct">0%<span class="pscreen-cursor"></span></div>
+      </div>
+
+      <!-- vents -->
+      <div class="printer-vents">
+        <div class="vent-line"></div><div class="vent-line"></div>
+        <div class="vent-line"></div><div class="vent-line"></div>
+        <div class="vent-line"></div>
+      </div>
+
+      <!-- rollers -->
+      <div class="printer-rollers">
+        <div class="roller"></div>
+        <div class="roller"></div>
+        <div class="roller"></div>
+      </div>
+
+      <!-- slot -->
+      <div class="printer-slot-area">
+        <div class="printer-slot-housing">
+          <div class="slot-gap"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- paper strip emerging -->
+    <div class="paper-wrap">
+      <div class="paper-strip" id="paperStrip">
+        <div class="ink-line"></div>
+        <div class="paper-content" id="paperContent">
+          <!-- populated by JS -->
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- title -->
+  <div class="center-info">
+    <div class="printing-title">your strip is<br/><em>printing!</em></div>
+    <div class="printing-sub">dye-sublimation · professional quality · waterproof</div>
+  </div>
+
+  <!-- progress -->
+  <div class="progress-section">
+    <div class="progress-labels">
+      <div class="progress-pct" id="progressPct">0%</div>
+      <div class="progress-time" id="progressTime">~12 sec remaining</div>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill">
+        <div class="progress-shimmer"></div>
+      </div>
+    </div>
+
+    <!-- stages -->
+    <div class="stages" id="stagesRow">
+      <div class="stage active-stage" id="stage-0">
+        <div class="stage-icon">🎞️</div>
+        <div class="stage-name">loading</div>
+        <div class="stage-dot"></div>
+      </div>
+      <div class="stage" id="stage-1">
+        <div class="stage-icon">🎨</div>
+        <div class="stage-name">yellow</div>
+        <div class="stage-dot"></div>
+      </div>
+      <div class="stage" id="stage-2">
+        <div class="stage-icon">💜</div>
+        <div class="stage-name">magenta</div>
+        <div class="stage-dot"></div>
+      </div>
+      <div class="stage" id="stage-3">
+        <div class="stage-icon">🔵</div>
+        <div class="stage-name">cyan</div>
+        <div class="stage-dot"></div>
+      </div>
+      <div class="stage" id="stage-4">
+        <div class="stage-icon">✨</div>
+        <div class="stage-name">laminate</div>
+        <div class="stage-dot"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- warning -->
+  <div class="warning-card">
+    <div class="warning-icon">
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+        <path d="M11 4 L19 18 L3 18 Z" stroke="rgba(232,197,71,0.6)" stroke-width="1.5" stroke-linejoin="round"/>
+        <path d="M11 10 L11 14" stroke="rgba(232,197,71,0.6)" stroke-width="1.5" stroke-linecap="round"/>
+        <circle cx="11" cy="16.5" r="1" fill="rgba(232,197,71,0.6)"/>
+      </svg>
+    </div>
+    <div class="warning-text">
+      <strong>please do not touch the printer</strong>
+      your strip is being processed — touching the machine may cause a jam. your print will come out from the slot below automatically.
+    </div>
+  </div>
+
+  <!-- specs -->
+  <div class="specs-row">
+    <div class="spec"><div class="spec-val">DNP</div><div class="spec-key">printer</div></div>
+    <div class="spec"><div class="spec-val">2×6"</div><div class="spec-key">strip size</div></div>
+    <div class="spec"><div class="spec-val">300dpi</div><div class="spec-key">resolution</div></div>
+    <div class="spec"><div class="spec-val" id="specFilter">original</div><div class="spec-key">filter</div></div>
+    <div class="spec"><div class="spec-val">dyesub</div><div class="spec-key">technology</div></div>
+  </div>
+
+</div>
+
+<!-- done overlay -->
+<div class="done-overlay" id="doneOverlay">
+  <div class="done-box">
+    <div class="done-check-ring">
+      <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+        <path d="M12 24 L20 32 L36 16" stroke="#3DAA6C" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"
+          style="stroke-dasharray:40;stroke-dashoffset:40;animation:drawCheck 0.5s 0.2s ease-out forwards;"/>
+      </svg>
+    </div>
+    <div class="done-emoji-row">🖨️ ✅ 📸</div>
+    <div class="done-title">print complete!</div>
+    <div class="done-sub">your strip is ready.<br/>check the print slot at the bottom<br/>of the machine below the screen.</div>
+    <div class="done-collect">
+      <div class="collect-arrow">
+        <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+          <path d="M11 4 L11 16 M6 12 L11 17 L16 12" stroke="#3DAA6C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="collect-text">
+        <div class="collect-title">collect your print below</div>
+        <div class="collect-sub">reach down to the print slot · handle from the white edge</div>
+      </div>
+    </div>
+    <div class="done-bar"><div class="done-bar-fill" id="doneBarFill"></div></div>
+    <button class="done-next-btn" onclick="goToReceipt()">continue →</button>
+    <div class="done-auto">auto-advancing in <span id="autoCount">5</span> seconds</div>
+  </div>
+</div>
+
+<style>
+@keyframes drawCheck{to{stroke-dashoffset:0}}
+</style>
+
+<script>
+/* ── session ── */
+let session = { package:'Classic Strip', filter:'Original', amount:89 };
+try {
+  const s = JSON.parse(localStorage.getItem('fp_session')||'{}');
+  if(s.package){ session.package=s.package.name||session.package; }
+  if(s.filter){ session.filter=s.filter; }
+} catch(e){}
+
+const EMOJIS = ['🌸','💫','🦋','✨'];
+const PRINT_DURATION = 12000; // 12 seconds real DNP timing
+
+/* ── set filter spec ── */
+document.getElementById('specFilter').textContent = session.filter.toLowerCase();
+
+/* ── clock ── */
+function updateClock(){
+  const now=new Date();
+  let h=now.getHours(),m=now.getMinutes(),ap=h>=12?'PM':'AM';
+  h=h%12||12;
+  document.getElementById('clock').textContent=String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+' '+ap;
+}
+updateClock(); setInterval(updateClock,1000);
+
+/* ── build paper strip content ── */
+function buildPaperContent(){
+  const content = document.getElementById('paperContent');
+  const cellHeight = Math.floor(340/4) - 7;
+  content.innerHTML = '';
+  for(let i=0;i<4;i++){
+    const cell = document.createElement('div');
+    cell.className = 'paper-photo-cell';
+    cell.style.height = cellHeight+'px';
+    cell.textContent = EMOJIS[i];
+    content.appendChild(cell);
+  }
+  /* branding */
+  const brand = document.createElement('div');
+  brand.className = 'paper-branding';
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('en-PH',{month:'short',day:'numeric',year:'numeric'}).toUpperCase();
+  brand.innerHTML = `<div class="paper-brand-text"><em>Flash</em> &amp; Prints</div><div class="paper-date-text">${dateStr} · BOOTH #001</div>`;
+  content.appendChild(brand);
+}
+buildPaperContent();
+
+/* ── progress ticker ── */
+const STAGES = [
+  {start:0,   end:15,  idx:0},
+  {start:15,  end:35,  idx:1},
+  {start:35,  end:58,  idx:2},
+  {start:58,  end:80,  idx:3},
+  {start:80,  end:100, idx:4},
+];
+const STAGE_NAMES = ['loading','yellow','magenta','cyan','laminate'];
+let startTime = Date.now();
+let printDone = false;
+
+const ticker = setInterval(updateProgress, 80);
+
+function updateProgress(){
+  const elapsed = Date.now() - startTime;
+  const rawPct  = Math.min(elapsed / PRINT_DURATION * 100, 100);
+  const pct     = Math.round(rawPct);
+
+  /* update percent display */
+  document.getElementById('progressPct').textContent = pct+'%';
+  document.getElementById('screenPct').innerHTML = pct+'%<span class="pscreen-cursor"></span>';
+
+  /* time remaining */
+  const remSec = Math.max(0, Math.ceil((PRINT_DURATION - elapsed)/1000));
+  document.getElementById('progressTime').textContent = remSec > 0 ? '~'+remSec+' sec remaining' : 'finishing...';
+
+  /* stage logic */
+  let activeStage = 0;
+  STAGES.forEach(s => { if(rawPct >= s.start) activeStage = s.idx; });
+  for(let i=0;i<5;i++){
+    const el = document.getElementById('stage-'+i);
+    if(!el) continue;
+    el.className = 'stage' + (i<activeStage?' done-stage':'') + (i===activeStage?' active-stage':'');
+  }
+
+  if(pct >= 100 && !printDone){
+    printDone = true;
+    clearInterval(ticker);
+    document.getElementById('progressTime').textContent = 'complete!';
+    setTimeout(showDoneOverlay, 500);
+  }
+}
+
+/* ── done overlay ── */
+function showDoneOverlay(){
+  const overlay = document.getElementById('doneOverlay');
+  overlay.classList.add('show');
+
+  /* auto progress bar */
+  const barFill  = document.getElementById('doneBarFill');
+  const autoTxt  = document.getElementById('autoCount');
+  let elapsed=0, total=5000, step=50;
+  let count = 5;
+
+  const prog = setInterval(()=>{
+    elapsed+=step;
+    barFill.style.width = Math.min(elapsed/total*100,100)+'%';
+    const newCount = Math.max(0, Math.ceil((total-elapsed)/1000));
+    if(newCount !== count){ count=newCount; autoTxt.textContent=count; }
+    if(elapsed>=total){ clearInterval(prog); goToReceipt(); }
+  }, step);
+}
+
+function goToReceipt(){
+  flashTransition();
+  // window.location.href = 'receipt.html';
+}
+
+function flashTransition(){
+  const d=document.createElement('div');
+  d.style.cssText='position:fixed;inset:0;background:#fff;opacity:0;z-index:999;pointer-events:none;transition:opacity 0.2s;';
+  document.body.appendChild(d);
+  requestAnimationFrame(()=>{ d.style.opacity='0.5'; });
+  setTimeout(()=>{ d.style.opacity='0'; setTimeout(()=>d.remove(),300); },300);
+}
+</script>
+<script src="../assets/fp-bridge.js"></script>
+</body>
+</html>

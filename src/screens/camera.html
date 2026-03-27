@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=1080"/>
+<title>Flash &amp; Prints — Camera</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&family=Space+Mono&display=swap" rel="stylesheet"/>
+<style>
+  :root{
+    --gold:#E8C547; --gold-dim:#C8A030; --gold-faint:rgba(232,197,71,0.08);
+    --rose:#C84B6E; --sage:#3DAA6C; --sage-light:rgba(61,170,108,0.12);
+    --charcoal:#111118; --charcoal2:#1A1A26; --charcoal3:#20202E;
+    --ink:#0A0A12; --border:rgba(255,255,255,0.07); --faint:rgba(255,255,255,0.04);
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{
+    width:1080px; height:1920px; overflow:hidden;
+    background:var(--ink); font-family:'DM Sans',sans-serif;
+    cursor:none; user-select:none;
+  }
+
+  /* ── background ── */
+  .bg{ position:absolute; inset:0; background:radial-gradient(ellipse 1000px 800px at 50% 40%, #0E1A0E 0%, #0A0A12 60%); }
+  .bg-grid{
+    position:absolute; inset:0;
+    background-image:linear-gradient(rgba(61,170,108,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(61,170,108,0.025) 1px,transparent 1px);
+    background-size:60px 60px;
+  }
+
+  /* ── topbar ── */
+  .topbar{
+    position:absolute; top:0; left:0; right:0; height:100px;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:0 56px; z-index:30;
+    background:linear-gradient(to bottom,rgba(0,0,0,0.7),transparent);
+  }
+  .brand{ font-family:'Playfair Display',serif; font-weight:900; font-size:20px; color:#fff; }
+  .brand em{ color:var(--gold); font-style:normal; }
+  .step-indicator{ display:flex; align-items:center; gap:8px; }
+  .step-dot{ width:10px; height:10px; border-radius:50%; background:rgba(255,255,255,0.12); transition:all 0.3s; }
+  .step-dot.done{ background:var(--sage); }
+  .step-dot.active{ background:var(--gold); width:28px; border-radius:5px; }
+  .step-line{ width:24px; height:1px; background:rgba(255,255,255,0.08); }
+  .topbar-clock{ font-family:'Space Mono',monospace; font-size:14px; color:rgba(255,255,255,0.3); }
+
+  /* ── flash overlay ── */
+  .flash-overlay{
+    position:fixed; inset:0; background:#fff;
+    opacity:0; pointer-events:none; z-index:1000;
+    transition:opacity 0.04s;
+  }
+
+  /* ── main layout ── */
+  .main{
+    position:absolute; top:100px; left:0; right:0; bottom:0;
+    display:flex; flex-direction:column;
+    padding:32px 56px 48px; z-index:10;
+    gap:28px;
+  }
+
+  /* ── header row ── */
+  .header-row{
+    display:flex; align-items:flex-end; justify-content:space-between;
+    animation:slideDown 0.5s cubic-bezier(0.34,1.2,0.64,1) both;
+  }
+  @keyframes slideDown{ from{opacity:0;transform:translateY(-16px)} to{opacity:1;transform:translateY(0)} }
+  .header-left{}
+  .header-eyebrow{
+    font-family:'Space Mono',monospace; font-size:11px; letter-spacing:4px;
+    color:var(--sage); text-transform:uppercase; opacity:0.8; margin-bottom:8px;
+    display:flex; align-items:center; gap:10px;
+  }
+  .header-eyebrow::before{ content:''; display:inline-block; width:20px; height:1px; background:var(--sage); opacity:0.5; }
+  .header-title{ font-family:'Playfair Display',serif; font-size:48px; font-weight:900; color:#fff; line-height:1; letter-spacing:-1px; }
+  .header-title em{ color:var(--gold); font-style:italic; }
+  .rec-badge{
+    display:flex; align-items:center; gap:8px;
+    background:rgba(200,75,110,0.12); border:1px solid rgba(200,75,110,0.25);
+    border-radius:30px; padding:10px 18px;
+    animation:recPulse 1.5s ease-in-out infinite;
+  }
+  @keyframes recPulse{ 0%,100%{opacity:1} 50%{opacity:0.6} }
+  .rec-dot{ width:10px; height:10px; border-radius:50%; background:var(--rose); }
+  .rec-text{ font-family:'Space Mono',monospace; font-size:13px; color:var(--rose); letter-spacing:1px; font-weight:700; }
+
+  /* ── camera section ── */
+  .camera-section{
+    flex:1; display:flex; gap:24px;
+    animation:fadeUp 0.5s 0.1s both;
+  }
+  @keyframes fadeUp{ from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+
+  /* camera viewport */
+  .camera-wrap{
+    flex:1; position:relative; border-radius:24px; overflow:hidden;
+    border:1.5px solid rgba(61,170,108,0.2);
+    background:#000;
+    box-shadow:0 0 60px rgba(61,170,108,0.06);
+  }
+
+  /* webcam video */
+  #webcam{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    object-fit:cover;
+    transform:scaleX(-1); /* mirror */
+    display:block;
+  }
+
+  /* fallback when no camera */
+  .camera-fallback{
+    position:absolute; inset:0;
+    background:linear-gradient(160deg,#0A160A,#0A0A12);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:12px;
+  }
+  .fallback-icon{
+    width:80px; height:80px; border-radius:50%;
+    background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .fallback-text{ font-size:14px; color:rgba(255,255,255,0.2); letter-spacing:1px; }
+
+  /* camera frame corners */
+  .cam-corner{ position:absolute; width:28px; height:28px; z-index:5; }
+  .cam-corner.tl{ top:16px; left:16px; border-top:3px solid var(--sage); border-left:3px solid var(--sage); border-radius:6px 0 0 0; }
+  .cam-corner.tr{ top:16px; right:16px; border-top:3px solid var(--sage); border-right:3px solid var(--sage); border-radius:0 6px 0 0; }
+  .cam-corner.bl{ bottom:16px; left:16px; border-bottom:3px solid var(--sage); border-left:3px solid var(--sage); border-radius:0 0 0 6px; }
+  .cam-corner.br{ bottom:16px; right:16px; border-bottom:3px solid var(--sage); border-right:3px solid var(--sage); border-radius:0 0 6px 0; }
+
+  /* face guide */
+  .face-guide{
+    position:absolute; top:50%; left:50%;
+    transform:translate(-50%,-56%);
+    width:220px; height:280px;
+    border:1.5px dashed rgba(61,170,108,0.2);
+    border-radius:50% 50% 45% 45%;
+    z-index:4;
+    animation:guideBreath 3s ease-in-out infinite;
+  }
+  @keyframes guideBreath{
+    0%,100%{ border-color:rgba(61,170,108,0.15); }
+    50%{ border-color:rgba(61,170,108,0.35); }
+  }
+
+  /* grid overlay */
+  .cam-grid{
+    position:absolute; inset:0; z-index:3; pointer-events:none;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.03) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(255,255,255,0.03) 1px,transparent 1px);
+    background-size:33.33% 33.33%;
+  }
+
+  /* countdown display over camera */
+  .countdown-overlay{
+    position:absolute; inset:0; z-index:10;
+    display:flex; align-items:center; justify-content:center;
+    pointer-events:none;
+  }
+  .cd-number{
+    font-family:'Playfair Display',serif;
+    font-size:280px; font-weight:900;
+    color:#fff; line-height:1;
+    text-shadow:0 0 80px rgba(232,197,71,0.5);
+    opacity:0; transform:scale(1.5);
+    transition:opacity 0.15s, transform 0.15s;
+  }
+  .cd-number.show{
+    opacity:1; transform:scale(1);
+    animation:cdPop 0.3s cubic-bezier(0.34,1.4,0.64,1);
+  }
+  @keyframes cdPop{
+    0%{ transform:scale(1.6); opacity:0; }
+    100%{ transform:scale(1); opacity:1; }
+  }
+  .cd-number.go{ color:var(--gold); text-shadow:0 0 120px rgba(232,197,71,0.8); }
+
+  /* shoot ring */
+  .shoot-ring{
+    position:absolute; inset:0; z-index:9;
+    border:3px solid transparent; border-radius:24px;
+    transition:border-color 0.15s;
+  }
+  .shoot-ring.active{ border-color:rgba(232,197,71,0.5); }
+  .shoot-ring.flash-ring{ border-color:#fff; }
+
+  /* progress sidebar */
+  .progress-sidebar{
+    width:130px; display:flex; flex-direction:column; gap:14px;
+    justify-content:flex-start; padding-top:8px;
+  }
+  .sidebar-label{
+    font-family:'Space Mono',monospace; font-size:9px; letter-spacing:3px;
+    color:rgba(255,255,255,0.2); text-transform:uppercase; text-align:center;
+    margin-bottom:4px;
+  }
+  .photo-thumb{
+    width:100%; aspect-ratio:2/3; border-radius:12px;
+    border:1.5px solid var(--border);
+    background:var(--charcoal2);
+    display:flex; align-items:center; justify-content:center;
+    position:relative; overflow:hidden;
+    transition:all 0.4s cubic-bezier(0.34,1.2,0.64,1);
+    flex-shrink:0;
+  }
+  .photo-thumb.waiting{
+    background:rgba(255,255,255,0.03);
+    border-color:rgba(255,255,255,0.06);
+  }
+  .photo-thumb.active-slot{
+    border-color:var(--gold);
+    box-shadow:0 0 20px rgba(232,197,71,0.15);
+    background:rgba(232,197,71,0.04);
+  }
+  .photo-thumb.captured{
+    border-color:var(--sage);
+    background:rgba(61,170,108,0.05);
+  }
+  .thumb-num{
+    font-family:'Space Mono',monospace; font-size:12px; font-weight:700;
+    color:rgba(255,255,255,0.12); z-index:1;
+    transition:opacity 0.3s;
+  }
+  .photo-thumb.active-slot .thumb-num{ color:rgba(232,197,71,0.5); }
+  .photo-thumb.captured .thumb-num{ display:none; }
+  .thumb-check{
+    position:absolute; inset:0;
+    display:flex; align-items:center; justify-content:center;
+    opacity:0; transition:opacity 0.3s;
+  }
+  .photo-thumb.captured .thumb-check{ opacity:1; }
+  .thumb-snap-flash{
+    position:absolute; inset:0; background:#fff; opacity:0;
+    border-radius:10px; pointer-events:none;
+    transition:opacity 0.05s;
+  }
+  .photo-thumb.snapping .thumb-snap-flash{ opacity:1; }
+
+  /* active pulse ring on sidebar */
+  .active-pulse{
+    position:absolute; inset:-3px; border-radius:14px;
+    border:1.5px solid rgba(232,197,71,0.4);
+    animation:sidePulse 1.5s ease-in-out infinite;
+    pointer-events:none;
+  }
+  @keyframes sidePulse{ 0%,100%{opacity:0.4} 50%{opacity:1} }
+
+  /* ── bottom controls ── */
+  .bottom-section{
+    display:flex; gap:20px; align-items:stretch;
+    animation:fadeUp 0.5s 0.2s both;
+  }
+
+  /* countdown + status card */
+  .status-card{
+    flex:1; background:var(--charcoal2); border:1px solid var(--border);
+    border-radius:20px; padding:24px 28px;
+    display:flex; align-items:center; gap:24px;
+  }
+  .status-left{ flex:1; }
+  .status-phase{
+    font-family:'Space Mono',monospace; font-size:10px; letter-spacing:3px;
+    color:rgba(255,255,255,0.25); text-transform:uppercase; margin-bottom:6px;
+  }
+  .status-msg{
+    font-family:'Playfair Display',serif; font-size:28px; font-weight:700;
+    color:#fff; margin-bottom:4px; line-height:1.1;
+  }
+  .status-sub{ font-size:14px; color:rgba(255,255,255,0.3); font-weight:300; }
+
+  /* big countdown num in card */
+  .card-countdown{
+    width:100px; height:100px; border-radius:20px;
+    background:rgba(232,197,71,0.06); border:1px solid rgba(232,197,71,0.15);
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .card-cd-num{
+    font-family:'Playfair Display',serif; font-size:56px; font-weight:900;
+    color:var(--gold); line-height:1;
+    transition:transform 0.1s;
+  }
+  .card-cd-num.tick{ transform:scale(1.2); }
+
+  /* photo counter */
+  .photo-counter{
+    width:200px; background:var(--charcoal2); border:1px solid var(--border);
+    border-radius:20px; padding:24px 20px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px;
+  }
+  .counter-label{
+    font-family:'Space Mono',monospace; font-size:9px; letter-spacing:3px;
+    color:rgba(255,255,255,0.2); text-transform:uppercase;
+  }
+  .counter-num{
+    font-family:'Playfair Display',serif; font-size:64px; font-weight:900;
+    color:#fff; line-height:1;
+  }
+  .counter-num em{ color:var(--gold); font-style:normal; }
+  .counter-of{ font-size:14px; color:rgba(255,255,255,0.25); }
+  .counter-dots{ display:flex; gap:6px; margin-top:4px; }
+  .counter-dot{ width:10px; height:10px; border-radius:50%; background:rgba(255,255,255,0.1); transition:all 0.3s; }
+  .counter-dot.done{ background:var(--sage); }
+  .counter-dot.active2{ background:var(--gold); transform:scale(1.3); }
+
+  /* start/action button */
+  .action-btn{
+    width:260px; border-radius:20px; border:none;
+    background:linear-gradient(145deg,var(--gold),#C8892A);
+    cursor:pointer; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; gap:6px;
+    position:relative; overflow:hidden; transition:transform 0.15s;
+  }
+  .action-btn:active{ transform:scale(0.97); }
+  .action-btn.disabled{
+    background:var(--charcoal3); border:1px solid var(--border); cursor:not-allowed;
+  }
+  .action-btn-shine{
+    position:absolute; inset:0;
+    background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,0.2) 50%,transparent 65%);
+    animation:shine 3s ease-in-out infinite;
+  }
+  @keyframes shine{ 0%{transform:translateX(-150%)} 40%{transform:translateX(150%)} 100%{transform:translateX(150%)} }
+  .action-btn.disabled .action-btn-shine{ display:none; }
+  .action-btn-text{
+    font-family:'Playfair Display',serif; font-size:24px; font-weight:700;
+    color:#1A1200; position:relative; z-index:1;
+  }
+  .action-btn.disabled .action-btn-text{ color:rgba(255,255,255,0.2); }
+  .action-btn-sub{ font-size:12px; color:rgba(26,18,0,0.5); position:relative; z-index:1; }
+  .action-btn.disabled .action-btn-sub{ color:rgba(255,255,255,0.15); }
+
+  /* ── filter badge ── */
+  .filter-badge{
+    position:absolute; top:18px; left:50%; transform:translateX(-50%);
+    background:rgba(0,0,0,0.5); border:1px solid rgba(255,255,255,0.1);
+    border-radius:30px; padding:6px 16px; z-index:15;
+    font-family:'Space Mono',monospace; font-size:10px;
+    color:rgba(255,255,255,0.4); letter-spacing:2px; text-transform:uppercase;
+    backdrop-filter:blur(4px);
+  }
+
+  /* ── ripple ── */
+  .ripple{
+    position:fixed; border-radius:50%; background:rgba(232,197,71,0.2);
+    pointer-events:none; animation:rippleOut 0.5s ease-out forwards; z-index:100;
+    transform:translate(-50%,-50%) scale(0);
+  }
+  @keyframes rippleOut{ to{transform:translate(-50%,-50%) scale(5);opacity:0} }
+
+  /* ── done overlay ── */
+  .done-overlay{
+    position:fixed; inset:0; z-index:500;
+    background:rgba(10,10,18,0.85);
+    display:flex; align-items:center; justify-content:center;
+    opacity:0; pointer-events:none; transition:opacity 0.4s;
+  }
+  .done-overlay.show{ opacity:1; pointer-events:all; }
+  .done-box{
+    background:var(--charcoal2); border:1px solid rgba(61,170,108,0.3);
+    border-radius:28px; padding:52px 64px;
+    display:flex; flex-direction:column; align-items:center; gap:16px;
+    animation:popIn 0.6s cubic-bezier(0.34,1.4,0.64,1) both;
+    text-align:center; max-width:480px;
+  }
+  @keyframes popIn{ from{opacity:0;transform:scale(0.8)} to{opacity:1;transform:scale(1)} }
+  .done-icon{
+    width:88px; height:88px; border-radius:50%;
+    background:rgba(61,170,108,0.1); border:2px solid var(--sage);
+    display:flex; align-items:center; justify-content:center;
+    font-size:40px;
+  }
+  .done-title{ font-family:'Playfair Display',serif; font-size:38px; font-weight:900; color:#fff; }
+  .done-sub{ font-size:16px; color:rgba(255,255,255,0.35); line-height:1.6; }
+  .done-strip{ display:flex; gap:8px; margin:8px 0; }
+  .done-strip-cell{
+    width:64px; height:86px; border-radius:8px;
+    background:linear-gradient(135deg,rgba(61,170,108,0.2),rgba(232,197,71,0.1));
+    border:1px solid rgba(255,255,255,0.08);
+    display:flex; align-items:center; justify-content:center;
+    font-size:24px;
+    animation:cellPop 0.4s cubic-bezier(0.34,1.4,0.64,1) both;
+  }
+  .done-strip-cell:nth-child(1){ animation-delay:0.1s; }
+  .done-strip-cell:nth-child(2){ animation-delay:0.2s; }
+  .done-strip-cell:nth-child(3){ animation-delay:0.3s; }
+  .done-strip-cell:nth-child(4){ animation-delay:0.4s; }
+  @keyframes cellPop{ from{opacity:0;transform:scale(0.5) rotate(-10deg)} to{opacity:1;transform:scale(1) rotate(0)} }
+  .done-next-btn{
+    background:linear-gradient(135deg,var(--sage),#2A8A52);
+    color:#fff; border:none; border-radius:16px;
+    padding:16px 40px; font-family:'Playfair Display',serif;
+    font-size:22px; font-weight:700; cursor:pointer;
+    margin-top:8px; transition:transform 0.15s;
+  }
+  .done-next-btn:active{ transform:scale(0.97); }
+  .done-bar{ width:100%; height:4px; background:rgba(255,255,255,0.08); border-radius:2px; overflow:hidden; }
+  .done-bar-fill{ height:100%; background:var(--sage); border-radius:2px; width:0%; transition:width 0.05s linear; }
+</style>
+</head>
+<body>
+
+<div class="bg"></div>
+<div class="bg-grid"></div>
+<div class="flash-overlay" id="flashOverlay"></div>
+
+<!-- topbar -->
+<div class="topbar">
+  <div class="brand"><em>Flash</em> &amp; Prints</div>
+  <div class="step-indicator">
+    <div class="step-dot done"></div><div class="step-line"></div>
+    <div class="step-dot done"></div><div class="step-line"></div>
+    <div class="step-dot done"></div><div class="step-line"></div>
+    <div class="step-dot active"></div><div class="step-line"></div>
+    <div class="step-dot"></div>
+  </div>
+  <div class="topbar-clock" id="clock">--:-- --</div>
+</div>
+
+<div class="main">
+
+  <!-- header row -->
+  <div class="header-row">
+    <div class="header-left">
+      <div class="header-eyebrow">step 4 of 5 · shoot</div>
+      <div class="header-title">get <em>ready!</em></div>
+    </div>
+    <div class="rec-badge" id="recBadge">
+      <div class="rec-dot"></div>
+      <div class="rec-text" id="recText">STANDBY</div>
+    </div>
+  </div>
+
+  <!-- camera + sidebar -->
+  <div class="camera-section">
+
+    <!-- camera viewport -->
+    <div class="camera-wrap" id="cameraWrap">
+
+      <!-- webcam -->
+      <video id="webcam" autoplay playsinline muted></video>
+
+      <!-- fallback if no camera -->
+      <div class="camera-fallback" id="cameraFallback">
+        <div class="fallback-icon">
+          <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+            <rect x="3" y="9" width="30" height="20" rx="4" stroke="rgba(255,255,255,0.2)" stroke-width="2"/>
+            <circle cx="18" cy="19" r="6" stroke="rgba(255,255,255,0.2)" stroke-width="2"/>
+            <path d="M13 9 L15.5 5 L20.5 5 L23 9" stroke="rgba(255,255,255,0.2)" stroke-width="2" stroke-linejoin="round"/>
+            <circle cx="28" cy="13" r="2" fill="rgba(255,255,255,0.15)"/>
+          </svg>
+        </div>
+        <div class="fallback-text">DSLR CAMERA PREVIEW</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.1);">connect camera to activate live view</div>
+      </div>
+
+      <!-- overlay elements (always on top) -->
+      <div class="cam-corner tl"></div>
+      <div class="cam-corner tr"></div>
+      <div class="cam-corner bl"></div>
+      <div class="cam-corner br"></div>
+      <div class="face-guide"></div>
+      <div class="cam-grid"></div>
+      <div class="filter-badge" id="filterBadge">filter: original</div>
+      <div class="shoot-ring" id="shootRing"></div>
+
+      <!-- countdown overlay -->
+      <div class="countdown-overlay">
+        <div class="cd-number" id="cdNumber">3</div>
+      </div>
+    </div>
+
+    <!-- progress sidebar -->
+    <div class="progress-sidebar" id="progressSidebar">
+      <div class="sidebar-label">photos</div>
+      <!-- dynamically populated -->
+    </div>
+
+  </div>
+
+  <!-- bottom controls -->
+  <div class="bottom-section">
+
+    <!-- status card -->
+    <div class="status-card">
+      <div class="status-left">
+        <div class="status-phase" id="statusPhase">ready to shoot</div>
+        <div class="status-msg" id="statusMsg">Strike a pose!</div>
+        <div class="status-sub" id="statusSub">tap the button when you're ready for your first photo</div>
+      </div>
+      <div class="card-countdown" id="cardCdWrap">
+        <div class="card-cd-num" id="cardCdNum">—</div>
+      </div>
+    </div>
+
+    <!-- photo counter -->
+    <div class="photo-counter">
+      <div class="counter-label">photo</div>
+      <div class="counter-num"><em id="counterCurrent">1</em></div>
+      <div class="counter-of">of <span id="counterTotal">4</span></div>
+      <div class="counter-dots" id="counterDots"></div>
+    </div>
+
+    <!-- action button -->
+    <button class="action-btn" id="actionBtn" onclick="handleAction(event)">
+      <div class="action-btn-shine"></div>
+      <div class="action-btn-text" id="actionText">start!</div>
+      <div class="action-btn-sub" id="actionSub">tap to begin</div>
+    </button>
+
+  </div>
+</div>
+
+<!-- done overlay -->
+<div class="done-overlay" id="doneOverlay">
+  <div class="done-box">
+    <div class="done-icon">📸</div>
+    <div class="done-title">all photos taken!</div>
+    <div class="done-strip" id="doneStrip"></div>
+    <div class="done-sub">amazing shots! heading to preview<br/>so you can choose your filter.</div>
+    <div class="done-bar"><div class="done-bar-fill" id="doneBarFill"></div></div>
+    <button class="done-next-btn" onclick="goToPreview()">see your photos →</button>
+  </div>
+</div>
+
+<script>
+/* ── session config ── */
+const PACKAGES = {
+  'Classic Strip': { photos:4, label:'4 shots · 1 strip' },
+  'Solo Frame':    { photos:1, label:'1 shot · 2 prints' },
+  'Party Mode':    { photos:6, label:'6 shots · 2 strips' },
+  'GIF Booth':     { photos:5, label:'5 frames · GIF' },
+};
+
+let session = { package:'Classic Strip', filter:'Original', amount:89 };
+try {
+  const s = JSON.parse(localStorage.getItem('fp_session')||'{}');
+  if(s.package){ session.package = s.package.name || session.package; }
+  if(s.filter){ session.filter = s.filter; }
+} catch(e){}
+
+const pkgData   = PACKAGES[session.package] || PACKAGES['Classic Strip'];
+const TOTAL_PHOTOS = pkgData.photos;
+const FILTER_NAME  = session.filter || 'Original';
+
+/* ── state ── */
+let currentPhoto   = 1;
+let countdownSecs  = 3;
+let countdownTimer = null;
+let isShooting     = false;
+let isRunning      = false;
+let capturedPhotos = 0;
+const photoEmojis  = ['🌸','💫','🦋','✨','🌟','🎀'];
+
+/* ── init UI ── */
+document.getElementById('counterTotal').textContent = TOTAL_PHOTOS;
+document.getElementById('filterBadge').textContent  = 'filter: ' + FILTER_NAME.toLowerCase();
+buildSidebar();
+buildCounterDots();
+updateClock(); setInterval(updateClock, 1000);
+initCamera();
+
+/* ── clock ── */
+function updateClock(){
+  const now = new Date();
+  let h = now.getHours(), m = now.getMinutes(), ap = h>=12?'PM':'AM';
+  h = h%12||12;
+  document.getElementById('clock').textContent =
+    String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+' '+ap;
+}
+
+/* ── webcam init ── */
+async function initCamera(){
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video:{ width:1920, height:1080, facingMode:'user' }, audio:false });
+    const video = document.getElementById('webcam');
+    video.srcObject = stream;
+    video.onloadedmetadata = () => {
+      video.play();
+      document.getElementById('cameraFallback').style.display = 'none';
+    };
+  } catch(e){
+    // no camera available - fallback shown
+    document.getElementById('webcam').style.display = 'none';
+  }
+}
+
+/* ── build sidebar thumbs ── */
+function buildSidebar(){
+  const sidebar = document.getElementById('progressSidebar');
+  sidebar.innerHTML = '<div class="sidebar-label">photos</div>';
+  for(let i=1; i<=TOTAL_PHOTOS; i++){
+    const thumb = document.createElement('div');
+    thumb.className = 'photo-thumb waiting' + (i===1?' active-slot':'');
+    thumb.id = 'thumb-'+i;
+    thumb.innerHTML = `
+      ${i===1?'<div class="active-pulse"></div>':''}
+      <div class="thumb-num">${i}</div>
+      <div class="thumb-check">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+          <circle cx="14" cy="14" r="12" fill="rgba(61,170,108,0.15)" stroke="#3DAA6C" stroke-width="1.5"/>
+          <path d="M9 14 L12 17 L19 10" stroke="#3DAA6C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="thumb-snap-flash"></div>
+    `;
+    sidebar.appendChild(thumb);
+  }
+}
+
+/* ── build counter dots ── */
+function buildCounterDots(){
+  const dots = document.getElementById('counterDots');
+  dots.innerHTML = '';
+  for(let i=1; i<=TOTAL_PHOTOS; i++){
+    const d = document.createElement('div');
+    d.className = 'counter-dot' + (i===1?' active2':'');
+    d.id = 'cdot-'+i;
+    dots.appendChild(d);
+  }
+}
+
+/* ── handle button tap ── */
+function handleAction(e){
+  addRipple(e);
+  if(isShooting || isRunning) return;
+  startCountdown();
+}
+
+/* ── countdown ── */
+function startCountdown(){
+  isRunning = true;
+  countdownSecs = 3;
+  setActionDisabled(true);
+  updateStatus('shooting','smile! 😄','flash fires on 1 — hold still!');
+  setRecBadge('SHOOTING');
+
+  const cdNum      = document.getElementById('cdNumber');
+  const cardCdNum  = document.getElementById('cardCdNum');
+
+  function tick(){
+    /* overlay number */
+    cdNum.textContent = countdownSecs;
+    cdNum.className   = 'cd-number show' + (countdownSecs===1?' go':'');
+
+    /* card number */
+    cardCdNum.textContent = countdownSecs;
+    cardCdNum.classList.add('tick');
+    setTimeout(()=>cardCdNum.classList.remove('tick'), 150);
+
+    /* shoot ring pulse */
+    document.getElementById('shootRing').classList.add('active');
+
+    if(countdownSecs <= 0){
+      clearInterval(countdownTimer);
+      triggerCapture();
+      return;
+    }
+    countdownSecs--;
+  }
+
+  tick();
+  countdownTimer = setInterval(tick, 1000);
+}
+
+/* ── capture ── */
+function triggerCapture(){
+  isShooting = true;
+  const cdNum = document.getElementById('cdNumber');
+
+  /* hide countdown */
+  setTimeout(()=>{ cdNum.className='cd-number'; }, 100);
+
+  /* camera flash */
+  flashEffect();
+
+  /* mark thumb as captured */
+  setTimeout(()=>{
+    markThumbCaptured(currentPhoto);
+    capturedPhotos++;
+    cardCdNum();
+
+    setTimeout(()=>{
+      if(currentPhoto < TOTAL_PHOTOS){
+        nextPhoto();
+      } else {
+        allDone();
+      }
+    }, 800);
+  }, 200);
+}
+
+/* fix naming collision */
+function cardCdNum(){ /* intentionally empty */ }
+
+/* ── flash effect ── */
+function flashEffect(){
+  const overlay = document.getElementById('flashOverlay');
+  const ring    = document.getElementById('shootRing');
+
+  /* white flash */
+  overlay.style.opacity = '1';
+  ring.classList.add('flash-ring');
+  setTimeout(()=>{
+    overlay.style.opacity   = '0';
+    ring.className = 'shoot-ring';
+  }, 80);
+
+  /* camera shutter sound (using AudioContext) */
+  try {
+    const ctx = new (window.AudioContext||window.webkitAudioContext)();
+    const buf = ctx.createBuffer(1,ctx.sampleRate*0.08,ctx.sampleRate);
+    const data = buf.getChannelData(0);
+    for(let i=0;i<data.length;i++) data[i]=(Math.random()*2-1)*Math.exp(-i/(ctx.sampleRate*0.02));
+    const src = ctx.createBufferSource();
+    src.buffer = buf;
+    src.connect(ctx.destination);
+    src.start();
+  } catch(e){}
+}
+
+/* ── mark thumb captured ── */
+function markThumbCaptured(n){
+  const thumb = document.getElementById('thumb-'+n);
+  if(!thumb) return;
+  thumb.classList.add('snapping');
+  setTimeout(()=>{
+    thumb.classList.remove('snapping','active-slot','waiting');
+    thumb.classList.add('captured');
+    /* remove pulse */
+    const pulse = thumb.querySelector('.active-pulse');
+    if(pulse) pulse.remove();
+  }, 100);
+}
+
+/* ── next photo ── */
+function nextPhoto(){
+  isShooting  = false;
+  isRunning   = false;
+  currentPhoto++;
+
+  /* update counter */
+  document.getElementById('counterCurrent').textContent = currentPhoto;
+
+  /* update counter dots */
+  for(let i=1; i<=TOTAL_PHOTOS; i++){
+    const d = document.getElementById('cdot-'+i);
+    if(!d) continue;
+    d.className = 'counter-dot' + (i<currentPhoto?' done':'') + (i===currentPhoto?' active2':'');
+  }
+
+  /* activate next thumb */
+  const nextThumb = document.getElementById('thumb-'+currentPhoto);
+  if(nextThumb){
+    nextThumb.classList.remove('waiting');
+    nextThumb.classList.add('active-slot');
+    nextThumb.insertAdjacentHTML('afterbegin','<div class="active-pulse"></div>');
+  }
+
+  updateStatus('ready','great shot! 🎉','tap the button when you\'re ready for photo '+currentPhoto);
+  setRecBadge('STANDBY');
+  setActionDisabled(false);
+
+  const cardNum = document.getElementById('cardCdNum');
+  cardNum.textContent = '—';
+
+  document.getElementById('cardCdWrap').style.borderColor = 'rgba(232,197,71,0.15)';
+}
+
+/* ── all done ── */
+function allDone(){
+  isShooting = false;
+  isRunning  = false;
+  setRecBadge('DONE');
+  updateStatus('done','all done! 🎉','processing your photos...');
+
+  /* mark last dot done */
+  for(let i=1; i<=TOTAL_PHOTOS; i++){
+    const d = document.getElementById('cdot-'+i);
+    if(d) d.className = 'counter-dot done';
+  }
+
+  setTimeout(showDoneOverlay, 600);
+}
+
+/* ── done overlay ── */
+function showDoneOverlay(){
+  const overlay  = document.getElementById('doneOverlay');
+  const strip    = document.getElementById('doneStrip');
+  const barFill  = document.getElementById('doneBarFill');
+  strip.innerHTML = '';
+  for(let i=0;i<Math.min(TOTAL_PHOTOS,4);i++){
+    const cell = document.createElement('div');
+    cell.className = 'done-strip-cell';
+    cell.textContent = photoEmojis[i];
+    strip.appendChild(cell);
+  }
+  overlay.classList.add('show');
+
+  let elapsed=0, total=3000, step=50;
+  const prog = setInterval(()=>{
+    elapsed+=step;
+    barFill.style.width = Math.min(elapsed/total*100,100)+'%';
+    if(elapsed>=total) clearInterval(prog);
+  },step);
+}
+
+function goToPreview(){
+  // window.location.href = 'preview.html';
+  flashTransition();
+}
+
+/* ── helpers ── */
+function updateStatus(phase, msg, sub){
+  document.getElementById('statusPhase').textContent = phase;
+  document.getElementById('statusMsg').textContent   = msg;
+  document.getElementById('statusSub').textContent   = sub;
+}
+
+function setActionDisabled(disabled){
+  const btn = document.getElementById('actionBtn');
+  if(disabled){
+    btn.classList.add('disabled');
+    document.getElementById('actionText').textContent = 'shooting...';
+    document.getElementById('actionSub').textContent  = 'hold still!';
+  } else {
+    btn.classList.remove('disabled');
+    document.getElementById('actionText').textContent = 'ready!';
+    document.getElementById('actionSub').textContent  = 'tap for photo '+currentPhoto;
+  }
+}
+
+function setRecBadge(state){
+  const badge = document.getElementById('recBadge');
+  const text  = document.getElementById('recText');
+  text.textContent = state;
+  if(state==='SHOOTING'){
+    badge.style.background    = 'rgba(200,75,110,0.18)';
+    badge.style.borderColor   = 'rgba(200,75,110,0.4)';
+    text.style.color          = '#C84B6E';
+    document.getElementById('recBadge').querySelector('.rec-dot').style.background = '#C84B6E';
+  } else if(state==='DONE'){
+    badge.style.background    = 'rgba(61,170,108,0.12)';
+    badge.style.borderColor   = 'rgba(61,170,108,0.3)';
+    text.style.color          = '#3DAA6C';
+    document.getElementById('recBadge').querySelector('.rec-dot').style.background = '#3DAA6C';
+  } else {
+    badge.style.background    = 'rgba(232,197,71,0.08)';
+    badge.style.borderColor   = 'rgba(232,197,71,0.2)';
+    text.style.color          = 'var(--gold)';
+    document.getElementById('recBadge').querySelector('.rec-dot').style.background = 'var(--gold)';
+  }
+}
+
+function addRipple(e){
+  const r = document.createElement('div');
+  r.className = 'ripple';
+  const x = e?(e.clientX||540):540, y = e?(e.clientY||960):960;
+  r.style.cssText = `left:${x}px;top:${y}px;width:50px;height:50px;`;
+  document.body.appendChild(r);
+  setTimeout(()=>r.remove(),600);
+}
+
+function flashTransition(){
+  const d = document.createElement('div');
+  d.style.cssText='position:fixed;inset:0;background:#fff;opacity:0;z-index:999;pointer-events:none;transition:opacity 0.2s;';
+  document.body.appendChild(d);
+  requestAnimationFrame(()=>{ d.style.opacity='0.6'; });
+  setTimeout(()=>{ d.style.opacity='0'; setTimeout(()=>d.remove(),300); },300);
+}
+</script>
+<script src="../assets/fp-bridge.js"></script>
+</body>
+</html>

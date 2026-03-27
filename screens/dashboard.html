@@ -1,0 +1,1302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=1280, initial-scale=1"/>
+<title>Flash &amp; Prints — Owner Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&family=Space+Mono&display=swap" rel="stylesheet"/>
+<style>
+  :root{
+    --gold:#E8C547;--gold-faint:rgba(232,197,71,0.08);--gold-border:rgba(232,197,71,0.2);
+    --rose:#C84B6E;--rose-faint:rgba(200,75,110,0.08);
+    --sage:#3DAA6C;--sage-faint:rgba(61,170,108,0.08);--sage-border:rgba(61,170,108,0.2);
+    --blue:#378ADD;--blue-faint:rgba(55,138,221,0.08);
+    --charcoal:#111118;--charcoal2:#1A1A26;--charcoal3:#20202E;--charcoal4:#252535;
+    --ink:#0A0A12;--border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.04);
+    --text:#fff;--text2:rgba(255,255,255,0.55);--text3:rgba(255,255,255,0.25);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{min-height:100vh;background:var(--ink);font-family:'DM Sans',sans-serif;color:var(--text);overflow-x:hidden;}
+
+  /* scrollbar */
+  ::-webkit-scrollbar{width:4px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+  ::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:2px;}
+
+  /* layout */
+  .layout{display:grid;grid-template-columns:240px 1fr;min-height:100vh;}
+
+  /* ── SIDEBAR ── */
+  .sidebar{
+    background:var(--charcoal2);border-right:1px solid var(--border);
+    display:flex;flex-direction:column;padding:0;
+    position:sticky;top:0;height:100vh;overflow:hidden;
+  }
+  .sidebar-logo{
+    padding:24px 20px;border-bottom:1px solid var(--border);
+    display:flex;align-items:center;gap:10px;
+  }
+  .logo-icon{
+    width:36px;height:36px;border-radius:10px;
+    background:linear-gradient(135deg,var(--gold),#C8892A);
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  }
+  .logo-text{font-family:'Playfair Display',serif;font-size:15px;font-weight:900;color:#fff;line-height:1.1;}
+  .logo-text em{color:var(--gold);font-style:normal;}
+  .logo-sub{font-size:9px;color:var(--text3);letter-spacing:2px;font-family:'Space Mono',monospace;}
+
+  .sidebar-nav{flex:1;padding:16px 12px;display:flex;flex-direction:column;gap:2px;}
+  .nav-section-label{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--text3);text-transform:uppercase;padding:12px 8px 6px;}
+  .nav-item{
+    display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;
+    cursor:pointer;transition:all 0.15s;font-size:14px;color:var(--text2);font-weight:500;
+  }
+  .nav-item:hover{background:rgba(255,255,255,0.04);color:var(--text);}
+  .nav-item.active{background:var(--gold-faint);color:var(--gold);border:1px solid var(--gold-border);}
+  .nav-icon{width:18px;height:18px;flex-shrink:0;opacity:0.7;}
+  .nav-item.active .nav-icon{opacity:1;}
+  .nav-badge{margin-left:auto;background:var(--rose);color:#fff;font-size:9px;font-weight:700;padding:2px 6px;border-radius:10px;}
+
+  .sidebar-footer{padding:16px 20px;border-top:1px solid var(--border);}
+  .owner-row{display:flex;align-items:center;gap:10px;}
+  .owner-avatar{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--sage-faint),var(--gold-faint));border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:14px;font-weight:900;color:var(--gold);flex-shrink:0;}
+  .owner-name{font-size:13px;font-weight:500;color:var(--text);}
+  .owner-role{font-size:10px;color:var(--text3);}
+  .online-dot{width:8px;height:8px;border-radius:50%;background:var(--sage);margin-left:auto;box-shadow:0 0 8px rgba(61,170,108,0.6);animation:dotBlink 2.5s ease-in-out infinite;}
+  @keyframes dotBlink{0%,100%{opacity:1}50%{opacity:0.4}}
+
+  /* ── MAIN CONTENT ── */
+  .content{padding:32px 36px;display:flex;flex-direction:column;gap:28px;}
+
+  /* topbar */
+  .content-topbar{display:flex;align-items:center;justify-content:space-between;}
+  .page-title{font-family:'Playfair Display',serif;font-size:28px;font-weight:900;color:#fff;}
+  .page-title em{color:var(--gold);font-style:italic;}
+  .topbar-right{display:flex;align-items:center;gap:12px;}
+  .live-badge{display:flex;align-items:center;gap:6px;background:var(--sage-faint);border:1px solid var(--sage-border);border-radius:20px;padding:6px 14px;}
+  .live-dot{width:7px;height:7px;border-radius:50%;background:var(--sage);animation:dotBlink 1.5s ease-in-out infinite;}
+  .live-text{font-size:12px;color:var(--sage);font-family:'Space Mono',monospace;letter-spacing:1px;}
+  .date-label{font-family:'Space Mono',monospace;font-size:11px;color:var(--text3);}
+  .refresh-btn{width:36px;height:36px;border-radius:10px;border:1px solid var(--border);background:var(--border2);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.15s;}
+  .refresh-btn:hover{background:rgba(255,255,255,0.07);}
+  .refresh-btn:active{transform:rotate(180deg);}
+
+  /* ── METRIC CARDS ── */
+  .metrics-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+  .metric-card{
+    background:var(--charcoal2);border:1px solid var(--border);border-radius:16px;
+    padding:20px;position:relative;overflow:hidden;
+    transition:border-color 0.2s;
+  }
+  .metric-card:hover{border-color:rgba(255,255,255,0.12);}
+  .metric-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;border-radius:2px 2px 0 0;}
+  .mc-gold::before{background:linear-gradient(90deg,var(--gold),transparent);}
+  .mc-sage::before{background:linear-gradient(90deg,var(--sage),transparent);}
+  .mc-blue::before{background:linear-gradient(90deg,var(--blue),transparent);}
+  .mc-rose::before{background:linear-gradient(90deg,var(--rose),transparent);}
+  .metric-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;}
+  .metric-label{font-size:12px;color:var(--text3);font-weight:500;}
+  .metric-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;}
+  .mi-gold{background:var(--gold-faint);}
+  .mi-sage{background:var(--sage-faint);}
+  .mi-blue{background:var(--blue-faint);}
+  .mi-rose{background:var(--rose-faint);}
+  .metric-val{font-family:'Playfair Display',serif;font-size:32px;font-weight:900;color:#fff;line-height:1;margin-bottom:6px;}
+  .metric-change{font-size:12px;color:var(--text3);}
+  .change-up{color:var(--sage);}
+  .change-down{color:var(--rose);}
+
+  /* ── TWO COLUMN ── */
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+  .three-col{display:grid;grid-template-columns:2fr 1fr;gap:20px;}
+
+  /* card base */
+  .card{background:var(--charcoal2);border:1px solid var(--border);border-radius:16px;padding:22px 24px;}
+  .card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
+  .card-title{font-size:15px;font-weight:600;color:var(--text);}
+  .card-action{font-size:12px;color:var(--text3);cursor:pointer;transition:color 0.15s;}
+  .card-action:hover{color:var(--gold);}
+  .section-divider{height:1px;background:var(--border);margin:12px 0;}
+
+  /* ── BOOTH STATUS ── */
+  .booth-list{display:flex;flex-direction:column;gap:10px;}
+  .booth-row{
+    display:flex;align-items:center;gap:14px;
+    background:var(--charcoal3);border:1px solid var(--border);
+    border-radius:12px;padding:14px 16px;
+    transition:border-color 0.2s;
+  }
+  .booth-row:hover{border-color:rgba(255,255,255,0.12);}
+  .booth-status-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+  .bsd-online{background:var(--sage);box-shadow:0 0 8px rgba(61,170,108,0.5);animation:dotBlink 2s ease-in-out infinite;}
+  .bsd-busy{background:var(--gold);box-shadow:0 0 8px rgba(232,197,71,0.5);animation:dotBlink 1s ease-in-out infinite;}
+  .bsd-offline{background:rgba(255,255,255,0.15);}
+  .bsd-error{background:var(--rose);animation:dotBlink 0.7s ease-in-out infinite;}
+  .booth-info{flex:1;}
+  .booth-name{font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px;}
+  .booth-location{font-size:11px;color:var(--text3);}
+  .booth-state{
+    font-size:10px;font-weight:600;padding:3px 10px;border-radius:20px;
+    font-family:'Space Mono',monospace;letter-spacing:0.5px;
+  }
+  .bs-idle{background:var(--sage-faint);color:var(--sage);}
+  .bs-shooting{background:var(--gold-faint);color:var(--gold);}
+  .bs-printing{background:var(--blue-faint);color:var(--blue);}
+  .bs-offline{background:rgba(255,255,255,0.04);color:var(--text3);}
+  .bs-error{background:var(--rose-faint);color:var(--rose);}
+  .booth-revenue{text-align:right;flex-shrink:0;}
+  .booth-rev-val{font-family:'Space Mono',monospace;font-size:13px;color:var(--text);font-weight:700;}
+  .booth-rev-label{font-size:10px;color:var(--text3);}
+  .booth-action-btn{width:32px;height:32px;border-radius:8px;border:1px solid var(--border);background:var(--border2);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.15s;flex-shrink:0;}
+  .booth-action-btn:hover{background:rgba(255,255,255,0.07);}
+  .booth-action-btn:active{transform:scale(0.95);}
+
+  /* ── REVENUE CHART ── */
+  .chart-area{height:140px;position:relative;margin-top:4px;}
+  .chart-bars{display:flex;align-items:flex-end;gap:6px;height:100%;padding-bottom:20px;}
+  .chart-bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;}
+  .chart-bar-track{flex:1;display:flex;align-items:flex-end;width:100%;}
+  .chart-bar{
+    width:100%;border-radius:6px 6px 0 0;
+    transition:height 0.5s cubic-bezier(0.34,1.2,0.64,1);
+    position:relative;overflow:hidden;
+  }
+  .chart-bar::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(255,255,255,0.15),transparent);}
+  .cb-gold{background:linear-gradient(to top,var(--gold),#F0C66A);}
+  .cb-dim{background:rgba(232,197,71,0.25);}
+  .chart-bar-label{font-family:'Space Mono',monospace;font-size:8px;color:var(--text3);letter-spacing:0.5px;}
+  .chart-today-line{position:absolute;bottom:20px;left:0;right:0;height:1px;background:rgba(255,255,255,0.04);}
+  .chart-tooltip{
+    position:absolute;top:-28px;left:50%;transform:translateX(-50%);
+    background:var(--charcoal4);border:1px solid var(--border);border-radius:6px;
+    padding:4px 8px;font-family:'Space Mono',monospace;font-size:9px;color:var(--gold);
+    white-space:nowrap;opacity:0;transition:opacity 0.15s;pointer-events:none;
+  }
+  .chart-bar-wrap:hover .chart-tooltip{opacity:1;}
+
+  /* ── SUPPLY LEVELS ── */
+  .supply-list{display:flex;flex-direction:column;gap:12px;}
+  .supply-item{margin-bottom:4px;}
+  .supply-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+  .supply-booth{font-size:12px;font-weight:600;color:var(--text);}
+  .supply-pct{font-family:'Space Mono',monospace;font-size:11px;color:var(--text2);}
+  .supply-track{height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;margin-bottom:3px;}
+  .supply-fill{height:100%;border-radius:3px;transition:width 0.6s ease;}
+  .sf-good{background:linear-gradient(90deg,var(--sage),#5DCAA5);}
+  .sf-warn{background:linear-gradient(90deg,var(--gold),#F0C66A);}
+  .sf-crit{background:linear-gradient(90deg,var(--rose),#E8537E);}
+  .supply-detail{display:flex;justify-content:space-between;}
+  .supply-ink{font-size:10px;color:var(--text3);}
+  .supply-paper{font-size:10px;color:var(--text3);}
+
+  /* ── TRANSACTIONS ── */
+  .tx-list{display:flex;flex-direction:column;gap:8px;}
+  .tx-row{
+    display:flex;align-items:center;gap:12px;padding:10px 12px;
+    background:var(--charcoal3);border-radius:10px;border:1px solid var(--border2);
+    transition:border-color 0.15s;
+  }
+  .tx-row:hover{border-color:var(--border);}
+  .tx-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px;}
+  .txi-strip{background:var(--gold-faint);}
+  .txi-solo{background:var(--blue-faint);}
+  .txi-party{background:rgba(200,75,110,0.08);}
+  .txi-gif{background:var(--sage-faint);}
+  .tx-info{flex:1;}
+  .tx-pkg{font-size:13px;font-weight:500;color:var(--text);margin-bottom:1px;}
+  .tx-meta{font-size:11px;color:var(--text3);}
+  .tx-amount{font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:var(--text);text-align:right;}
+  .tx-time{font-size:10px;color:var(--text3);text-align:right;margin-top:2px;}
+  .tx-status{width:8px;height:8px;border-radius:50%;background:var(--sage);flex-shrink:0;}
+
+  /* ── QUICK ACTIONS ── */
+  .actions-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .action-btn{
+    display:flex;flex-direction:column;gap:6px;padding:14px;
+    border-radius:12px;border:1px solid var(--border);background:var(--charcoal3);
+    cursor:pointer;transition:all 0.2s;
+  }
+  .action-btn:hover{border-color:rgba(255,255,255,0.15);background:var(--charcoal4);}
+  .action-btn:active{transform:scale(0.97);}
+  .action-btn.danger{border-color:rgba(200,75,110,0.2);}
+  .action-btn.danger:hover{background:var(--rose-faint);}
+  .ab-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;margin-bottom:4px;}
+  .ab-title{font-size:13px;font-weight:600;color:var(--text);}
+  .ab-desc{font-size:11px;color:var(--text3);line-height:1.4;}
+
+  /* ── ALERT BANNER ── */
+  .alert-banner{
+    display:flex;align-items:center;gap:14px;
+    background:rgba(232,197,71,0.06);border:1px solid rgba(232,197,71,0.2);
+    border-radius:12px;padding:14px 18px;
+  }
+  .alert-icon{width:36px;height:36px;border-radius:10px;background:var(--gold-faint);border:1px solid var(--gold-border);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .alert-text{flex:1;}
+  .alert-title{font-size:13px;font-weight:600;color:var(--gold);margin-bottom:2px;}
+  .alert-desc{font-size:12px;color:var(--text3);}
+  .alert-dismiss{font-size:11px;color:var(--text3);cursor:pointer;padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:var(--border2);transition:all 0.15s;white-space:nowrap;}
+  .alert-dismiss:hover{color:var(--text);border-color:var(--border);}
+
+  /* tag */
+  .tag{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:6px;font-size:10px;font-weight:600;}
+  .tag-gold{background:var(--gold-faint);color:var(--gold);}
+  .tag-sage{background:var(--sage-faint);color:var(--sage);}
+  .tag-rose{background:var(--rose-faint);color:var(--rose);}
+
+  /* export btn */
+  .export-btn{display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:8px;border:1px solid var(--border);background:var(--border2);font-size:12px;color:var(--text2);cursor:pointer;transition:all 0.15s;}
+  .export-btn:hover{color:var(--text);border-color:rgba(255,255,255,0.15);}
+
+  /* toast */
+  .toast{position:fixed;bottom:24px;right:24px;background:var(--charcoal2);border:1px solid var(--sage-border);border-radius:12px;padding:12px 18px;display:flex;align-items:center;gap:8px;font-size:13px;color:#fff;z-index:200;animation:toastIn 0.3s cubic-bezier(0.34,1.4,0.64,1) both;}
+  @keyframes toastIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <polygon points="11,2 5,10 9,10 8,18 15,10 11,10" fill="#1A1200"/>
+        </svg>
+      </div>
+      <div>
+        <div class="logo-text"><em>Flash</em> &amp; Prints</div>
+        <div class="logo-sub">owner dashboard</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">overview</div>
+      <div class="nav-item active" onclick="showToast('📊 Dashboard')">
+        <svg class="nav-icon" viewBox="0 0 18 18" fill="none"><rect x="1" y="1" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.3"/><rect x="10" y="1" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.3"/><rect x="1" y="10" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.3"/><rect x="10" y="10" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.3"/></svg>
+        Dashboard
+      </div>
+      <div class="nav-item" onclick="showToast('📈 Revenue analytics')">
+        <svg class="nav-icon" viewBox="0 0 18 18" fill="none"><path d="M2 13 L6 8 L9 11 L13 5 L16 8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Revenue
+      </div>
+
+      <div class="nav-section-label">booths</div>
+      <div class="nav-item" onclick="showToast('📍 Booth locations')">
+        <svg class="nav-icon" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="7" r="3" stroke="currentColor" stroke-width="1.3"/><path d="M9 17 C9 17 3 11 3 7 C3 3.69 5.69 1 9 1 C12.31 1 15 3.69 15 7 C15 11 9 17 9 17Z" stroke="currentColor" stroke-width="1.3"/></svg>
+        Booth Status
+        <span class="nav-badge">1</span>
+      </div>
+      <div class="nav-item" onclick="showToast('📦 Supply levels')">
+        <svg class="nav-icon" viewBox="0 0 18 18" fill="none"><rect x="2" y="8" width="14" height="9" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M5 8 V5 C5 3.34 6.34 2 8 2 H10 C11.66 2 13 3.34 13 5 V8" stroke="currentColor" stroke-width="1.3"/></svg>
+        Supplies
+      </div>
+
+      <div class="nav-section-label">business</div>
+      <div class="nav-item" onclick="showToast('🧾 Transactions')">
+        <svg class="nav-icon" viewBox="0 0 18 18" fill="none"><rect x="2" y="2" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.3"/><path d="M5 7 L13 7 M5 10 L10 10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        Transactions
+      </div>
+      <div class="nav-item" onclick="showToast('⚙️ Settings')">
+        <svg class="nav-icon" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="3" stroke="currentColor" stroke-width="1.3"/><path d="M9 1 L9 3 M9 15 L9 17 M1 9 L3 9 M15 9 L17 9 M3.22 3.22 L4.64 4.64 M13.36 13.36 L14.78 14.78 M14.78 3.22 L13.36 4.64 M4.64 13.36 L3.22 14.78" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        Settings
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="owner-row">
+        <div class="owner-avatar">FP</div>
+        <div>
+          <div class="owner-name">Booth Owner</div>
+          <div class="owner-role">flash &amp; prints ph</div>
+        </div>
+        <div class="online-dot"></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="content">
+
+    <!-- topbar -->
+    <div class="content-topbar">
+      <div>
+        <div class="page-title">good <em id="timeGreeting">morning</em> 👋</div>
+        <div style="font-size:13px;color:var(--text3);margin-top:3px;" id="dateDisplay">loading...</div>
+      </div>
+      <div class="topbar-right">
+        <div class="live-badge"><div class="live-dot"></div><span class="live-text">LIVE</span></div>
+        <div class="export-btn" onclick="showToast('📥 Exporting CSV...')">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1 L7 9 M4 6 L7 9 L10 6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 10 L2 12 L12 12 L12 10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+          Export
+        </div>
+        <div class="refresh-btn" onclick="showToast('🔄 Refreshed')">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7 C2 4.24 4.24 2 7 2 C8.5 2 9.85 2.65 10.8 3.7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M9 1 L11.5 3.5 L9 6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 7 C12 9.76 9.76 12 7 12 C5.5 12 4.15 11.35 3.2 10.3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- alert banner -->
+    <div class="alert-banner">
+      <div class="alert-icon">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 3 L16 15 L2 15 Z" stroke="rgba(232,197,71,0.7)" stroke-width="1.5" stroke-linejoin="round"/><path d="M9 8 L9 11" stroke="rgba(232,197,71,0.7)" stroke-width="1.5" stroke-linecap="round"/><circle cx="9" cy="13" r="0.8" fill="rgba(232,197,71,0.7)"/></svg>
+      </div>
+      <div class="alert-text">
+        <div class="alert-title">⚠️ Booth #003 — paper running low</div>
+        <div class="alert-desc">SM Fairview · only 18 sheets remaining · estimated 18 more sessions before paper runs out</div>
+      </div>
+      <div class="alert-dismiss" onclick="this.parentElement.style.display='none'">dismiss</div>
+    </div>
+
+    <!-- metrics -->
+    <div class="metrics-grid">
+      <div class="metric-card mc-gold">
+        <div class="metric-top">
+          <div class="metric-label">today's revenue</div>
+          <div class="metric-icon mi-gold">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1 L10 5 L14 5.5 L11 8.5 L11.8 13 L8 11 L4.2 13 L5 8.5 L2 5.5 L6 5 Z" stroke="rgba(232,197,71,0.8)" stroke-width="1.2" stroke-linejoin="round"/></svg>
+          </div>
+        </div>
+        <div class="metric-val" id="metRevenue">₱4,628</div>
+        <div class="metric-change"><span class="change-up">↑ 18% vs yesterday</span></div>
+      </div>
+      <div class="metric-card mc-sage">
+        <div class="metric-top">
+          <div class="metric-label">sessions today</div>
+          <div class="metric-icon mi-sage">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="rgba(61,170,108,0.8)" stroke-width="1.2"/><circle cx="8" cy="8" r="2.5" fill="rgba(61,170,108,0.4)"/></svg>
+          </div>
+        </div>
+        <div class="metric-val" id="metSessions">52</div>
+        <div class="metric-change"><span class="change-up">↑ 9 more than avg</span></div>
+      </div>
+      <div class="metric-card mc-blue">
+        <div class="metric-top">
+          <div class="metric-label">booths online</div>
+          <div class="metric-icon mi-blue">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="4" width="12" height="8" rx="1.5" stroke="rgba(55,138,221,0.8)" stroke-width="1.2"/><path d="M5 12 L5 14 M11 12 L11 14 M4 14 L12 14" stroke="rgba(55,138,221,0.8)" stroke-width="1.2" stroke-linecap="round"/></svg>
+          </div>
+        </div>
+        <div class="metric-val">4<span style="font-size:18px;color:var(--text3);"> /5</span></div>
+        <div class="metric-change"><span class="change-down">1 offline — SM Fairview</span></div>
+      </div>
+      <div class="metric-card mc-rose">
+        <div class="metric-top">
+          <div class="metric-label">this month</div>
+          <div class="metric-icon mi-rose">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="12" height="11" rx="1.5" stroke="rgba(200,75,110,0.8)" stroke-width="1.2"/><path d="M5 3 V1.5 M11 3 V1.5" stroke="rgba(200,75,110,0.8)" stroke-width="1.2" stroke-linecap="round"/><path d="M5 8 L7 8 M9 8 L11 8 M5 10.5 L7 10.5" stroke="rgba(200,75,110,0.8)" stroke-width="1.2" stroke-linecap="round"/></svg>
+          </div>
+        </div>
+        <div class="metric-val">₱87k</div>
+        <div class="metric-change"><span class="change-up">↑ 24% vs last month</span></div>
+      </div>
+    </div>
+
+    <!-- revenue chart + quick actions -->
+    <div class="three-col">
+
+      <!-- chart -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">revenue · last 14 days</div>
+          <div class="card-action" onclick="showToast('📈 Full analytics')">view all →</div>
+        </div>
+        <div class="chart-area">
+          <div class="chart-today-line"></div>
+          <div class="chart-bars" id="chartBars"></div>
+        </div>
+      </div>
+
+      <!-- command center -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">command center</div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div id="cmdBoothSelect" style="background:var(--charcoal3);border:1px solid var(--border);color:var(--text2);font-size:11px;padding:5px 10px;border-radius:8px;">Booth #001</div>
+            <div class="export-btn" onclick="loadCmdHistory()" style="cursor:pointer;">history</div>
+          </div>
+        </div>
+
+        <!-- command buttons -->
+        <div class="actions-grid" style="margin-bottom:14px;">
+          <div class="action-btn" onclick="sendCommand('reboot')">
+            <div class="ab-icon" style="background:var(--blue-faint);">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8 C3 5.24 5.24 3 8 3 C9.8 3 11.4 3.9 12.4 5.3" stroke="rgba(55,138,221,0.8)" stroke-width="1.3" stroke-linecap="round"/><path d="M11 2 L13 5 L10 6" stroke="rgba(55,138,221,0.8)" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="ab-title">reboot kiosk</div>
+            <div class="ab-desc">restart a stuck kiosk remotely</div>
+          </div>
+          <div class="action-btn" onclick="sendCommand('unlock')">
+            <div class="ab-icon" style="background:var(--sage-faint);">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="3" y="7" width="10" height="8" rx="1.5" stroke="rgba(61,170,108,0.8)" stroke-width="1.3"/><path d="M5 7 V5 C5 3.34 6.34 2 8 2 C9.66 2 11 3.34 11 5" stroke="rgba(61,170,108,0.8)" stroke-width="1.3" stroke-linecap="round"/></svg>
+            </div>
+            <div class="ab-title">unlock session</div>
+            <div class="ab-desc">skip payment, go to packages</div>
+          </div>
+          <div class="action-btn" onclick="sendCommand('maintenance')">
+            <div class="ab-icon" style="background:var(--gold-faint);">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M12 2 L14 4 L8 10 L4 12 L6 8 Z" stroke="rgba(232,197,71,0.8)" stroke-width="1.3" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="ab-title">maintenance mode</div>
+            <div class="ab-desc">show maintenance overlay</div>
+          </div>
+          <div class="action-btn" onclick="sendCommand('resume')">
+            <div class="ab-icon" style="background:var(--sage-faint);">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 8 L8 4 L12 8" stroke="rgba(61,170,108,0.8)" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 12 L8 4" stroke="rgba(61,170,108,0.8)" stroke-width="1.3" stroke-linecap="round"/></svg>
+            </div>
+            <div class="ab-title">resume normal</div>
+            <div class="ab-desc">clear maintenance, back to idle</div>
+          </div>
+          <div class="action-btn" onclick="sendCommand('ping')">
+            <div class="ab-icon" style="background:var(--blue-faint);">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="5" stroke="rgba(55,138,221,0.8)" stroke-width="1.3"/><circle cx="8" cy="8" r="2" fill="rgba(55,138,221,0.4)"/></svg>
+            </div>
+            <div class="ab-title">ping booth</div>
+            <div class="ab-desc">check if kiosk is responding</div>
+          </div>
+          <div class="action-btn danger" onclick="sendCommand('setMessage')">
+            <div class="ab-icon" style="background:var(--rose-faint);">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2 L13 12 L3 12 Z" stroke="rgba(200,75,110,0.8)" stroke-width="1.3" stroke-linejoin="round"/><path d="M8 6 L8 9" stroke="rgba(200,75,110,0.8)" stroke-width="1.3" stroke-linecap="round"/></svg>
+            </div>
+            <div class="ab-title">send message</div>
+            <div class="ab-desc">display custom text on screen</div>
+          </div>
+        </div>
+
+        <!-- command log -->
+        <div style="font-size:10px;color:var(--text3);font-family:'Space Mono',monospace;letter-spacing:1px;margin-bottom:8px;">RECENT COMMANDS</div>
+        <div id="cmdLog" style="display:flex;flex-direction:column;gap:4px;max-height:200px;overflow-y:auto;"></div>
+      </div>
+    </div>
+
+    <!-- booth status + supplies -->
+    <div class="two-col">
+
+      <!-- booth status -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">booth status</div>
+          <div class="tag tag-sage">4 / 5 online</div>
+        </div>
+        <div class="booth-list" id="boothList"></div>
+      </div>
+
+      <!-- supply levels -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">supply levels</div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <div class="export-btn" onclick="refillSupply('paper')" style="cursor:pointer;">🗒️ refill paper</div>
+            <div class="export-btn" onclick="refillSupply('ink')" style="cursor:pointer;">🎨 refill ink</div>
+          </div>
+        </div>
+        <div id="supplyAlertBanner" style="display:none;margin-bottom:12px;"></div>
+        <div class="supply-list" id="supplyList"></div>
+        <div style="margin-top:12px;padding-top:12px;border-top:0.5px solid var(--border);">
+          <div style="font-size:10px;color:var(--text3);font-family:'Space Mono',monospace;letter-spacing:1px;margin-bottom:8px;">SIMULATE SUPPLY LEVELS (dev)</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <div class="export-btn" onclick="simulateSupply(80,150)" style="cursor:pointer;">80% ink · 150 sheets</div>
+            <div class="export-btn" onclick="simulateSupply(25,28)" style="cursor:pointer;">⚠ warn level</div>
+            <div class="export-btn" onclick="simulateSupply(8,7)" style="cursor:pointer;">🔴 critical level</div>
+            <div class="export-btn" onclick="simulateSupply(100,200)" style="cursor:pointer;">✓ full refill</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- transaction history -->
+    <div class="card" id="txCard">
+      <div class="card-header" style="flex-wrap:wrap;gap:10px;">
+        <div class="card-title">transaction history</div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <div class="tag tag-gold" id="txTodayCount">— today</div>
+          <select id="txFilterPkg" onchange="loadTransactions()" style="background:var(--charcoal3);border:1px solid var(--border);color:var(--text2);font-size:11px;padding:5px 10px;border-radius:8px;cursor:pointer;">
+            <option value="">all packages</option>
+            <option>Classic Strip</option>
+            <option>Solo Frame</option>
+            <option>Party Mode</option>
+            <option>GIF Booth</option>
+          </select>
+          <input id="txFilterDate" type="date" onchange="loadTransactions()" style="background:var(--charcoal3);border:1px solid var(--border);color:var(--text2);font-size:11px;padding:5px 10px;border-radius:8px;"/>
+          <input id="txSearch" type="text" placeholder="search ref / OR..." oninput="loadTransactions()" style="background:var(--charcoal3);border:1px solid var(--border);color:var(--text);font-size:11px;padding:5px 10px;border-radius:8px;width:150px;"/>
+          <div class="export-btn" onclick="exportCSV()" style="cursor:pointer;color:var(--sage);border-color:rgba(61,170,108,0.3);">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1 L6 7 M3.5 5 L6 7.5 L8.5 5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 9 L10 9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            export CSV
+          </div>
+        </div>
+      </div>
+
+      <!-- stats strip -->
+      <div id="txStatsStrip" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px;"></div>
+
+      <!-- table header -->
+      <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr 1fr;gap:8px;padding:6px 10px;border-radius:8px;background:var(--charcoal3);margin-bottom:6px;">
+        <div style="font-size:10px;color:var(--text3);font-family:'Space Mono',monospace;letter-spacing:1px;">TRANSACTION</div>
+        <div style="font-size:10px;color:var(--text3);font-family:'Space Mono',monospace;letter-spacing:1px;">PACKAGE</div>
+        <div style="font-size:10px;color:var(--text3);font-family:'Space Mono',monospace;letter-spacing:1px;">FILTER</div>
+        <div style="font-size:10px;color:var(--text3);font-family:'Space Mono',monospace;letter-spacing:1px;">BOOTH</div>
+        <div style="font-size:10px;color:var(--text3);font-family:'Space Mono',monospace;letter-spacing:1px;">TIME</div>
+        <div style="font-size:10px;color:var(--text3);font-family:'Space Mono',monospace;letter-spacing:1px;text-align:right;">AMOUNT</div>
+      </div>
+
+      <div class="tx-list" id="txList" style="display:flex;flex-direction:column;gap:4px;"></div>
+
+      <!-- pagination -->
+      <div id="txPagination" style="display:flex;align-items:center;justify-content:space-between;margin-top:12px;padding-top:12px;border-top:0.5px solid var(--border);">
+        <div id="txPagInfo" style="font-size:11px;color:var(--text3);"></div>
+        <div style="display:flex;gap:6px;">
+          <div class="export-btn" id="txPrevBtn" onclick="txChangePage(-1)" style="cursor:pointer;">← prev</div>
+          <div class="export-btn" id="txNextBtn" onclick="txChangePage(1)"  style="cursor:pointer;">next →</div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+/* ── greeting ── */
+const h=new Date().getHours();
+document.getElementById('timeGreeting').textContent=h<12?'morning':h<17?'afternoon':'evening';
+document.getElementById('dateDisplay').textContent=new Date().toLocaleDateString('en-PH',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+
+/* ── chart ── */
+const revenues=[2800,3100,2400,3600,4100,2900,3800,4200,3300,4500,3900,4100,3700,4628];
+const days=['M','T','W','T','F','S','S','M','T','W','T','F','S','T'];
+const max=Math.max(...revenues);
+const chartBars=document.getElementById('chartBars');
+revenues.forEach((v,i)=>{
+  const wrap=document.createElement('div'); wrap.className='chart-bar-wrap';
+  const isToday=i===revenues.length-1;
+  const pct=Math.round(v/max*100);
+  wrap.innerHTML=`
+    <div class="chart-tooltip">₱${v.toLocaleString()}</div>
+    <div class="chart-bar-track">
+      <div class="chart-bar ${isToday?'cb-gold':'cb-dim'}" style="height:${pct}%"></div>
+    </div>
+    <div class="chart-bar-label">${isToday?'<span style="color:var(--gold)">TODAY</span>':days[i]}</div>`;
+  chartBars.appendChild(wrap);
+});
+
+/* ── booths ── */
+const booths=[
+  {id:'001',name:'Booth #001',loc:'SM City North EDSA · L2',state:'idle',dot:'bsd-online',stateClass:'bs-idle',rev:'₱1,247',sessions:14},
+  {id:'002',name:'Booth #002',loc:'Robinsons Galleria · L3',state:'shooting',dot:'bsd-busy',stateClass:'bs-shooting',rev:'₱1,602',sessions:18},
+  {id:'003',name:'Booth #003',loc:'SM Fairview · GF',state:'printing',dot:'bsd-busy',stateClass:'bs-printing',rev:'₱934',sessions:10},
+  {id:'004',name:'Booth #004',loc:'Ayala Malls Vertis · L1',state:'idle',dot:'bsd-online',stateClass:'bs-idle',rev:'₱845',sessions:9},
+  {id:'005',name:'Booth #005',loc:'SM Fairview · L2',state:'offline',dot:'bsd-offline',stateClass:'bs-offline',rev:'₱0',sessions:0},
+];
+const boothList=document.getElementById('boothList');
+booths.forEach(b=>{
+  boothList.innerHTML+=`
+    <div class="booth-row">
+      <div class="booth-status-dot ${b.dot}"></div>
+      <div class="booth-info">
+        <div class="booth-name">${b.name}</div>
+        <div class="booth-location">${b.loc}</div>
+      </div>
+      <div class="booth-state ${b.stateClass}">${b.state.toUpperCase()}</div>
+      <div class="booth-revenue">
+        <div class="booth-rev-val">${b.rev}</div>
+        <div class="booth-rev-label">${b.sessions} sessions</div>
+      </div>
+      <div class="booth-action-btn" onclick="showToast('🔧 Managing ${b.name}...')">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="3" r="1" fill="rgba(255,255,255,0.4)"/><circle cx="7" cy="7" r="1" fill="rgba(255,255,255,0.4)"/><circle cx="7" cy="11" r="1" fill="rgba(255,255,255,0.4)"/></svg>
+      </div>
+    </div>`;
+});
+
+/* ── supplies ── */
+const supplies=[
+  {name:'Booth #001 · SM North EDSA',ink:78,paper:82,iCls:'sf-good',pCls:'sf-good'},
+  {name:'Booth #002 · Robinsons Galleria',ink:45,paper:61,iCls:'sf-warn',pCls:'sf-good'},
+  {name:'Booth #003 · SM Fairview',ink:82,paper:14,iCls:'sf-good',pCls:'sf-crit'},
+  {name:'Booth #004 · Ayala Vertis',ink:33,paper:40,iCls:'sf-warn',pCls:'sf-warn'},
+  {name:'Booth #005 · SM Fairview L2',ink:0,paper:0,iCls:'sf-crit',pCls:'sf-crit'},
+];
+const supplyList=document.getElementById('supplyList');
+supplies.forEach(s=>{
+  supplyList.innerHTML+=`
+    <div class="supply-item">
+      <div class="supply-header">
+        <div class="supply-booth">${s.name}</div>
+        <div class="supply-pct">${s.ink}% ink · ${s.paper}% paper</div>
+      </div>
+      <div class="supply-track"><div class="supply-fill ${s.iCls}" style="width:${s.ink}%"></div></div>
+      <div class="supply-detail">
+        <span class="supply-ink">🎨 ink: ${s.ink}%</span>
+        <span class="supply-paper">🗒️ paper: ${s.paper}%</span>
+      </div>
+    </div>`;
+});
+
+/* ── transaction history ── */
+const PKG_ICONS = { 'Classic Strip':'txi-strip','Solo Frame':'txi-solo','Party Mode':'txi-party','GIF Booth':'txi-gif' };
+const PKG_EMOJI = { 'Classic Strip':'🎞️','Solo Frame':'🖼️','Party Mode':'🎉','GIF Booth':'✨' };
+let txPage = 0;
+const TX_PAGE_SIZE = 20;
+let txTotal = 0;
+
+function timeAgo(ts) {
+  const diff = (Date.now() - new Date(ts).getTime()) / 1000;
+  if (diff < 60)    return Math.floor(diff) + 's ago';
+  if (diff < 3600)  return Math.floor(diff/60) + 'min ago';
+  if (diff < 86400) return Math.floor(diff/3600) + 'h ago';
+  return Math.floor(diff/86400) + 'd ago';
+}
+
+async function loadTransactions() {
+  const pkg    = document.getElementById('txFilterPkg')?.value  || '';
+  const date   = document.getElementById('txFilterDate')?.value || '';
+  const search = document.getElementById('txSearch')?.value     || '';
+  try {
+    const params = new URLSearchParams({ limit: TX_PAGE_SIZE, offset: txPage * TX_PAGE_SIZE });
+    if (pkg)    params.set('package', pkg);
+    if (date)   params.set('date',    date);
+    if (search) params.set('search',  search);
+    const res  = await fetch(`${SERVER}/api/transactions?${params}`);
+    const data = await res.json();
+    txTotal = data.total || 0;
+    renderTransactionRows(data.data || []);
+    renderTxPagination();
+  } catch(e) { renderDemoTransactions(); }
+  loadTxStats();
+}
+
+function renderTransactionRows(txs) {
+  const list = document.getElementById('txList');
+  if (!list) return;
+  if (!txs.length) { list.innerHTML = '<div style="padding:24px;text-align:center;font-size:13px;color:var(--text3);">no transactions found</div>'; return; }
+  list.innerHTML = txs.map(t => `
+    <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr 1fr;gap:8px;align-items:center;padding:9px 10px;border-radius:10px;background:var(--charcoal3);border:1px solid var(--border2);">
+      <div style="display:flex;align-items:center;gap:9px;min-width:0;">
+        <div class="tx-icon ${PKG_ICONS[t.packageName]||'txi-strip'}" style="flex-shrink:0;">${PKG_EMOJI[t.packageName]||'📷'}</div>
+        <div style="min-width:0;">
+          <div style="font-size:11px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${t.id}</div>
+          <div style="font-size:9px;color:var(--text3);font-family:'Space Mono',monospace;">${t.refId||'—'}</div>
+        </div>
+      </div>
+      <div style="font-size:12px;color:var(--text2);">${t.packageName}</div>
+      <div><span style="font-size:10px;padding:2px 7px;border-radius:20px;background:rgba(255,255,255,0.06);color:var(--text2);">${t.filter||'—'}</span></div>
+      <div style="font-size:11px;color:var(--text3);">#${t.boothId}</div>
+      <div style="font-size:11px;color:var(--text3);">${timeAgo(t.timestamp)}</div>
+      <div style="text-align:right;">
+        <div style="font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:var(--text);">₱${(t.amount||0).toFixed(2)}</div>
+        <div style="font-size:9px;color:var(--text3);">VAT ₱${(t.vatAmount||0).toFixed(2)}</div>
+      </div>
+    </div>`).join('');
+}
+
+function renderTxPagination() {
+  const info=document.getElementById('txPagInfo'), prevBtn=document.getElementById('txPrevBtn'), nextBtn=document.getElementById('txNextBtn');
+  if (!info) return;
+  const start=txPage*TX_PAGE_SIZE+1, end=Math.min((txPage+1)*TX_PAGE_SIZE,txTotal);
+  info.textContent=`showing ${start}–${end} of ${txTotal} transactions`;
+  if(prevBtn) prevBtn.style.opacity=txPage===0?'0.3':'1';
+  if(nextBtn) nextBtn.style.opacity=end>=txTotal?'0.3':'1';
+}
+
+function txChangePage(dir) {
+  const maxPage=Math.ceil(txTotal/TX_PAGE_SIZE)-1;
+  txPage=Math.max(0,Math.min(maxPage,txPage+dir));
+  loadTransactions();
+}
+
+async function loadTxStats() {
+  try {
+    const res=await fetch(`${SERVER}/api/transactions/stats`);
+    const stats=await res.json();
+    if (!stats.ok) return;
+    const badge=document.getElementById('txTodayCount');
+    if (badge) badge.textContent=(stats.today?.sessions||0)+' today';
+    const strip=document.getElementById('txStatsStrip');
+    if (strip) {
+      const topPkg=Object.entries(stats.byPackage||{}).sort((a,b)=>b[1].sessions-a[1].sessions)[0];
+      const topFilter=Object.entries(stats.byFilter||{}).sort((a,b)=>b[1]-a[1])[0];
+      strip.innerHTML=[
+        {label:'today revenue',  val:'₱'+(stats.today?.revenue||0).toLocaleString()},
+        {label:'avg per session',val:'₱'+(stats.avgPerSession||0)},
+        {label:'top package',    val:topPkg?topPkg[0]:'—'},
+        {label:'top filter',     val:topFilter?topFilter[0]:'—'},
+      ].map(s=>`<div style="background:var(--charcoal3);border-radius:10px;padding:10px 12px;border:1px solid var(--border2);"><div style="font-size:10px;color:var(--text3);margin-bottom:4px;">${s.label}</div><div style="font-size:15px;font-weight:500;color:var(--text);">${s.val}</div></div>`).join('');
+    }
+  } catch(e) {}
+}
+
+async function exportCSV() {
+  const pkg  = document.getElementById('txFilterPkg')?.value  || '';
+  const date = document.getElementById('txFilterDate')?.value || '';
+  try {
+    const params=new URLSearchParams(); if(pkg) params.set('package',pkg); if(date) params.set('date',date);
+    const res=await fetch(`${SERVER}/api/transactions/export?${params}`);
+    if (res.ok) {
+      const blob=await res.blob(), today=new Date().toISOString().split('T')[0];
+      const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`flash-prints-${date||today}.csv`; a.click(); URL.revokeObjectURL(a.href);
+      showToast('✓ CSV downloaded'); return;
+    }
+  } catch(e) {}
+  buildLocalCSV();
+}
+
+function buildLocalCSV() {
+  const rows=document.querySelectorAll('#txList > div');
+  if (!rows.length) { showToast('No data to export'); return; }
+  const lines=['Transaction ID,Package,Filter,Booth,Amount'];
+  rows.forEach(row => {
+    const cells=[...row.querySelectorAll('div')];
+    const get=(i)=>cells[i]?.textContent?.trim().replace(/"/g,'""')||'';
+    lines.push([get(2),get(5),get(7),get(9),get(11)].map(v=>`"${v}"`).join(','));
+  });
+  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([lines.join('\r\n')],{type:'text/csv'}));
+  a.download=`flash-prints-${new Date().toISOString().split('T')[0]}.csv`; a.click();
+  showToast('✓ CSV exported');
+}
+
+function renderDemoTransactions() {
+  const demo=[
+    {id:'TX-001-001',packageName:'Classic Strip',filter:'B&W',    boothId:'002',amount:89, vatAmount:9.54, refId:'FP-002-001',timestamp:new Date(Date.now()-120000).toISOString()},
+    {id:'TX-001-002',packageName:'Party Mode',   filter:'Vintage',boothId:'001',amount:149,vatAmount:15.96,refId:'FP-001-002',timestamp:new Date(Date.now()-480000).toISOString()},
+    {id:'TX-001-003',packageName:'GIF Booth',    filter:'Neon',   boothId:'003',amount:99, vatAmount:10.61,refId:'FP-003-003',timestamp:new Date(Date.now()-840000).toISOString()},
+    {id:'TX-001-004',packageName:'Solo Frame',   filter:'Original',boothId:'004',amount:59,vatAmount:6.32, refId:'FP-004-004',timestamp:new Date(Date.now()-1260000).toISOString()},
+    {id:'TX-001-005',packageName:'Classic Strip',filter:'Pastel', boothId:'001',amount:89, vatAmount:9.54, refId:'FP-001-005',timestamp:new Date(Date.now()-1620000).toISOString()},
+  ];
+  txTotal=demo.length; renderTransactionRows(demo); renderTxPagination();
+  const b=document.getElementById('txTodayCount'); if(b) b.textContent=demo.length+' today (demo)';
+}
+
+loadTransactions();
+
+/* ── toast ── */
+function showToast(msg){
+  document.querySelectorAll('.toast').forEach(t=>t.remove());
+  const t=document.createElement('div');
+  t.className='toast'; t.textContent=msg;
+  document.body.appendChild(t);
+  setTimeout(()=>{t.style.opacity='0';t.style.transform='translateY(8px)';t.style.transition='all 0.3s';setTimeout(()=>t.remove(),300);},2200);
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   COMMAND CENTER
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+const CMD_LABELS = {
+  reboot:      {label:'Reboot',      icon:'🔄',danger:true },
+  unlock:      {label:'Unlock',      icon:'🔓',danger:false},
+  maintenance: {label:'Maintenance', icon:'🔧',danger:false},
+  resume:      {label:'Resume',      icon:'▶️',danger:false},
+  ping:        {label:'Ping',        icon:'📡',danger:false},
+  setMessage:  {label:'Message',     icon:'📢',danger:false},
+  clearErrors: {label:'Clear Errors',icon:'🧹',danger:false},
+  printTest:   {label:'Test Print',  icon:'🖨️',danger:false},
+};
+
+function getTargetBoothId(){
+  return boothDataMap&&Object.keys(boothDataMap).length?Object.keys(boothDataMap)[0]:'001';
+}
+
+async function sendCommand(command){
+  const meta=CMD_LABELS[command]||{label:command,icon:'⚙️',danger:false};
+  let payload={};
+  if(command==='setMessage'){const msg=prompt('Message to display on kiosk screen:');if(!msg)return;payload={message:msg,type:'info'};}
+  if(command==='maintenance'){const msg=prompt('Maintenance message (blank for default):');payload={message:msg||'This booth is temporarily under maintenance.'};}
+  if(command==='reboot'){if(!confirm(`⚠️ Reboot Booth #${getTargetBoothId()}?\n\nThis will navigate the kiosk back to welcome and interrupt any active session.`))return;}
+  const boothId=getTargetBoothId();
+  addCmdLogEntry({command,label:meta.label,icon:meta.icon,boothId,status:'sending',sentAt:Date.now()});
+  try{
+    const res=await fetch(`${SERVER}/api/commands/send/${boothId}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({command,payload})});
+    const data=await res.json();
+    if(data.ok){updateCmdLogEntry(data.command.id,'pending',data.command);showToast(`${meta.icon} "${meta.label}" sent to Booth #${boothId}`);}
+    else showToast(`✗ Command failed: ${data.error}`);
+  }catch(e){showToast('✗ Server unreachable — command not sent');updateCmdLogEntryByCmd(command,'failed');}
+}
+
+function sendBoothCommand(boothId,e){
+  if(e)addRipple(e);
+  const opts=Object.entries(CMD_LABELS).map(([k,v])=>`${v.icon} ${v.label} → type "${k}"`).join('\n');
+  const input=prompt(`Command for Booth #${boothId}:\n\n${opts}\n\nType command:`);
+  if(!input)return;
+  const cmd=input.trim().toLowerCase().replace(/[^a-z]/g,'');
+  if(!CMD_LABELS[cmd]){showToast(`✗ Unknown: ${input}`);return;}
+  sendCommand(cmd);
+}
+
+let cmdLogEntries=[];
+function addCmdLogEntry(e){e.id=e.id||'local-'+Date.now();cmdLogEntries.unshift(e);if(cmdLogEntries.length>20)cmdLogEntries.pop();renderCmdLog();}
+function updateCmdLogEntry(id,status,data={}){const e=cmdLogEntries.find(x=>x.id===id);if(e){Object.assign(e,data,{status});renderCmdLog();}}
+function updateCmdLogEntryByCmd(command,status){const e=cmdLogEntries.find(x=>x.command===command&&x.status==='sending');if(e){e.status=status;renderCmdLog();}}
+
+function renderCmdLog(){
+  const log=document.getElementById('cmdLog');if(!log)return;
+  if(!cmdLogEntries.length){log.innerHTML='<div style="font-size:12px;color:var(--text3);padding:8px 0;">no commands sent yet</div>';return;}
+  const ss={sending:{color:'var(--gold)',dot:'●'},pending:{color:'var(--gold)',dot:'◎'},delivered:{color:'var(--blue)',dot:'◉'},ack:{color:'var(--sage)',dot:'✓'},failed:{color:'var(--rose)',dot:'✗'},expired:{color:'var(--text3)',dot:'○'}};
+  log.innerHTML=cmdLogEntries.map(e=>{
+    const s=ss[e.status]||ss.pending;
+    const ago=Math.round((Date.now()-e.sentAt)/1000);
+    const agoStr=ago<60?ago+'s ago':Math.floor(ago/60)+'m ago';
+    return `<div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:8px;background:var(--charcoal3);border:1px solid var(--border2);">
+      <span style="font-size:14px;">${e.icon||'⚙️'}</span>
+      <div style="flex:1;min-width:0;"><div style="font-size:12px;font-weight:500;color:var(--text);">${e.label} → #${e.boothId}</div>${e.result?`<div style="font-size:10px;color:var(--text3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${e.result}</div>`:''}</div>
+      <div style="text-align:right;flex-shrink:0;"><div style="font-size:11px;color:${s.color};font-weight:500;">${s.dot} ${e.status}</div><div style="font-size:9px;color:var(--text3);">${agoStr}</div></div>
+    </div>`;
+  }).join('');
+}
+
+async function loadCmdHistory(){
+  try{
+    const res=await fetch(`${SERVER}/api/commands/history?limit=20`);
+    const data=await res.json();
+    if(data.ok){
+      cmdLogEntries=data.commands.map(c=>({id:c.id,command:c.command,label:CMD_LABELS[c.command]?.label||c.command,icon:CMD_LABELS[c.command]?.icon||'⚙️',boothId:c.boothId,status:c.status,sentAt:c.sentAt,result:c.result}));
+      renderCmdLog();showToast(`✓ ${data.commands.length} history entries loaded`);
+    }
+  }catch(e){showToast('✗ Could not load history');}
+}
+
+function connectCommandStream(){
+  const es=new EventSource(`${SERVER}/api/commands/stream`);
+  es.onmessage=e=>{
+    try{
+      const msg=JSON.parse(e.data);
+      if(msg.type==='init'&&msg.history){
+        msg.history.forEach(c=>{if(!cmdLogEntries.find(x=>x.id===c.id))cmdLogEntries.push({id:c.id,command:c.command,label:CMD_LABELS[c.command]?.label||c.command,icon:CMD_LABELS[c.command]?.icon||'⚙️',boothId:c.boothId,status:c.status,sentAt:c.sentAt,result:c.result});});
+        renderCmdLog();
+      }
+      if(['command_queued','command_delivered','command_acked','command_expired'].includes(msg.type)){
+        const c=msg.command;
+        const ex=cmdLogEntries.find(x=>x.id===c.id);
+        if(ex)Object.assign(ex,{status:c.status,result:c.result,ackedAt:c.ackedAt});
+        else cmdLogEntries.unshift({id:c.id,command:c.command,label:CMD_LABELS[c.command]?.label||c.command,icon:CMD_LABELS[c.command]?.icon||'⚙️',boothId:c.boothId,status:c.status,sentAt:c.sentAt,result:c.result});
+        renderCmdLog();
+        if(msg.type==='command_acked')showToast(`${CMD_LABELS[c.command]?.icon||'✓'} "${CMD_LABELS[c.command]?.label||c.command}" executed — ${c.result||'ok'}`);
+      }
+    }catch(err){}
+  };
+  es.onerror=()=>{es.close();setTimeout(connectCommandStream,8000);};
+}
+
+renderCmdLog();
+connectCommandStream();
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   REAL-TIME BOOTH STATUS via SSE
+   Connects to: GET /api/dashboard/stream
+   Falls back to polling every 10s if SSE not available
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+const SERVER = window.__DASHBOARD_SERVER__ || 'http://localhost:3000';
+let sseConnected = false;
+let boothDataMap = {};  /* boothId → latest snapshot */
+
+/* ── connect SSE ── */
+function connectSSE() {
+  const es = new EventSource(`${SERVER}/api/dashboard/stream`);
+
+  es.onopen = () => {
+    sseConnected = true;
+    updateConnectionBadge(true);
+    console.log('[DASHBOARD] SSE connected');
+  };
+
+  es.onmessage = (e) => {
+    try {
+      const msg = JSON.parse(e.data);
+      if (msg.type === 'booth_update') {
+        handleBoothUpdate(msg.booth);
+      } else if (msg.type === 'command_sent') {
+        showToast(`✓ Command sent: ${msg.payload.command}`);
+      }
+    } catch(err) { console.error('[DASHBOARD] SSE parse error', err); }
+  };
+
+  es.onerror = () => {
+    sseConnected = false;
+    updateConnectionBadge(false);
+    es.close();
+    console.warn('[DASHBOARD] SSE disconnected — retrying in 5s');
+    setTimeout(connectSSE, 5000);
+  };
+}
+
+/* ── handle incoming booth data ── */
+function handleBoothUpdate(booth) {
+  boothDataMap[booth.boothId] = booth;
+  refreshMetrics(booth);
+  refreshBoothRow(booth);
+  refreshSupplyRow(booth);
+  addToTransactionFeed(booth);
+}
+
+/* ── update top metric cards with real data ── */
+function refreshMetrics(booth) {
+  const rev  = document.getElementById('metRevenue');
+  const sess = document.getElementById('metSessions');
+  if (rev && booth.stats) {
+    const v = booth.stats.todayRevenue || 0;
+    rev.textContent = '₱' + v.toLocaleString();
+    flash(rev, 'var(--sage)');
+  }
+  if (sess && booth.stats) {
+    sess.textContent = booth.stats.todaySessions || 0;
+    flash(sess, 'var(--sage)');
+  }
+}
+
+function flash(el, color) {
+  el.style.color = color;
+  setTimeout(() => el.style.color = '', 800);
+}
+
+/* ── update or insert booth row ── */
+function refreshBoothRow(booth) {
+  const list = document.getElementById('boothList');
+  if (!list) return;
+  const existing = document.getElementById(`booth-row-${booth.boothId}`);
+
+  const statusLabels = { idle:'IDLE', shooting:'SHOOTING', printing:'PRINTING', payment:'PAYING', error:'ERROR', offline:'OFFLINE', maintenance:'MAINT.' };
+  const dotClass  = { idle:'bsd-online', shooting:'bsd-busy', printing:'bsd-busy', payment:'bsd-busy', error:'bsd-error', offline:'bsd-offline', maintenance:'bsd-offline' };
+  const stateClass = { idle:'bs-idle', shooting:'bs-shooting', printing:'bs-printing', payment:'bs-shooting', error:'bs-error', offline:'bs-offline', maintenance:'bs-offline' };
+
+  const status  = booth.online ? (booth.status || 'idle') : 'offline';
+  const revenue = '₱' + (booth.stats?.todayRevenue || 0).toLocaleString();
+  const sessions = booth.stats?.todaySessions || 0;
+  const suppliesWarn = booth.supplies?.paperPercent < 20 || booth.supplies?.inkPercent < 20;
+
+  const html = `
+    <div class="booth-status-dot ${dotClass[status]||'bsd-offline'}"></div>
+    <div class="booth-info">
+      <div class="booth-name">Booth #${booth.boothId} ${suppliesWarn ? '<span style="color:var(--gold);font-size:10px;">⚠ supplies low</span>' : ''}</div>
+      <div class="booth-location">${booth.location || '—'} · ${booth.floor || ''} · ${booth.currentScreen || 'welcome'}</div>
+    </div>
+    <div class="booth-state ${stateClass[status]||'bs-offline'}">${statusLabels[status]||status.toUpperCase()}</div>
+    <div class="booth-revenue">
+      <div class="booth-rev-val">${revenue}</div>
+      <div class="booth-rev-label">${sessions} sessions</div>
+    </div>
+    <div class="booth-action-btn" onclick="sendBoothCommand('${booth.boothId}', event)">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="3" r="1" fill="rgba(255,255,255,0.4)"/><circle cx="7" cy="7" r="1" fill="rgba(255,255,255,0.4)"/><circle cx="7" cy="11" r="1" fill="rgba(255,255,255,0.4)"/></svg>
+    </div>`;
+
+  if (existing) {
+    existing.innerHTML = html;
+  } else {
+    const row = document.createElement('div');
+    row.className = 'booth-row';
+    row.id = `booth-row-${booth.boothId}`;
+    row.innerHTML = html;
+    list.appendChild(row);
+  }
+}
+
+/* ── update or insert supply row ── */
+function refreshSupplyRow(booth) {
+  const list = document.getElementById('supplyList');
+  if (!list || !booth.supplies) return;
+  const existing = document.getElementById(`supply-row-${booth.boothId}`);
+
+  const ink   = booth.supplies.inkPercent   || 0;
+  const paper = booth.supplies.paperPercent || 0;
+  const inkCls   = ink   < 20 ? 'sf-crit' : ink   < 40 ? 'sf-warn' : 'sf-good';
+  const paperCls = paper < 20 ? 'sf-crit' : paper < 40 ? 'sf-warn' : 'sf-good';
+
+  const html = `
+    <div class="supply-header">
+      <div class="supply-booth">Booth #${booth.boothId} · ${booth.location||'—'}</div>
+      <div class="supply-pct">${ink}% ink · ${paper}% paper</div>
+    </div>
+    <div class="supply-track"><div class="supply-fill ${inkCls}" style="width:${ink}%"></div></div>
+    <div class="supply-detail">
+      <span class="supply-ink">🎨 ink: ${ink}%</span>
+      <span class="supply-paper">🗒️ paper: ${booth.supplies.paperSheets||0} sheets</span>
+    </div>`;
+
+  if (existing) {
+    existing.innerHTML = html;
+  } else {
+    const row = document.createElement('div');
+    row.className = 'supply-item';
+    row.id = `supply-row-${booth.boothId}`;
+    row.innerHTML = html;
+    list.appendChild(row);
+  }
+}
+
+/* ── transaction feed ── */
+/* txIcons and txEmojis already declared above */
+const txIconsByName = { 'Classic Strip':'txi-strip','Solo Frame':'txi-solo','Party Mode':'txi-party','GIF Booth':'txi-gif' };
+const txEmojiByName = { 'Classic Strip':'🎞️','Solo Frame':'🖼️','Party Mode':'🎉','GIF Booth':'✨' };
+let lastSessionAt = 0;
+
+function addToTransactionFeed(booth) {
+  if (!booth.stats?.lastSessionAt || booth.stats.lastSessionAt <= lastSessionAt) return;
+  lastSessionAt = booth.stats.lastSessionAt;
+  const list = document.getElementById('txList');
+  if (!list) return;
+  const sess = booth.session || {};
+  const pkgName = sess.package?.name || 'Unknown';
+  const amount  = sess.package?.price || (sess.amount ? '₱'+sess.amount : '—');
+  const filter  = sess.filter || '—';
+  const row = document.createElement('div');
+  row.className = 'tx-row';
+  row.style.animation = 'fadeIn 0.4s both';
+  row.innerHTML = `
+    <div class="tx-icon ${txIconsByName[pkgName]||'txi-strip'}">${txEmojiByName[pkgName]||'📷'}</div>
+    <div class="tx-info">
+      <div class="tx-pkg">${pkgName}</div>
+      <div class="tx-meta">Booth #${booth.boothId} · filter: ${filter} · GCash ✓</div>
+    </div>
+    <div>
+      <div class="tx-amount">${amount}</div>
+      <div class="tx-time">just now</div>
+    </div>
+    <div class="tx-status"></div>`;
+  list.insertBefore(row, list.firstChild);
+  /* keep max 20 rows */
+  while (list.children.length > 20) list.removeChild(list.lastChild);
+}
+
+/* ── send command to a booth ── */
+async function sendBoothCommand(boothId, e) {
+  if(e) addRipple(e);
+  const cmd = prompt(`Command for Booth #${boothId}:\nreboot / unlock / maintenance / clearErrors`);
+  if (!cmd) return;
+  try {
+    const res  = await fetch(`${SERVER}/api/dashboard/command/${boothId}`, {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ command: cmd.trim() }),
+    });
+    const data = await res.json();
+    showToast(data.ok ? `✓ Sent "${cmd}" to Booth #${boothId}` : '✗ Command failed');
+  } catch(err) {
+    showToast('✗ Could not reach server');
+  }
+}
+
+/* ── connection status badge ── */
+function updateConnectionBadge(connected) {
+  const badge = document.querySelector('.live-badge');
+  const dot   = document.querySelector('.live-dot');
+  const text  = document.querySelector('.live-text');
+  if (!badge) return;
+  if (connected) {
+    badge.style.background    = 'var(--sage-faint)';
+    badge.style.borderColor   = 'var(--sage-border)';
+    dot.style.background      = 'var(--sage)';
+    text.textContent          = 'LIVE';
+    text.style.color          = 'var(--sage)';
+  } else {
+    badge.style.background    = 'var(--rose-faint)';
+    badge.style.borderColor   = 'rgba(200,75,110,0.3)';
+    dot.style.background      = 'var(--rose)';
+    text.textContent          = 'OFFLINE';
+    text.style.color          = 'var(--rose)';
+  }
+}
+
+/* ── initial data load + start SSE ── */
+async function loadInitialData() {
+  try {
+    const [boothsRes, statsRes] = await Promise.all([
+      fetch(`${SERVER}/api/dashboard/booths`),
+      fetch(`${SERVER}/api/dashboard/stats`),
+    ]);
+    const boothsData = await boothsRes.json();
+    const statsData  = await statsRes.json();
+
+    /* render all booths */
+    if (boothsData.booths) {
+      boothsData.booths.forEach(b => {
+        handleBoothUpdate(b);
+      });
+    }
+
+    /* update metric cards */
+    if (statsData.today) {
+      const rev = document.getElementById('metRevenue');
+      const ses = document.getElementById('metSessions');
+      if (rev) rev.textContent = '₱' + (statsData.today.revenue||0).toLocaleString();
+      if (ses) ses.textContent = statsData.today.sessions || 0;
+    }
+  } catch(e) {
+    console.warn('[DASHBOARD] Could not load initial data — server may be offline');
+    updateConnectionBadge(false);
+  }
+}
+
+/* ── polling fallback (if SSE unavailable) ── */
+setInterval(async () => {
+  if (sseConnected) return; /* SSE is working — skip */
+  try {
+    const res  = await fetch(`${SERVER}/api/dashboard/booths`);
+    const data = await res.json();
+    if (data.booths) data.booths.forEach(handleBoothUpdate);
+    updateConnectionBadge(true);
+  } catch(e) {
+    updateConnectionBadge(false);
+  }
+}, 10000);
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   SUPPLY TRACKER — live data
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+/* ── connect to supply SSE stream ── */
+function connectSupplyStream() {
+  const es = new EventSource(`${SERVER}/api/supply/stream`);
+  es.onmessage = (e) => {
+    try {
+      const msg = JSON.parse(e.data);
+      if (msg.type === 'supply_update') {
+        renderSupplyPanel(msg.boothId, msg.supplies, msg.alerts || []);
+      }
+    } catch(err) {}
+  };
+  es.onerror = () => { es.close(); setTimeout(connectSupplyStream, 8000); };
+}
+
+/* ── fetch and render supply status ── */
+async function loadSupplyStatus() {
+  try {
+    const res  = await fetch(`${SERVER}/api/supply/status`);
+    const data = await res.json();
+    if (data.ok) {
+      renderSupplyPanel(data.boothId, data.state, data.alerts || []);
+    }
+  } catch(e) {
+    renderSupplyOffline();
+  }
+}
+
+/* ── render the supply panel ── */
+function renderSupplyPanel(boothId, supplies, alerts) {
+  const list = document.getElementById('supplyList');
+  if (!list) return;
+
+  const ink     = supplies?.inkPercent   ?? 0;
+  const paper   = supplies?.paperSheets  ?? 0;
+  const paperPct= supplies?.paperPercent ?? 0;
+
+  const inkLevel   = ink   <= 10 ? 'critical' : ink   <= 25 ? 'warning' : 'ok';
+  const paperLevel = paper <= 10 ? 'critical' : paper <= 30 ? 'warning' : 'ok';
+
+  const inkBar   = inkLevel   === 'critical' ? 'sf-crit' : inkLevel   === 'warning' ? 'sf-warn' : 'sf-good';
+  const paperBar = paperLevel === 'critical' ? 'sf-crit' : paperLevel === 'warning' ? 'sf-warn' : 'sf-good';
+
+  const inkColor   = inkLevel   === 'critical' ? 'var(--rose)' : inkLevel   === 'warning' ? 'var(--gold)' : 'var(--sage)';
+  const paperColor = paperLevel === 'critical' ? 'var(--rose)' : paperLevel === 'warning' ? 'var(--gold)' : 'var(--sage)';
+
+  list.innerHTML = `
+    <div class="supply-item" style="padding:12px;background:var(--charcoal3);border-radius:12px;border:1px solid var(--border);">
+      <div class="supply-header">
+        <div class="supply-booth">🎨 ink ribbon</div>
+        <div class="supply-pct" style="color:${inkColor};font-weight:600;">${ink}%</div>
+      </div>
+      <div class="supply-track"><div class="supply-fill ${inkBar}" style="width:${ink}%"></div></div>
+      <div class="supply-detail">
+        <span class="supply-ink" style="color:${inkColor};">${inkLevel === 'critical' ? '🔴 replace now' : inkLevel === 'warning' ? '⚠️ order soon' : '✓ good'}</span>
+        <span class="supply-paper" style="font-size:10px;color:var(--text3);">thresh: warn ${(window.__SUPPLY_THRESH||{}).warnInk||25}% · crit ${(window.__SUPPLY_THRESH||{}).critInk||10}%</span>
+      </div>
+    </div>
+
+    <div class="supply-item" style="padding:12px;background:var(--charcoal3);border-radius:12px;border:1px solid var(--border);">
+      <div class="supply-header">
+        <div class="supply-booth">🗒️ paper</div>
+        <div class="supply-pct" style="color:${paperColor};font-weight:600;">${paper} sheets (${paperPct}%)</div>
+      </div>
+      <div class="supply-track"><div class="supply-fill ${paperBar}" style="width:${paperPct}%"></div></div>
+      <div class="supply-detail">
+        <span class="supply-ink" style="color:${paperColor};">${paperLevel === 'critical' ? '🔴 refill now' : paperLevel === 'warning' ? '⚠️ refill soon' : '✓ good'}</span>
+        <span class="supply-paper" style="font-size:10px;color:var(--text3);">thresh: warn ${(window.__SUPPLY_THRESH||{}).warnPaper||30} · crit ${(window.__SUPPLY_THRESH||{}).critPaper||10}</span>
+      </div>
+    </div>
+
+    <div style="margin-top:4px;padding:10px 12px;background:var(--charcoal3);border-radius:10px;border:1px solid var(--border);">
+      <div style="font-size:10px;color:var(--text3);letter-spacing:1px;font-family:'Space Mono',monospace;margin-bottom:6px;">BOOTH #${boothId} · PRINTER STATUS</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <div style="font-size:11px;color:rgba(255,255,255,0.5);">🖨️ ${boothId ? 'Booth #'+boothId : '—'}</div>
+        <div style="font-size:11px;color:var(--sage);">● connected</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.3);">last updated: <span id="supplyLastUpdate">just now</span></div>
+      </div>
+    </div>
+  `;
+  document.getElementById('supplyLastUpdate') && (document.getElementById('supplyLastUpdate').textContent = new Date().toLocaleTimeString());
+
+  /* render alert banner */
+  renderSupplyAlerts(alerts, inkLevel, paperLevel, ink, paper);
+}
+
+function renderSupplyAlerts(alerts, inkLevel, paperLevel, ink, paper) {
+  const banner = document.getElementById('supplyAlertBanner');
+  if (!banner) return;
+
+  const crits = [];
+  const warns = [];
+  if (inkLevel   === 'critical') crits.push(`ink at ${ink}% — replace ribbon immediately`);
+  else if (inkLevel   === 'warning') warns.push(`ink at ${ink}% — order replacement soon`);
+  if (paperLevel === 'critical') crits.push(`only ${paper} sheets left — refill now`);
+  else if (paperLevel === 'warning') warns.push(`${paper} sheets remaining — refill soon`);
+
+  if (crits.length > 0) {
+    banner.style.display = 'flex';
+    banner.style.cssText = `display:flex;align-items:flex-start;gap:10px;padding:12px 14px;background:var(--rose-faint);border:1px solid rgba(200,75,110,0.3);border-radius:12px;margin-bottom:12px;`;
+    banner.innerHTML = `<div style="font-size:16px;flex-shrink:0;">🔴</div><div><div style="font-size:13px;font-weight:600;color:var(--rose);margin-bottom:3px;">Critical supply alert</div><div style="font-size:12px;color:rgba(255,255,255,0.5);">${crits.join(' · ')}</div></div>`;
+  } else if (warns.length > 0) {
+    banner.style.display = 'flex';
+    banner.style.cssText = `display:flex;align-items:flex-start;gap:10px;padding:12px 14px;background:var(--gold-faint);border:1px solid var(--gold-border);border-radius:12px;margin-bottom:12px;`;
+    banner.innerHTML = `<div style="font-size:16px;flex-shrink:0;">⚠️</div><div><div style="font-size:13px;font-weight:600;color:var(--gold);margin-bottom:3px;">Supply warning</div><div style="font-size:12px;color:rgba(255,255,255,0.5);">${warns.join(' · ')}</div></div>`;
+  } else {
+    banner.style.display = 'none';
+  }
+}
+
+function renderSupplyOffline() {
+  const list = document.getElementById('supplyList');
+  if (!list) return;
+  list.innerHTML = `<div style="padding:16px;text-align:center;font-size:13px;color:var(--text3);">supply data unavailable — server offline</div>`;
+}
+
+/* ── refill paper or ink via API ── */
+async function refillSupply(type) {
+  const confirmed = confirm(`Confirm ${type} refill?\n\nThis will reset the ${type} counter to full.`);
+  if (!confirmed) return;
+  try {
+    const res  = await fetch(`${SERVER}/api/supply/refill/${type}`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({}) });
+    const data = await res.json();
+    showToast(data.ok ? `✓ ${type} refilled successfully` : `✗ Refill failed`);
+    loadSupplyStatus();
+  } catch(e) {
+    showToast(`✗ Could not reach server`);
+  }
+}
+
+/* ── dev: simulate supply levels ── */
+async function simulateSupply(inkPercent, paperSheets) {
+  try {
+    const res  = await fetch(`${SERVER}/api/supply/simulate`, {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ inkPercent, paperSheets }),
+    });
+    const data = await res.json();
+    if (data.ok) {
+      renderSupplyPanel(boothState?.boothId || '001', data.supplies, []);
+      showToast(`🧪 Simulated: ink ${inkPercent}% · paper ${paperSheets} sheets`);
+    }
+  } catch(e) {
+    /* server offline — render locally for demo */
+    renderSupplyPanel('001', { inkPercent, paperSheets, paperPercent: Math.round(paperSheets/200*100) }, []);
+    showToast(`🧪 Demo: ink ${inkPercent}% · paper ${paperSheets} sheets`);
+  }
+}
+
+/* ── init supply ── */
+loadSupplyStatus();
+connectSupplyStream();
+
+/* ── also store thresholds for display ── */
+window.__SUPPLY_THRESH = { warnInk: 25, critInk: 10, warnPaper: 30, critPaper: 10 };
+
+/* ── update "52 today" session count dynamically ── */
+state.on && state.on('change', s => {
+  const el = document.querySelector('.tag.tag-gold');
+  if (el && s.stats) el.textContent = s.stats.todaySessions + ' today';
+});
+</script>
+</body>
+</html>
