@@ -213,7 +213,73 @@ function generateLayoutSVG(layoutId, opts) {
   return parts.join('');
 }
 
+/* ── Custom overlay layouts ───────────────────────────────────────────── */
+const _CUSTOM_KEY = 'fp_custom_layouts';
+
+/** Return all saved custom layouts as an object keyed by id. */
+function getCustomLayouts() {
+  try { return JSON.parse(localStorage.getItem(_CUSTOM_KEY) || '{}'); } catch(_) { return {}; }
+}
+
+/** Persist a custom layout (creates or overwrites by id). */
+function saveCustomLayout(layout) {
+  const all = getCustomLayouts();
+  all[layout.id] = layout;
+  try { localStorage.setItem(_CUSTOM_KEY, JSON.stringify(all)); } catch(e) {
+    throw e; /* re-throw so callers can show storage-quota errors */
+  }
+}
+
+/** Remove a custom layout by id. */
+function deleteCustomLayout(id) {
+  const all = getCustomLayouts();
+  delete all[id];
+  try { localStorage.setItem(_CUSTOM_KEY, JSON.stringify(all)); } catch(_) {}
+}
+
+/**
+ * Generate an SVG string for a custom overlay layout.
+ *
+ * @param {object} layout  – custom layout object with overlayDataUrl, viewBox, slots
+ * @param {object} [opts]
+ * @param {boolean} [opts.labels=true]   – render slot-number labels
+ * @param {number}  [opts.highlight=-1] – index of highlighted slot
+ */
+function generateCustomLayoutSVG(layout, opts) {
+  if (!layout) return '<svg/>';
+  opts = opts || {};
+  const showLabels = opts.labels !== false;
+  const hl = (opts.highlight != null) ? opts.highlight : -1;
+  const vbParts = (layout.viewBox || '0 0 110 110').split(' ').map(Number);
+  const vw = vbParts[2] || 110, vh = vbParts[3] || 110;
+
+  const vbStr = layout.viewBox || `0 0 ${vw} ${vh}`;
+  const parts = [`<svg viewBox="${vbStr}" fill="none" xmlns="http://www.w3.org/2000/svg">`];
+
+  /* Only embed safe data-URL images to avoid XSS via crafted overlayDataUrl values */
+  if (layout.overlayDataUrl && /^data:image\/(png|jpe?g|webp|gif);base64,/.test(layout.overlayDataUrl)) {
+    parts.push(`<image href="${layout.overlayDataUrl}" x="0" y="0" width="${vw}" height="${vh}" preserveAspectRatio="xMidYMid meet"/>`);
+  }
+
+  (layout.slots || []).forEach((s, i) => {
+    const isHL   = i === hl;
+    const fill   = isHL ? 'rgba(232,197,71,0.22)' : 'rgba(232,197,71,0.10)';
+    const stroke = isHL ? 'rgba(232,197,71,0.70)' : 'rgba(232,197,71,0.22)';
+    const sw     = isHL ? '1.8' : '0.8';
+    const cx = s.x + s.w / 2, cy = s.y + s.h / 2;
+    const xf = s.angle ? ` transform="rotate(${s.angle},${cx},${cy})"` : '';
+    parts.push(`<rect x="${s.x}" y="${s.y}" width="${s.w}" height="${s.h}" rx="1.5" fill="${fill}" stroke="${stroke}" stroke-width="${sw}"${xf}/>`);
+    if (showLabels) {
+      const fs = Math.max(4, Math.min(s.w, s.h) * 0.38);
+      parts.push(`<text x="${cx}" y="${cy}" dominant-baseline="middle" text-anchor="middle" font-size="${fs}" fill="rgba(232,197,71,0.85)" font-family="monospace">${i + 1}</text>`);
+    }
+  });
+
+  parts.push('</svg>');
+  return parts.join('');
+}
+
 /* ── Node.js export (used by strip-renderer if ever needed) ──────────── */
 if (typeof module !== 'undefined') {
-  module.exports = { LAYOUT_SLOT_DEFAULTS, getLayoutSlots, saveLayoutSlots, resetLayoutSlots, generateLayoutSVG };
+  module.exports = { LAYOUT_SLOT_DEFAULTS, getLayoutSlots, saveLayoutSlots, resetLayoutSlots, generateLayoutSVG, getCustomLayouts, saveCustomLayout, deleteCustomLayout, generateCustomLayoutSVG };
 }

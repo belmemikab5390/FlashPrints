@@ -197,6 +197,25 @@ const LAYOUTS = {
   ],
 };
 
+/* ── Merge in any saved custom overlay layouts ─────────────────────────── */
+(function loadCustomLayouts() {
+  if (typeof getCustomLayouts !== 'function' || typeof generateCustomLayoutSVG !== 'function') return;
+  try {
+    const customs = getCustomLayouts();
+    Object.values(customs).forEach(lay => {
+      const pi = (Number.isInteger(lay.packageIndex) && lay.packageIndex >= 0 && lay.packageIndex <= 4)
+        ? lay.packageIndex : 0;
+      if (!LAYOUTS[pi]) return;
+      LAYOUTS[pi].push({
+        id:    lay.id,
+        name:  lay.name,
+        desc:  lay.desc || 'custom overlay layout',
+        svgFn: () => generateCustomLayoutSVG(lay),
+      });
+    });
+  } catch(_) {}
+})();
+
 /* ── Session data ─────────────────────────────────────────────────────── */
 let sess = {};
 try { sess = JSON.parse(localStorage.getItem('fp_session') || '{}'); } catch(_) {}
