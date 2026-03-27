@@ -41,8 +41,13 @@ body{display:flex;flex-direction:column;}
 .ptitle{font-family:'Playfair Display',serif;font-size:clamp(26px,3.5vw,46px);font-weight:900;color:#fff;line-height:1;letter-spacing:-1px;}
 .ptitle em{color:var(--gold);font-style:italic;}
 .psub{font-size:12px;color:rgba(255,255,255,0.35);margin-top:3px;}
-.grid{flex:1;min-height:0;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:10px;}
-.pkg{border-radius:14px;border:1.5px solid var(--border);background:var(--c2);padding:14px 16px;cursor:pointer;position:relative;overflow:hidden;display:flex;flex-direction:column;transition:border-color 0.2s,background 0.2s,transform 0.12s;min-height:0;}
+.grid{flex:1;min-height:0;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(3,1fr);gap:10px;}
+.pkg:nth-child(5){grid-column:1/-1;max-width:calc(50% - 5px);justify-self:center;}
+.pkg{border-radius:14px;border:1.5px solid var(--border);background:var(--c2);padding:12px 14px;cursor:pointer;position:relative;overflow:hidden;display:flex;flex-direction:row;gap:10px;transition:border-color 0.2s,background 0.2s,transform 0.12s;min-height:0;}
+.pkg-body{flex:1;display:flex;flex-direction:column;min-width:0;}
+.pkg-sample{width:72px;flex-shrink:0;display:flex;align-items:center;justify-content:center;border-radius:8px;background:rgba(232,197,71,0.04);border:1px solid rgba(232,197,71,0.1);overflow:hidden;transition:background 0.2s,border-color 0.2s;}
+.pkg.sel .pkg-sample{background:rgba(232,197,71,0.08);border-color:rgba(232,197,71,0.2);}
+.pkg-sample svg{width:58px;height:auto;}
 .pkg:active{transform:scale(0.98);}
 .pkg.sel{border-color:var(--gold);background:linear-gradient(145deg,#1E1C10,#1A1A26);box-shadow:0 0 24px rgba(232,197,71,0.07);}
 .ptop{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;}
@@ -123,49 +128,85 @@ body{display:flex;flex-direction:column;}
     <div class="psub">pick a set · choose a filter · then pay with GCash</div>
   </div>
   <div class="grid">
+    <!-- Classic -->
     <div class="pkg sel" id="p0" onclick="sp(0,event)">
-      <div class="ptop"><div class="pico"><svg viewBox="0 0 20 20" fill="none"><rect x="5" y="2" width="10" height="16" rx="2" stroke="rgba(232,197,71,0.7)" stroke-width="1.2"/><rect x="7" y="4" width="6" height="4" rx="1" fill="rgba(232,197,71,0.15)" stroke="rgba(232,197,71,0.4)" stroke-width="0.8"/><rect x="7" y="10" width="6" height="4" rx="1" fill="rgba(232,197,71,0.1)" stroke="rgba(232,197,71,0.3)" stroke-width="0.8"/></svg></div><div class="pbadges"><div class="bp">POPULAR</div><div class="chk" id="c0"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5 L4 7 L8 3" stroke="#1A1200" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div></div>
-      <div class="pname">Classic Strip</div><div class="ptag">the timeless photobooth experience</div>
-      <div class="pdets">
-        <div class="pdet"><svg viewBox="0 0 11 11" fill="none"><circle cx="5.5" cy="5.5" r="4" stroke="rgba(232,197,71,0.6)" stroke-width="1"/><path d="M5.5 3.5 L5.5 5.5 L7 6.5" stroke="rgba(232,197,71,0.6)" stroke-width="0.9" stroke-linecap="round"/></svg>4 photos · 3-second countdown each</div>
-        <div class="pdet"><svg viewBox="0 0 11 11" fill="none"><rect x="1" y="2.5" width="9" height="6.5" rx="1" stroke="rgba(232,197,71,0.6)" stroke-width="1"/><path d="M3 2.5 V1.5 M8 2.5 V1.5" stroke="rgba(232,197,71,0.6)" stroke-width="0.9" stroke-linecap="round"/></svg>1 printed strip · 2×6 inch · dye-sub</div>
-        <div class="pdet"><svg viewBox="0 0 11 11" fill="none"><path d="M5.5 1 L6.8 4 L10 4.5 L7.8 7 L8.3 10 L5.5 8.5 L2.7 10 L3.2 7 L1 4.5 L4.2 4 Z" stroke="rgba(232,197,71,0.6)" stroke-width="0.9" stroke-linejoin="round"/></svg>all 5 filters available</div>
-        <div class="pdet"><svg viewBox="0 0 11 11" fill="none"><rect x="1.5" y="1" width="8" height="9" rx="1" stroke="rgba(232,197,71,0.6)" stroke-width="1"/><path d="M3.5 3.5 L7.5 3.5 M3.5 5.5 L6 5.5" stroke="rgba(232,197,71,0.6)" stroke-width="0.9" stroke-linecap="round"/></svg>digital receipt · GCash confirmed</div>
+      <div class="pkg-body">
+        <div class="ptop"><div class="pico"><svg viewBox="0 0 20 20" fill="none"><rect x="3" y="3" width="14" height="14" rx="2" stroke="rgba(232,197,71,0.7)" stroke-width="1.2"/><circle cx="7" cy="7" r="1.5" fill="rgba(232,197,71,0.5)"/><path d="M3 13 L7 9 L10 12 L13 8 L17 12" stroke="rgba(232,197,71,0.5)" stroke-width="1" stroke-linejoin="round"/></svg></div><div class="pbadges"><div class="bp">POPULAR</div><div class="chk" id="c0"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5 L4 7 L8 3" stroke="#1A1200" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div></div>
+        <div class="pname">Classic</div><div class="ptag">one clean print, beautifully framed</div>
+        <div class="pdets">
+          <div class="pdet"><svg viewBox="0 0 11 11" fill="none"><circle cx="5.5" cy="5.5" r="4" stroke="rgba(232,197,71,0.6)" stroke-width="1"/><path d="M5.5 3.5 L5.5 5.5 L7 6.5" stroke="rgba(232,197,71,0.6)" stroke-width="0.9" stroke-linecap="round"/></svg>1 photo · 3-second countdown</div>
+          <div class="pdet"><svg viewBox="0 0 11 11" fill="none"><rect x="1" y="2.5" width="9" height="6.5" rx="1" stroke="rgba(232,197,71,0.6)" stroke-width="1"/><path d="M3 2.5 V1.5 M8 2.5 V1.5" stroke="rgba(232,197,71,0.6)" stroke-width="0.9" stroke-linecap="round"/></svg>1 print · 4×6 inch · dye-sub</div>
+          <div class="pdet"><svg viewBox="0 0 11 11" fill="none"><path d="M5.5 1 L6.8 4 L10 4.5 L7.8 7 L8.3 10 L5.5 8.5 L2.7 10 L3.2 7 L1 4.5 L4.2 4 Z" stroke="rgba(232,197,71,0.6)" stroke-width="0.9" stroke-linejoin="round"/></svg>all 5 filters available</div>
+        </div>
+        <div class="ppr"><div class="pprice">₱100</div><div class="pper">/ session</div></div>
       </div>
-      <div class="ppr"><div class="pprice">₱89</div><div class="pper">/ session</div></div>
+      <div class="pkg-sample">
+        <svg viewBox="0 0 50 62" fill="none"><rect x="3" y="3" width="44" height="56" rx="3" fill="rgba(232,197,71,0.05)" stroke="rgba(232,197,71,0.4)" stroke-width="1.5"/><rect x="8" y="8" width="34" height="34" rx="2" fill="rgba(232,197,71,0.08)"/><circle cx="16" cy="16" r="4" fill="rgba(232,197,71,0.2)"/><path d="M8 32 L16 23 L23 29 L31 21 L42 30 L42 42 L8 42 Z" fill="rgba(232,197,71,0.12)"/><rect x="8" y="45" width="34" height="4" rx="1" fill="rgba(232,197,71,0.05)"/><rect x="8" y="51" width="20" height="3" rx="1" fill="rgba(232,197,71,0.04)"/></svg>
+      </div>
     </div>
+    <!-- Strip -->
     <div class="pkg" id="p1" onclick="sp(1,event)">
-      <div class="ptop"><div class="pico"><svg viewBox="0 0 20 20" fill="none"><rect x="2" y="2" width="16" height="16" rx="2" stroke="rgba(232,197,71,0.7)" stroke-width="1.2"/><rect x="5" y="5" width="10" height="10" rx="1" fill="rgba(232,197,71,0.1)" stroke="rgba(232,197,71,0.3)" stroke-width="0.8"/><circle cx="10" cy="10" r="2" fill="rgba(232,197,71,0.3)"/></svg></div><div class="pbadges"><div class="chk" id="c1"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5 L4 7 L8 3" stroke="#1A1200" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div></div>
-      <div class="pname">Solo Frame</div><div class="ptag">one perfect shot, beautifully printed</div>
-      <div class="pdets">
-        <div class="pdet"><svg viewBox="0 0 11 11" fill="none"><circle cx="5.5" cy="5.5" r="4" stroke="rgba(232,197,71,0.6)" stroke-width="1"/><path d="M5.5 3.5 L5.5 5.5 L7 6.5" stroke="rgba(232,197,71,0.6)" stroke-width="0.9" stroke-linecap="round"/></svg>1 photo · 5-second pose time</div>
-        <div class="pdet"><svg viewBox="0 0 11 11" fill="none"><rect x="1" y="2.5" width="9" height="6.5" rx="1" stroke="rgba(232,197,71,0.6)" stroke-width="1"/><path d="M3 2.5 V1.5 M8 2.5 V1.5" stroke="rgba(232,197,71,0.6)" stroke-width="0.9" stroke-linecap="round"/></svg>2 prints · 4R size (4×6 inch)</div>
-        <div class="pdet"><svg viewBox="0 0 11 11" fill="none"><path d="M5.5 1 L6.8 4 L10 4.5 L7.8 7 L8.3 10 L5.5 8.5 L2.7 10 L3.2 7 L1 4.5 L4.2 4 Z" stroke="rgba(232,197,71,0.6)" stroke-width="0.9" stroke-linejoin="round"/></svg>all 5 filters available</div>
-        <div class="pdet"><svg viewBox="0 0 11 11" fill="none"><rect x="1.5" y="1" width="8" height="9" rx="1" stroke="rgba(232,197,71,0.6)" stroke-width="1"/><path d="M3.5 3.5 L7.5 3.5 M3.5 5.5 L6 5.5" stroke="rgba(232,197,71,0.6)" stroke-width="0.9" stroke-linecap="round"/></svg>digital receipt · GCash confirmed</div>
+      <div class="pkg-body">
+        <div class="ptop"><div class="pico"><svg viewBox="0 0 20 20" fill="none"><rect x="5" y="2" width="10" height="16" rx="2" stroke="rgba(232,197,71,0.7)" stroke-width="1.2"/><rect x="7" y="4" width="6" height="4" rx="1" fill="rgba(232,197,71,0.15)" stroke="rgba(232,197,71,0.4)" stroke-width="0.8"/><rect x="7" y="10" width="6" height="4" rx="1" fill="rgba(232,197,71,0.1)" stroke="rgba(232,197,71,0.3)" stroke-width="0.8"/></svg></div><div class="pbadges"><div class="chk" id="c1"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5 L4 7 L8 3" stroke="#1A1200" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div></div>
+        <div class="pname">Strip</div><div class="ptag">the timeless photobooth experience</div>
+        <div class="pdets">
+          <div class="pdet"><svg viewBox="0 0 11 11" fill="none"><circle cx="5.5" cy="5.5" r="4" stroke="rgba(232,197,71,0.6)" stroke-width="1"/><path d="M5.5 3.5 L5.5 5.5 L7 6.5" stroke="rgba(232,197,71,0.6)" stroke-width="0.9" stroke-linecap="round"/></svg>4 photos · 3-second countdown each</div>
+          <div class="pdet"><svg viewBox="0 0 11 11" fill="none"><rect x="1" y="2.5" width="9" height="6.5" rx="1" stroke="rgba(232,197,71,0.6)" stroke-width="1"/><path d="M3 2.5 V1.5 M8 2.5 V1.5" stroke="rgba(232,197,71,0.6)" stroke-width="0.9" stroke-linecap="round"/></svg>1 printed strip · 2×6 inch · dye-sub</div>
+          <div class="pdet"><svg viewBox="0 0 11 11" fill="none"><path d="M5.5 1 L6.8 4 L10 4.5 L7.8 7 L8.3 10 L5.5 8.5 L2.7 10 L3.2 7 L1 4.5 L4.2 4 Z" stroke="rgba(232,197,71,0.6)" stroke-width="0.9" stroke-linejoin="round"/></svg>all 5 filters available</div>
+        </div>
+        <div class="ppr"><div class="pprice">₱150</div><div class="pper">/ session</div></div>
       </div>
-      <div class="ppr"><div class="pprice">₱59</div><div class="pper">/ session</div></div>
+      <div class="pkg-sample">
+        <svg viewBox="0 0 30 68" fill="none"><rect x="2" y="2" width="26" height="64" rx="3" fill="rgba(232,197,71,0.05)" stroke="rgba(232,197,71,0.4)" stroke-width="1.5"/><rect x="5" y="6" width="20" height="14" rx="1" fill="rgba(232,197,71,0.1)"/><circle cx="10" cy="11" r="2.5" fill="rgba(232,197,71,0.2)"/><rect x="5" y="23" width="20" height="14" rx="1" fill="rgba(232,197,71,0.1)"/><rect x="5" y="40" width="20" height="14" rx="1" fill="rgba(232,197,71,0.1)"/><rect x="5" y="57" width="20" height="6" rx="1" fill="rgba(232,197,71,0.07)"/></svg>
+      </div>
     </div>
+    <!-- Polaroid -->
     <div class="pkg" id="p2" onclick="sp(2,event)">
-      <div class="ptop"><div class="pico"><svg viewBox="0 0 20 20" fill="none"><path d="M10 1.5 L12 7 L18 7.5 L13.5 12 L15 18 L10 15 L5 18 L6.5 12 L2 7.5 L8 7 Z" stroke="rgba(232,197,71,0.7)" stroke-width="1.2" stroke-linejoin="round"/></svg></div><div class="pbadges"><div class="bv">BEST VALUE</div><div class="chk" id="c2"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5 L4 7 L8 3" stroke="#1A1200" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div></div>
-      <div class="pname">Party Mode</div><div class="ptag">more photos, more fun, more prints</div>
-      <div class="pdets">
-        <div class="pdet"><svg viewBox="0 0 11 11" fill="none"><circle cx="5.5" cy="5.5" r="4" stroke="rgba(232,197,71,0.6)" stroke-width="1"/><path d="M5.5 3.5 L5.5 5.5 L7 6.5" stroke="rgba(232,197,71,0.6)" stroke-width="0.9" stroke-linecap="round"/></svg>6 photos · 3-second countdown each</div>
-        <div class="pdet"><svg viewBox="0 0 11 11" fill="none"><rect x="1" y="2.5" width="9" height="6.5" rx="1" stroke="rgba(232,197,71,0.6)" stroke-width="1"/><path d="M3 2.5 V1.5 M8 2.5 V1.5" stroke="rgba(232,197,71,0.6)" stroke-width="0.9" stroke-linecap="round"/></svg>2 printed strips · share with friends</div>
-        <div class="pdet"><svg viewBox="0 0 11 11" fill="none"><path d="M5.5 1 L6.8 4 L10 4.5 L7.8 7 L8.3 10 L5.5 8.5 L2.7 10 L3.2 7 L1 4.5 L4.2 4 Z" stroke="rgba(232,197,71,0.6)" stroke-width="0.9" stroke-linejoin="round"/></svg>all 5 filters · digital copy via QR</div>
-        <div class="pdet"><svg viewBox="0 0 11 11" fill="none"><rect x="1.5" y="1" width="8" height="9" rx="1" stroke="rgba(232,197,71,0.6)" stroke-width="1"/><path d="M3.5 3.5 L7.5 3.5 M3.5 5.5 L6 5.5" stroke="rgba(232,197,71,0.6)" stroke-width="0.9" stroke-linecap="round"/></svg>digital receipt · GCash confirmed</div>
+      <div class="pkg-body">
+        <div class="ptop"><div class="pico"><svg viewBox="0 0 20 20" fill="none"><rect x="2" y="2" width="16" height="16" rx="2" stroke="rgba(232,197,71,0.7)" stroke-width="1.2" fill="rgba(232,197,71,0.05)"/><rect x="4" y="4" width="12" height="8" rx="1" fill="rgba(232,197,71,0.15)"/><circle cx="7" cy="6.5" r="1.5" fill="rgba(232,197,71,0.4)"/><rect x="4" y="14" width="12" height="2" rx="0.5" fill="rgba(232,197,71,0.1)"/></svg></div><div class="pbadges"><div class="bv">NEW</div><div class="chk" id="c2"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5 L4 7 L8 3" stroke="#1A1200" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div></div>
+        <div class="pname">Polaroid</div><div class="ptag">vintage charm, polaroid style</div>
+        <div class="pdets">
+          <div class="pdet"><svg viewBox="0 0 11 11" fill="none"><circle cx="5.5" cy="5.5" r="4" stroke="rgba(232,197,71,0.6)" stroke-width="1"/><path d="M5.5 3.5 L5.5 5.5 L7 6.5" stroke="rgba(232,197,71,0.6)" stroke-width="0.9" stroke-linecap="round"/></svg>1 photo · 5-second pose time</div>
+          <div class="pdet"><svg viewBox="0 0 11 11" fill="none"><rect x="1" y="2.5" width="9" height="6.5" rx="1" stroke="rgba(232,197,71,0.6)" stroke-width="1"/><path d="M3 2.5 V1.5 M8 2.5 V1.5" stroke="rgba(232,197,71,0.6)" stroke-width="0.9" stroke-linecap="round"/></svg>1 polaroid print · 4×4 inch + frame</div>
+          <div class="pdet"><svg viewBox="0 0 11 11" fill="none"><path d="M5.5 1 L6.8 4 L10 4.5 L7.8 7 L8.3 10 L5.5 8.5 L2.7 10 L3.2 7 L1 4.5 L4.2 4 Z" stroke="rgba(232,197,71,0.6)" stroke-width="0.9" stroke-linejoin="round"/></svg>all 5 filters available</div>
+        </div>
+        <div class="ppr"><div class="pprice">₱200</div><div class="pper">/ session</div></div>
       </div>
-      <div class="ppr"><div class="pprice">₱149</div><div class="pper">/ session</div></div>
+      <div class="pkg-sample">
+        <svg viewBox="0 0 54 66" fill="none"><rect x="3" y="3" width="48" height="60" rx="3" fill="rgba(255,255,255,0.04)" stroke="rgba(232,197,71,0.4)" stroke-width="1.5"/><rect x="9" y="9" width="36" height="36" rx="2" fill="rgba(232,197,71,0.08)"/><circle cx="17" cy="17" r="5" fill="rgba(232,197,71,0.18)"/><path d="M9 34 L18 25 L26 31 L34 23 L45 31 L45 45 L9 45 Z" fill="rgba(232,197,71,0.12)"/><line x1="3" y1="48" x2="51" y2="48" stroke="rgba(232,197,71,0.15)" stroke-width="1"/><rect x="9" y="52" width="20" height="4" rx="1" fill="rgba(232,197,71,0.07)"/><rect x="9" y="58" width="12" height="3" rx="1" fill="rgba(232,197,71,0.05)"/></svg>
+      </div>
     </div>
+    <!-- Party Mode -->
     <div class="pkg" id="p3" onclick="sp(3,event)">
-      <div class="ptop"><div class="pico"><svg viewBox="0 0 20 20" fill="none"><rect x="1" y="4" width="18" height="13" rx="2" stroke="rgba(232,197,71,0.7)" stroke-width="1.2"/><path d="M5 11 L7.5 8.5 L10 11 L12.5 9 L16 11" stroke="rgba(232,197,71,0.5)" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/><circle cx="4.5" cy="8" r="1" fill="rgba(232,197,71,0.5)"/></svg></div><div class="pbadges"><div class="bd">DIGITAL</div><div class="chk" id="c3"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5 L4 7 L8 3" stroke="#1A1200" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div></div>
-      <div class="pname">GIF Booth</div><div class="ptag">animated · shareable · social-ready</div>
-      <div class="pdets">
-        <div class="pdet"><svg viewBox="0 0 11 11" fill="none"><circle cx="5.5" cy="5.5" r="4" stroke="rgba(232,197,71,0.6)" stroke-width="1"/><path d="M5.5 3.5 L5.5 5.5 L7 6.5" stroke="rgba(232,197,71,0.6)" stroke-width="0.9" stroke-linecap="round"/></svg>5 frames · burst mode · animated GIF</div>
-        <div class="pdet"><svg viewBox="0 0 11 11" fill="none"><rect x="1" y="2.5" width="9" height="6.5" rx="1" stroke="rgba(232,197,71,0.6)" stroke-width="1"/><path d="M3 2.5 V1.5 M8 2.5 V1.5" stroke="rgba(232,197,71,0.6)" stroke-width="0.9" stroke-linecap="round"/></svg>1 printed strip + GIF via QR code</div>
-        <div class="pdet"><svg viewBox="0 0 11 11" fill="none"><path d="M5.5 1 L6.8 4 L10 4.5 L7.8 7 L8.3 10 L5.5 8.5 L2.7 10 L3.2 7 L1 4.5 L4.2 4 Z" stroke="rgba(232,197,71,0.6)" stroke-width="0.9" stroke-linejoin="round"/></svg>neon &amp; pastel filters recommended</div>
-        <div class="pdet"><svg viewBox="0 0 11 11" fill="none"><rect x="1.5" y="1" width="8" height="9" rx="1" stroke="rgba(232,197,71,0.6)" stroke-width="1"/><path d="M3.5 3.5 L7.5 3.5 M3.5 5.5 L6 5.5" stroke="rgba(232,197,71,0.6)" stroke-width="0.9" stroke-linecap="round"/></svg>share on Instagram · TikTok ready</div>
+      <div class="pkg-body">
+        <div class="ptop"><div class="pico"><svg viewBox="0 0 20 20" fill="none"><path d="M10 1.5 L12 7 L18 7.5 L13.5 12 L15 18 L10 15 L5 18 L6.5 12 L2 7.5 L8 7 Z" stroke="rgba(232,197,71,0.7)" stroke-width="1.2" stroke-linejoin="round"/></svg></div><div class="pbadges"><div class="bv">BEST VALUE</div><div class="chk" id="c3"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5 L4 7 L8 3" stroke="#1A1200" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div></div>
+        <div class="pname">Party Mode</div><div class="ptag">more photos, more fun, more prints</div>
+        <div class="pdets">
+          <div class="pdet"><svg viewBox="0 0 11 11" fill="none"><circle cx="5.5" cy="5.5" r="4" stroke="rgba(232,197,71,0.6)" stroke-width="1"/><path d="M5.5 3.5 L5.5 5.5 L7 6.5" stroke="rgba(232,197,71,0.6)" stroke-width="0.9" stroke-linecap="round"/></svg>6 photos · 3-second countdown each</div>
+          <div class="pdet"><svg viewBox="0 0 11 11" fill="none"><rect x="1" y="2.5" width="9" height="6.5" rx="1" stroke="rgba(232,197,71,0.6)" stroke-width="1"/><path d="M3 2.5 V1.5 M8 2.5 V1.5" stroke="rgba(232,197,71,0.6)" stroke-width="0.9" stroke-linecap="round"/></svg>2 printed strips · share with friends</div>
+          <div class="pdet"><svg viewBox="0 0 11 11" fill="none"><path d="M5.5 1 L6.8 4 L10 4.5 L7.8 7 L8.3 10 L5.5 8.5 L2.7 10 L3.2 7 L1 4.5 L4.2 4 Z" stroke="rgba(232,197,71,0.6)" stroke-width="0.9" stroke-linejoin="round"/></svg>all 5 filters · digital copy via QR</div>
+        </div>
+        <div class="ppr"><div class="pprice">₱149</div><div class="pper">/ session</div></div>
       </div>
-      <div class="ppr"><div class="pprice">₱99</div><div class="pper">/ session</div></div>
+      <div class="pkg-sample">
+        <svg viewBox="0 0 56 68" fill="none"><rect x="2" y="2" width="23" height="64" rx="3" fill="rgba(232,197,71,0.05)" stroke="rgba(232,197,71,0.4)" stroke-width="1.5"/><rect x="5" y="6" width="17" height="13" rx="1" fill="rgba(232,197,71,0.1)"/><rect x="5" y="22" width="17" height="13" rx="1" fill="rgba(232,197,71,0.1)"/><rect x="5" y="38" width="17" height="13" rx="1" fill="rgba(232,197,71,0.1)"/><rect x="5" y="54" width="17" height="8" rx="1" fill="rgba(232,197,71,0.07)"/><rect x="31" y="2" width="23" height="64" rx="3" fill="rgba(232,197,71,0.05)" stroke="rgba(232,197,71,0.4)" stroke-width="1.5"/><rect x="34" y="6" width="17" height="13" rx="1" fill="rgba(232,197,71,0.1)"/><rect x="34" y="22" width="17" height="13" rx="1" fill="rgba(232,197,71,0.1)"/><rect x="34" y="38" width="17" height="13" rx="1" fill="rgba(232,197,71,0.1)"/><rect x="34" y="54" width="17" height="8" rx="1" fill="rgba(232,197,71,0.07)"/></svg>
+      </div>
+    </div>
+    <!-- GIF Booth -->
+    <div class="pkg" id="p4" onclick="sp(4,event)">
+      <div class="pkg-body">
+        <div class="ptop"><div class="pico"><svg viewBox="0 0 20 20" fill="none"><rect x="1" y="5" width="18" height="11" rx="1.5" stroke="rgba(232,197,71,0.7)" stroke-width="1.2"/><path d="M6 10 L9 7 L12 10 L14 8 L18 10" stroke="rgba(232,197,71,0.5)" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/><circle cx="3.5" cy="9" r="0.8" fill="rgba(232,197,71,0.5)"/><rect x="2" y="2" width="2" height="2" rx="0.5" fill="rgba(232,197,71,0.3)"/><rect x="9" y="2" width="2" height="2" rx="0.5" fill="rgba(232,197,71,0.3)"/><rect x="2" y="16" width="2" height="2" rx="0.5" fill="rgba(232,197,71,0.3)"/><rect x="9" y="16" width="2" height="2" rx="0.5" fill="rgba(232,197,71,0.3)"/></svg></div><div class="pbadges"><div class="bd">DIGITAL</div><div class="chk" id="c4"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5 L4 7 L8 3" stroke="#1A1200" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div></div>
+        <div class="pname">GIF Booth</div><div class="ptag">animated · shareable · social-ready</div>
+        <div class="pdets">
+          <div class="pdet"><svg viewBox="0 0 11 11" fill="none"><circle cx="5.5" cy="5.5" r="4" stroke="rgba(232,197,71,0.6)" stroke-width="1"/><path d="M5.5 3.5 L5.5 5.5 L7 6.5" stroke="rgba(232,197,71,0.6)" stroke-width="0.9" stroke-linecap="round"/></svg>5 frames · burst mode · animated GIF</div>
+          <div class="pdet"><svg viewBox="0 0 11 11" fill="none"><rect x="1" y="2.5" width="9" height="6.5" rx="1" stroke="rgba(232,197,71,0.6)" stroke-width="1"/><path d="M3 2.5 V1.5 M8 2.5 V1.5" stroke="rgba(232,197,71,0.6)" stroke-width="0.9" stroke-linecap="round"/></svg>1 printed strip + GIF via QR code</div>
+          <div class="pdet"><svg viewBox="0 0 11 11" fill="none"><path d="M5.5 1 L6.8 4 L10 4.5 L7.8 7 L8.3 10 L5.5 8.5 L2.7 10 L3.2 7 L1 4.5 L4.2 4 Z" stroke="rgba(232,197,71,0.6)" stroke-width="0.9" stroke-linejoin="round"/></svg>neon &amp; pastel filters recommended</div>
+        </div>
+        <div class="ppr"><div class="pprice">₱99</div><div class="pper">/ session</div></div>
+      </div>
+      <div class="pkg-sample">
+        <svg viewBox="0 0 66 50" fill="none"><rect x="2" y="7" width="62" height="36" rx="3" fill="rgba(232,197,71,0.05)" stroke="rgba(232,197,71,0.4)" stroke-width="1.5"/><rect x="4" y="4" width="4" height="3" rx="1" fill="rgba(232,197,71,0.3)"/><rect x="13" y="4" width="4" height="3" rx="1" fill="rgba(232,197,71,0.3)"/><rect x="22" y="4" width="4" height="3" rx="1" fill="rgba(232,197,71,0.3)"/><rect x="31" y="4" width="4" height="3" rx="1" fill="rgba(232,197,71,0.3)"/><rect x="40" y="4" width="4" height="3" rx="1" fill="rgba(232,197,71,0.3)"/><rect x="49" y="4" width="4" height="3" rx="1" fill="rgba(232,197,71,0.3)"/><rect x="58" y="4" width="4" height="3" rx="1" fill="rgba(232,197,71,0.3)"/><rect x="4" y="43" width="4" height="3" rx="1" fill="rgba(232,197,71,0.3)"/><rect x="13" y="43" width="4" height="3" rx="1" fill="rgba(232,197,71,0.3)"/><rect x="22" y="43" width="4" height="3" rx="1" fill="rgba(232,197,71,0.3)"/><rect x="31" y="43" width="4" height="3" rx="1" fill="rgba(232,197,71,0.3)"/><rect x="40" y="43" width="4" height="3" rx="1" fill="rgba(232,197,71,0.3)"/><rect x="49" y="43" width="4" height="3" rx="1" fill="rgba(232,197,71,0.3)"/><rect x="58" y="43" width="4" height="3" rx="1" fill="rgba(232,197,71,0.3)"/><rect x="7" y="12" width="14" height="26" rx="1" fill="rgba(232,197,71,0.08)"/><rect x="26" y="12" width="14" height="26" rx="1" fill="rgba(232,197,71,0.12)" stroke="rgba(232,197,71,0.25)" stroke-width="1"/><path d="M31 21 L39 25 L31 29 Z" fill="rgba(232,197,71,0.45)"/><rect x="45" y="12" width="14" height="26" rx="1" fill="rgba(232,197,71,0.08)"/></svg>
+      </div>
     </div>
   </div>
   <div class="brow">
