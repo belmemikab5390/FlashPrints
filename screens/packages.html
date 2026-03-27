@@ -113,7 +113,7 @@ body{display:flex;flex-direction:column;}
   <div class="hdr">
     <div class="eyebrow">step 2 of 6 · package selection</div>
     <div class="ptitle">choose your <em>package</em></div>
-    <div class="psub">pick a set · then select your layout</div>
+    <div class="psub">pick a package for your photo session</div>
   </div>
   <div class="grid">
     <!-- Classic -->
@@ -359,7 +359,7 @@ let selP=0,selF=0;
 
 function sp(i,e){
   addRipple(e);selP=i;
-  [0,1,2,3,4].forEach(n=>document.getElementById('p'+n).classList.toggle('sel',n===i));
+  [0,1,2,3,4].forEach(n=>document.getElementById('p'+n)&&document.getElementById('p'+n).classList.toggle('sel',n===i));
   document.getElementById('sp-name').textContent=PKG[i].name;
   document.getElementById('sp-total').textContent=PKG[i].price;
   document.getElementById('hint').classList.remove('show');
