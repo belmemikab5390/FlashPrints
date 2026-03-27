@@ -21,6 +21,7 @@ const BOOTH = {
 const SCREENS = {
   welcome:  'screens/welcome.html',
   packages: 'screens/packages.html',
+  layout:   'screens/layout.html',
   payment:  'screens/payment.html',
   mood:     'screens/mood.html',
   camera:   'screens/camera.html',

@@ -117,15 +117,16 @@ body{display:flex;flex-direction:column;}
     <div class="sd active"></div><div class="sl"></div>
     <div class="sd"></div><div class="sl"></div>
     <div class="sd"></div><div class="sl"></div>
+    <div class="sd"></div><div class="sl"></div>
     <div class="sd"></div>
   </div>
   <div class="tclock" id="clock">--:-- --</div>
 </div>
 <div class="content">
   <div class="hdr">
-    <div class="eyebrow">step 2 of 5 · package selection</div>
+    <div class="eyebrow">step 2 of 6 · package selection</div>
     <div class="ptitle">choose your <em>package</em></div>
-    <div class="psub">pick a set · choose a filter · then pay with GCash</div>
+    <div class="psub">pick a set · choose a filter · then select your layout</div>
   </div>
   <div class="grid">
     <!-- Classic -->
@@ -227,7 +228,7 @@ body{display:flex;flex-direction:column;}
         <div class="sdiv"></div>
         <div class="sr"><span class="sk">Total</span><span class="stot" id="sp-total">₱89</span></div>
       </div>
-      <button class="cta" onclick="proceed(event)"><div class="cshine"></div>pay with GCash →</button>
+      <button class="cta" onclick="proceed(event)"><div class="cshine"></div>next · choose layout →</button>
     </div>
   </div>
 </div>
@@ -312,7 +313,7 @@ function proceed(e){
     }
   }).catch(() => { /* server offline — session still valid from localStorage */ });
 
-  ft(()=>{ if(typeof fpNavigate==='function') fpNavigate('payment',sess); else window.location.href='payment.html'; });
+  ft(()=>{ if(typeof fpNavigate==='function') fpNavigate('layout',sess); else window.location.href='layout.html'; });
 }
 
 function goBack(){

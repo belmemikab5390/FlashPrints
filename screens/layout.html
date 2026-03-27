@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Flash &amp; Prints — Choose Layout</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&family=Space+Mono&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="responsive.css"/>
+<script src="network-monitor.js"></script>
+<script src="fp-bridge.js"></script>
+<script src="booth-reporter.js"></script>
+<script src="error-overlay.js"></script>
+<style>
+:root{
+  --gold:#E8C547;--gold-faint:rgba(232,197,71,0.08);--gold-border:rgba(232,197,71,0.25);
+  --rose:#C84B6E;--sage:#3DAA6C;
+  --c2:#1A1A26;--c3:#20202E;--ink:#0A0A12;
+  --border:rgba(255,255,255,0.07);--faint:rgba(255,255,255,0.04);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{width:100%;height:100vh;overflow:hidden;background:var(--ink);font-family:'DM Sans',sans-serif;color:#fff;user-select:none;}
+body{display:flex;flex-direction:column;}
+.bg{position:fixed;inset:0;z-index:0;background:radial-gradient(ellipse 80% 60% at 50% 0%,#1A1628,#0A0A12 70%);pointer-events:none;}
+.bg-grid{position:fixed;inset:0;z-index:0;background-image:linear-gradient(rgba(232,197,71,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(232,197,71,0.03) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;}
+
+/* ── topbar ── */
+.topbar{position:relative;z-index:10;flex-shrink:0;height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;border-bottom:1px solid var(--border);background:rgba(10,10,18,0.85);}
+.tl{display:flex;align-items:center;gap:12px;}
+.back{width:34px;height:34px;border-radius:9px;border:1px solid var(--border);background:var(--faint);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.15s;}
+.back:active{transform:scale(0.93);}
+.brand{font-family:'Playfair Display',serif;font-weight:900;font-size:15px;color:#fff;}
+.brand em{color:var(--gold);font-style:normal;}
+.steps{display:flex;align-items:center;gap:5px;}
+.sd{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.12);transition:all 0.3s;}
+.sd.done{background:var(--sage);}
+.sd.active{background:var(--gold);width:20px;border-radius:4px;}
+.sl{width:16px;height:1px;background:rgba(255,255,255,0.08);}
+.tclock{font-family:'Space Mono',monospace;font-size:11px;color:rgba(255,255,255,0.3);}
+
+/* ── content ── */
+.content{position:relative;z-index:10;flex:1;min-height:0;display:flex;flex-direction:column;padding:14px 24px 14px;gap:12px;overflow:hidden;}
+.hdr{flex-shrink:0;}
+.eyebrow{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:4px;color:var(--gold);text-transform:uppercase;opacity:0.7;margin-bottom:5px;display:flex;align-items:center;gap:8px;}
+.eyebrow::before{content:'';display:inline-block;width:14px;height:1px;background:var(--gold);opacity:0.5;}
+.ptitle{font-family:'Playfair Display',serif;font-size:clamp(26px,3.5vw,46px);font-weight:900;color:#fff;line-height:1;letter-spacing:-1px;}
+.ptitle em{color:var(--gold);font-style:italic;}
+.psub{font-size:12px;color:rgba(255,255,255,0.35);margin-top:3px;}
+
+/* ── package context pill ── */
+.ctx-pill{flex-shrink:0;display:inline-flex;align-items:center;gap:8px;background:rgba(232,197,71,0.07);border:1px solid rgba(232,197,71,0.18);border-radius:30px;padding:6px 14px;width:fit-content;}
+.ctx-icon{opacity:0.7;}
+.ctx-text{font-size:11px;color:rgba(255,255,255,0.55);}
+.ctx-pkg{font-size:11px;font-weight:600;color:var(--gold);}
+.ctx-dot{width:3px;height:3px;border-radius:50%;background:rgba(232,197,71,0.3);}
+
+/* ── layout grid ── */
+.lgrid{flex:1;min-height:0;display:grid;gap:10px;overflow:hidden;}
+.lgrid.cols-3{grid-template-columns:repeat(3,1fr);}
+.lgrid.cols-2{grid-template-columns:repeat(2,1fr);}
+.lgrid.cols-2 .lcard:nth-child(3){grid-column:1/-1;max-width:calc(50% - 5px);justify-self:center;}
+
+/* ── layout card ── */
+.lcard{border-radius:14px;border:1.5px solid var(--border);background:var(--c2);padding:14px;cursor:pointer;position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;gap:10px;transition:border-color 0.2s,background 0.2s,transform 0.12s;}
+.lcard:active{transform:scale(0.97);}
+.lcard.sel{border-color:var(--gold);background:linear-gradient(145deg,#1E1C10,#1A1A26);box-shadow:0 0 24px rgba(232,197,71,0.07);}
+.lcard-preview{flex:1;width:100%;display:flex;align-items:center;justify-content:center;border-radius:8px;background:rgba(232,197,71,0.03);border:1px solid rgba(232,197,71,0.06);min-height:80px;max-height:160px;overflow:hidden;transition:background 0.2s,border-color 0.2s;}
+.lcard.sel .lcard-preview{background:rgba(232,197,71,0.06);border-color:rgba(232,197,71,0.15);}
+.lcard-preview svg{width:100%;height:100%;}
+.lcard-info{width:100%;display:flex;flex-direction:column;gap:3px;}
+.lcard-row{display:flex;justify-content:space-between;align-items:center;}
+.lcard-name{font-family:'Playfair Display',serif;font-size:13px;font-weight:700;color:rgba(255,255,255,0.7);transition:color 0.2s;}
+.lcard.sel .lcard-name{color:var(--gold);}
+.lcard-desc{font-size:10px;color:rgba(255,255,255,0.3);transition:color 0.2s;}
+.lcard.sel .lcard-desc{color:rgba(255,255,255,0.5);}
+.lchk{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s;}
+.lcard.sel .lchk{background:var(--gold);border-color:var(--gold);}
+.lbadge{font-size:8px;font-weight:700;padding:2px 7px;border-radius:20px;letter-spacing:0.5px;}
+.lbadge.pop{background:var(--rose);color:#fff;}
+.lbadge.rec{background:rgba(61,170,108,0.2);color:var(--sage);border:1px solid rgba(61,170,108,0.3);}
+
+/* ── bottom bar ── */
+.brow{flex-shrink:0;display:grid;grid-template-columns:1fr auto;gap:10px;align-items:stretch;}
+.smini{background:var(--c3);border:1px solid var(--border);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:3px;}
+.sr{display:flex;justify-content:space-between;font-size:11px;}
+.sk{color:rgba(255,255,255,0.35);}
+.sv{color:rgba(255,255,255,0.7);font-weight:500;}
+.sdiv{height:1px;background:var(--border);margin:3px 0;}
+.stot{font-family:'Playfair Display',serif;font-size:18px;font-weight:900;color:var(--gold);}
+.scta{display:flex;flex-direction:column;gap:8px;min-width:200px;justify-content:flex-end;}
+.cta{padding:13px 18px;border-radius:11px;border:none;background:linear-gradient(145deg,var(--gold),#C8892A);color:#1A1200;font-family:'Playfair Display',serif;font-weight:700;font-size:15px;cursor:pointer;position:relative;overflow:hidden;transition:transform 0.12s;white-space:nowrap;}
+.cta:active{transform:scale(0.97);}
+.cshine{position:absolute;inset:0;background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,0.2) 50%,transparent 65%);animation:shine 3s ease-in-out infinite;}
+@keyframes shine{0%{transform:translateX(-150%)}40%{transform:translateX(150%)}100%{transform:translateX(150%)}}
+
+/* ── hint ── */
+.hint{position:fixed;bottom:70px;left:50%;transform:translateX(-50%);background:rgba(232,197,71,0.1);border:1px solid rgba(232,197,71,0.2);border-radius:30px;padding:7px 18px;font-size:11px;color:rgba(232,197,71,0.7);white-space:nowrap;pointer-events:none;z-index:50;opacity:0;transition:opacity 0.3s;animation:hb 2s ease-in-out infinite;}
+.hint.show{opacity:1;}
+@keyframes hb{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-4px)}}
+.ripple{position:fixed;border-radius:50%;background:rgba(232,197,71,0.15);pointer-events:none;animation:ro 0.5s ease-out forwards;z-index:100;transform:translate(-50%,-50%) scale(0);}
+@keyframes ro{to{transform:translate(-50%,-50%) scale(5);opacity:0}}
+</style>
+</head>
+<body>
+<div class="bg"></div><div class="bg-grid"></div>
+<div class="topbar">
+  <div class="tl">
+    <div class="back" onclick="goBack()"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 2 L4 7 L9 12" stroke="rgba(255,255,255,0.5)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <div class="brand"><em>Flash</em> &amp; Prints</div>
+  </div>
+  <div class="steps">
+    <div class="sd done"></div><div class="sl"></div>
+    <div class="sd done"></div><div class="sl"></div>
+    <div class="sd active"></div><div class="sl"></div>
+    <div class="sd"></div><div class="sl"></div>
+    <div class="sd"></div><div class="sl"></div>
+    <div class="sd"></div>
+  </div>
+  <div class="tclock" id="clock">--:-- --</div>
+</div>
+
+<div class="content">
+  <div class="hdr">
+    <div class="eyebrow">step 3 of 6 · layout selection</div>
+    <div class="ptitle">choose your <em>layout</em></div>
+    <div class="psub">pick how your photos will be arranged on the print</div>
+  </div>
+
+  <!-- Package context pill -->
+  <div class="ctx-pill">
+    <svg class="ctx-icon" width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="1" y="1" width="11" height="11" rx="2" stroke="rgba(232,197,71,0.7)" stroke-width="1.1"/><circle cx="4.5" cy="4.5" r="1.2" fill="rgba(232,197,71,0.4)"/><path d="M1 9 L4 6.5 L6 8 L8.5 5.5 L12 8" stroke="rgba(232,197,71,0.5)" stroke-width="0.9" stroke-linejoin="round"/></svg>
+    <span class="ctx-text">Package:</span>
+    <span class="ctx-pkg" id="ctx-pkg-name">Classic</span>
+    <div class="ctx-dot"></div>
+    <span class="ctx-text" id="ctx-pkg-photos">1 photo</span>
+  </div>
+
+  <!-- Layout grid — filled dynamically by JS -->
+  <div class="lgrid" id="lgrid"></div>
+
+  <div class="brow">
+    <div class="smini">
+      <div class="sr"><span class="sk">Package</span><span class="sv" id="sp-name">—</span></div>
+      <div class="sr"><span class="sk">Filter</span><span class="sv" id="sp-filter">—</span></div>
+      <div class="sr"><span class="sk">Layout</span><span class="sv" id="sp-layout">—</span></div>
+      <div class="sdiv"></div>
+      <div class="sr"><span class="sk">Total</span><span class="stot" id="sp-total">—</span></div>
+    </div>
+    <div class="scta">
+      <button class="cta" onclick="proceed(event)"><div class="cshine"></div>pay with GCash →</button>
+    </div>
+  </div>
+</div>
+
+<div class="hint" id="hint">👆 tap a layout to select</div>
+
+<script>
+/* ── Layout definitions per package index ─────────────────────────────────
+   Each layout has: id, name, desc, badge (optional), svgFn (returns SVG markup)
+   Package indices mirror packages.html PKG array:
+     0 = Classic, 1 = Strip, 2 = Polaroid, 3 = Party Mode, 4 = GIF Booth
+── */
+const LAYOUTS = {
+  /* Classic — 1 photo, 4×6 print */
+  0: [
+    {
+      id:'classic-framed',
+      name:'Framed Classic',
+      desc:'centered photo with white border',
+      badge:'pop',
+      badgeLabel:'POPULAR',
+      svgFn: ()=>`<svg viewBox="0 0 90 110" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="4" y="4" width="82" height="102" rx="4" fill="rgba(232,197,71,0.05)" stroke="rgba(232,197,71,0.35)" stroke-width="1.5"/>
+        <rect x="12" y="12" width="66" height="70" rx="2" fill="rgba(232,197,71,0.09)" stroke="rgba(232,197,71,0.2)" stroke-width="1"/>
+        <circle cx="26" cy="26" r="6" fill="rgba(232,197,71,0.2)"/>
+        <path d="M12 68 L26 53 L36 62 L50 47 L78 66 L78 82 L12 82 Z" fill="rgba(232,197,71,0.11)"/>
+        <rect x="12" y="86" width="66" height="8" rx="1.5" fill="rgba(232,197,71,0.05)"/>
+        <rect x="12" y="97" width="38" height="5" rx="1" fill="rgba(232,197,71,0.04)"/>
+      </svg>`,
+    },
+    {
+      id:'classic-fullbleed',
+      name:'Full Bleed',
+      desc:'edge-to-edge, no border',
+      svgFn: ()=>`<svg viewBox="0 0 90 110" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="4" y="4" width="82" height="102" rx="4" fill="rgba(232,197,71,0.09)" stroke="rgba(232,197,71,0.35)" stroke-width="1.5"/>
+        <circle cx="22" cy="22" r="7" fill="rgba(232,197,71,0.2)"/>
+        <path d="M4 80 L22 60 L36 72 L54 52 L86 74 L86 106 L4 106 Z" fill="rgba(232,197,71,0.13)"/>
+      </svg>`,
+    },
+    {
+      id:'classic-caption',
+      name:'With Caption',
+      desc:'photo + text area at bottom',
+      svgFn: ()=>`<svg viewBox="0 0 90 110" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="4" y="4" width="82" height="102" rx="4" fill="rgba(232,197,71,0.05)" stroke="rgba(232,197,71,0.35)" stroke-width="1.5"/>
+        <rect x="10" y="10" width="70" height="72" rx="2" fill="rgba(232,197,71,0.09)" stroke="rgba(232,197,71,0.2)" stroke-width="1"/>
+        <circle cx="24" cy="24" r="5.5" fill="rgba(232,197,71,0.2)"/>
+        <path d="M10 68 L24 55 L34 63 L48 49 L80 68 L80 82 L10 82 Z" fill="rgba(232,197,71,0.11)"/>
+        <rect x="10" y="86" width="70" height="3" rx="1" fill="rgba(232,197,71,0.15)"/>
+        <rect x="10" y="92" width="50" height="3" rx="1" fill="rgba(232,197,71,0.1)"/>
+        <rect x="10" y="98" width="35" height="3" rx="1" fill="rgba(232,197,71,0.07)"/>
+      </svg>`,
+    },
+  ],
+
+  /* Strip — 4 photos, 2×6 strip */
+  1: [
+    {
+      id:'strip-4x1',
+      name:'Classic Strip',
+      desc:'4 photos stacked vertically',
+      badge:'pop',
+      badgeLabel:'POPULAR',
+      svgFn: ()=>`<svg viewBox="0 0 42 110" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="3" y="3" width="36" height="104" rx="3" fill="rgba(232,197,71,0.05)" stroke="rgba(232,197,71,0.35)" stroke-width="1.5"/>
+        <rect x="7" y="7" width="28" height="22" rx="1.5" fill="rgba(232,197,71,0.1)" stroke="rgba(232,197,71,0.2)" stroke-width="0.8"/>
+        <rect x="7" y="32" width="28" height="22" rx="1.5" fill="rgba(232,197,71,0.1)" stroke="rgba(232,197,71,0.2)" stroke-width="0.8"/>
+        <rect x="7" y="57" width="28" height="22" rx="1.5" fill="rgba(232,197,71,0.1)" stroke="rgba(232,197,71,0.2)" stroke-width="0.8"/>
+        <rect x="7" y="82" width="28" height="22" rx="1.5" fill="rgba(232,197,71,0.1)" stroke="rgba(232,197,71,0.2)" stroke-width="0.8"/>
+      </svg>`,
+    },
+    {
+      id:'strip-2x2',
+      name:'2×2 Grid',
+      desc:'4 photos in a square grid',
+      svgFn: ()=>`<svg viewBox="0 0 90 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="3" y="3" width="84" height="84" rx="3" fill="rgba(232,197,71,0.05)" stroke="rgba(232,197,71,0.35)" stroke-width="1.5"/>
+        <rect x="8" y="8" width="36" height="36" rx="2" fill="rgba(232,197,71,0.1)" stroke="rgba(232,197,71,0.2)" stroke-width="0.8"/>
+        <rect x="48" y="8" width="36" height="36" rx="2" fill="rgba(232,197,71,0.1)" stroke="rgba(232,197,71,0.2)" stroke-width="0.8"/>
+        <rect x="8" y="48" width="36" height="36" rx="2" fill="rgba(232,197,71,0.1)" stroke="rgba(232,197,71,0.2)" stroke-width="0.8"/>
+        <rect x="48" y="48" width="36" height="36" rx="2" fill="rgba(232,197,71,0.1)" stroke="rgba(232,197,71,0.2)" stroke-width="0.8"/>
+      </svg>`,
+    },
+    {
+      id:'strip-featured',
+      name:'Featured',
+      desc:'1 large + 3 small photos',
+      svgFn: ()=>`<svg viewBox="0 0 90 110" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="3" y="3" width="84" height="104" rx="3" fill="rgba(232,197,71,0.05)" stroke="rgba(232,197,71,0.35)" stroke-width="1.5"/>
+        <rect x="8" y="8" width="74" height="60" rx="2" fill="rgba(232,197,71,0.11)" stroke="rgba(232,197,71,0.2)" stroke-width="0.8"/>
+        <circle cx="22" cy="22" r="6" fill="rgba(232,197,71,0.2)"/>
+        <path d="M8 54 L22 41 L34 50 L50 37 L82 54 L82 68 L8 68 Z" fill="rgba(232,197,71,0.11)"/>
+        <rect x="8" y="72" width="22" height="32" rx="1.5" fill="rgba(232,197,71,0.09)" stroke="rgba(232,197,71,0.18)" stroke-width="0.8"/>
+        <rect x="34" y="72" width="22" height="32" rx="1.5" fill="rgba(232,197,71,0.09)" stroke="rgba(232,197,71,0.18)" stroke-width="0.8"/>
+        <rect x="60" y="72" width="22" height="32" rx="1.5" fill="rgba(232,197,71,0.09)" stroke="rgba(232,197,71,0.18)" stroke-width="0.8"/>
+      </svg>`,
+    },
+  ],
+
+  /* Polaroid — 1 photo, 4×4 print */
+  2: [
+    {
+      id:'polaroid-classic',
+      name:'Classic Polaroid',
+      desc:'wide white border at the bottom',
+      badge:'pop',
+      badgeLabel:'POPULAR',
+      svgFn: ()=>`<svg viewBox="0 0 80 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="4" y="4" width="72" height="88" rx="3" fill="rgba(255,255,255,0.06)" stroke="rgba(232,197,71,0.35)" stroke-width="1.5"/>
+        <rect x="10" y="10" width="60" height="60" rx="2" fill="rgba(232,197,71,0.09)" stroke="rgba(232,197,71,0.2)" stroke-width="1"/>
+        <circle cx="22" cy="22" r="5.5" fill="rgba(232,197,71,0.2)"/>
+        <path d="M10 56 L22 44 L32 52 L46 40 L70 56 L70 70 L10 70 Z" fill="rgba(232,197,71,0.11)"/>
+        <rect x="10" y="74" width="60" height="3" rx="1" fill="rgba(232,197,71,0.15)"/>
+        <rect x="20" y="80" width="40" height="3" rx="1" fill="rgba(232,197,71,0.08)"/>
+      </svg>`,
+    },
+    {
+      id:'polaroid-minimal',
+      name:'Minimal Frame',
+      desc:'thin even border all sides',
+      svgFn: ()=>`<svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="4" y="4" width="72" height="72" rx="3" fill="rgba(255,255,255,0.06)" stroke="rgba(232,197,71,0.35)" stroke-width="1.5"/>
+        <rect x="10" y="10" width="60" height="60" rx="2" fill="rgba(232,197,71,0.09)" stroke="rgba(232,197,71,0.2)" stroke-width="1"/>
+        <circle cx="22" cy="22" r="5.5" fill="rgba(232,197,71,0.2)"/>
+        <path d="M10 56 L22 44 L32 52 L46 40 L70 56 L70 70 L10 70 Z" fill="rgba(232,197,71,0.11)"/>
+      </svg>`,
+    },
+    {
+      id:'polaroid-dated',
+      name:'Dated Polaroid',
+      desc:'classic border with date stamp',
+      svgFn: ()=>`<svg viewBox="0 0 80 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="4" y="4" width="72" height="88" rx="3" fill="rgba(255,255,255,0.06)" stroke="rgba(232,197,71,0.35)" stroke-width="1.5"/>
+        <rect x="10" y="10" width="60" height="60" rx="2" fill="rgba(232,197,71,0.09)" stroke="rgba(232,197,71,0.2)" stroke-width="1"/>
+        <circle cx="22" cy="22" r="5.5" fill="rgba(232,197,71,0.2)"/>
+        <path d="M10 56 L22 44 L32 52 L46 40 L70 56 L70 70 L10 70 Z" fill="rgba(232,197,71,0.11)"/>
+        <rect x="44" y="74" width="26" height="8" rx="1.5" fill="rgba(232,197,71,0.1)" stroke="rgba(232,197,71,0.2)" stroke-width="0.8"/>
+        <rect x="46" y="76" width="14" height="2" rx="0.5" fill="rgba(232,197,71,0.25)"/>
+        <rect x="46" y="79" width="10" height="2" rx="0.5" fill="rgba(232,197,71,0.15)"/>
+      </svg>`,
+    },
+  ],
+
+  /* Party Mode — 6 photos, 2 strips */
+  3: [
+    {
+      id:'party-2strip3',
+      name:'Dual Strip',
+      desc:'2 strips of 3 photos each',
+      badge:'pop',
+      badgeLabel:'POPULAR',
+      svgFn: ()=>`<svg viewBox="0 0 64 110" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="2" y="3" width="27" height="104" rx="3" fill="rgba(232,197,71,0.05)" stroke="rgba(232,197,71,0.35)" stroke-width="1.5"/>
+        <rect x="6" y="7" width="19" height="27" rx="1.5" fill="rgba(232,197,71,0.1)" stroke="rgba(232,197,71,0.2)" stroke-width="0.8"/>
+        <rect x="6" y="37" width="19" height="27" rx="1.5" fill="rgba(232,197,71,0.1)" stroke="rgba(232,197,71,0.2)" stroke-width="0.8"/>
+        <rect x="6" y="67" width="19" height="27" rx="1.5" fill="rgba(232,197,71,0.1)" stroke="rgba(232,197,71,0.2)" stroke-width="0.8"/>
+        <rect x="35" y="3" width="27" height="104" rx="3" fill="rgba(232,197,71,0.05)" stroke="rgba(232,197,71,0.35)" stroke-width="1.5"/>
+        <rect x="39" y="7" width="19" height="27" rx="1.5" fill="rgba(232,197,71,0.1)" stroke="rgba(232,197,71,0.2)" stroke-width="0.8"/>
+        <rect x="39" y="37" width="19" height="27" rx="1.5" fill="rgba(232,197,71,0.1)" stroke="rgba(232,197,71,0.2)" stroke-width="0.8"/>
+        <rect x="39" y="67" width="19" height="27" rx="1.5" fill="rgba(232,197,71,0.1)" stroke="rgba(232,197,71,0.2)" stroke-width="0.8"/>
+      </svg>`,
+    },
+    {
+      id:'party-3x2grid',
+      name:'3×2 Grid',
+      desc:'6 photos in a wide grid layout',
+      svgFn: ()=>`<svg viewBox="0 0 96 70" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="3" y="3" width="90" height="64" rx="3" fill="rgba(232,197,71,0.05)" stroke="rgba(232,197,71,0.35)" stroke-width="1.5"/>
+        <rect x="8" y="8" width="25" height="25" rx="1.5" fill="rgba(232,197,71,0.1)" stroke="rgba(232,197,71,0.2)" stroke-width="0.8"/>
+        <rect x="36" y="8" width="25" height="25" rx="1.5" fill="rgba(232,197,71,0.1)" stroke="rgba(232,197,71,0.2)" stroke-width="0.8"/>
+        <rect x="64" y="8" width="25" height="25" rx="1.5" fill="rgba(232,197,71,0.1)" stroke="rgba(232,197,71,0.2)" stroke-width="0.8"/>
+        <rect x="8" y="36" width="25" height="25" rx="1.5" fill="rgba(232,197,71,0.1)" stroke="rgba(232,197,71,0.2)" stroke-width="0.8"/>
+        <rect x="36" y="36" width="25" height="25" rx="1.5" fill="rgba(232,197,71,0.1)" stroke="rgba(232,197,71,0.2)" stroke-width="0.8"/>
+        <rect x="64" y="36" width="25" height="25" rx="1.5" fill="rgba(232,197,71,0.1)" stroke="rgba(232,197,71,0.2)" stroke-width="0.8"/>
+      </svg>`,
+    },
+    {
+      id:'party-featured-strip',
+      name:'Feature + Strip',
+      desc:'1 large photo + 5-photo strip',
+      badge:'rec',
+      badgeLabel:'BEST VALUE',
+      svgFn: ()=>`<svg viewBox="0 0 96 110" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="3" y="3" width="57" height="104" rx="3" fill="rgba(232,197,71,0.05)" stroke="rgba(232,197,71,0.35)" stroke-width="1.5"/>
+        <rect x="8" y="8" width="47" height="94" rx="2" fill="rgba(232,197,71,0.09)" stroke="rgba(232,197,71,0.18)" stroke-width="0.8"/>
+        <circle cx="20" cy="20" r="6" fill="rgba(232,197,71,0.2)"/>
+        <path d="M8 82 L20 68 L30 77 L42 64 L55 76 L55 102 L8 102 Z" fill="rgba(232,197,71,0.11)"/>
+        <rect x="63" y="3" width="30" height="104" rx="3" fill="rgba(232,197,71,0.05)" stroke="rgba(232,197,71,0.35)" stroke-width="1.5"/>
+        <rect x="67" y="7" width="22" height="18" rx="1.5" fill="rgba(232,197,71,0.1)" stroke="rgba(232,197,71,0.2)" stroke-width="0.8"/>
+        <rect x="67" y="28" width="22" height="18" rx="1.5" fill="rgba(232,197,71,0.1)" stroke="rgba(232,197,71,0.2)" stroke-width="0.8"/>
+        <rect x="67" y="49" width="22" height="18" rx="1.5" fill="rgba(232,197,71,0.1)" stroke="rgba(232,197,71,0.2)" stroke-width="0.8"/>
+        <rect x="67" y="70" width="22" height="18" rx="1.5" fill="rgba(232,197,71,0.1)" stroke="rgba(232,197,71,0.2)" stroke-width="0.8"/>
+        <rect x="67" y="91" width="22" height="14" rx="1.5" fill="rgba(232,197,71,0.1)" stroke="rgba(232,197,71,0.2)" stroke-width="0.8"/>
+      </svg>`,
+    },
+  ],
+
+  /* GIF Booth — 5 frames */
+  4: [
+    {
+      id:'gif-filmstrip-h',
+      name:'Filmstrip',
+      desc:'5 frames horizontal filmstrip',
+      badge:'pop',
+      badgeLabel:'POPULAR',
+      svgFn: ()=>`<svg viewBox="0 0 110 38" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="2" y="2" width="106" height="34" rx="3" fill="rgba(232,197,71,0.05)" stroke="rgba(232,197,71,0.35)" stroke-width="1.5"/>
+        <rect x="2" y="2" width="106" height="5" rx="2" fill="rgba(0,0,0,0.4)"/>
+        <rect x="2" y="31" width="106" height="5" rx="2" fill="rgba(0,0,0,0.4)"/>
+        <rect x="6" y="8" width="18" height="22" rx="1" fill="rgba(232,197,71,0.1)" stroke="rgba(232,197,71,0.2)" stroke-width="0.8"/>
+        <rect x="27" y="8" width="18" height="22" rx="1" fill="rgba(232,197,71,0.1)" stroke="rgba(232,197,71,0.2)" stroke-width="0.8"/>
+        <rect x="48" y="8" width="18" height="22" rx="1" fill="rgba(232,197,71,0.12)" stroke="rgba(232,197,71,0.25)" stroke-width="0.8"/>
+        <rect x="69" y="8" width="18" height="22" rx="1" fill="rgba(232,197,71,0.1)" stroke="rgba(232,197,71,0.2)" stroke-width="0.8"/>
+        <rect x="90" y="8" width="18" height="22" rx="1" fill="rgba(232,197,71,0.1)" stroke="rgba(232,197,71,0.2)" stroke-width="0.8"/>
+        <circle cx="4.5" cy="5" r="1.5" fill="rgba(232,197,71,0.4)"/>
+        <circle cx="11" cy="5" r="1.5" fill="rgba(232,197,71,0.4)"/>
+        <circle cx="17.5" cy="5" r="1.5" fill="rgba(232,197,71,0.4)"/>
+        <circle cx="4.5" cy="33" r="1.5" fill="rgba(232,197,71,0.4)"/>
+        <circle cx="11" cy="33" r="1.5" fill="rgba(232,197,71,0.4)"/>
+        <circle cx="17.5" cy="33" r="1.5" fill="rgba(232,197,71,0.4)"/>
+      </svg>`,
+    },
+    {
+      id:'gif-strip-v',
+      name:'Vertical Strip',
+      desc:'5 frames stacked vertically',
+      svgFn: ()=>`<svg viewBox="0 0 36 110" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="3" y="3" width="30" height="104" rx="3" fill="rgba(232,197,71,0.05)" stroke="rgba(232,197,71,0.35)" stroke-width="1.5"/>
+        <rect x="3" y="3" width="5" height="104" rx="2" fill="rgba(0,0,0,0.4)"/>
+        <rect x="28" y="3" width="5" height="104" rx="2" fill="rgba(0,0,0,0.4)"/>
+        <rect x="10" y="7" width="17" height="18" rx="1" fill="rgba(232,197,71,0.1)" stroke="rgba(232,197,71,0.2)" stroke-width="0.8"/>
+        <rect x="10" y="28" width="17" height="18" rx="1" fill="rgba(232,197,71,0.1)" stroke="rgba(232,197,71,0.2)" stroke-width="0.8"/>
+        <rect x="10" y="49" width="17" height="18" rx="1" fill="rgba(232,197,71,0.12)" stroke="rgba(232,197,71,0.25)" stroke-width="0.8"/>
+        <rect x="10" y="70" width="17" height="18" rx="1" fill="rgba(232,197,71,0.1)" stroke="rgba(232,197,71,0.2)" stroke-width="0.8"/>
+        <rect x="10" y="91" width="17" height="16" rx="1" fill="rgba(232,197,71,0.1)" stroke="rgba(232,197,71,0.2)" stroke-width="0.8"/>
+        <circle cx="5.5" cy="9" r="1.5" fill="rgba(232,197,71,0.4)"/>
+        <circle cx="5.5" cy="15" r="1.5" fill="rgba(232,197,71,0.4)"/>
+        <circle cx="5.5" cy="21" r="1.5" fill="rgba(232,197,71,0.4)"/>
+        <circle cx="30.5" cy="9" r="1.5" fill="rgba(232,197,71,0.4)"/>
+        <circle cx="30.5" cy="15" r="1.5" fill="rgba(232,197,71,0.4)"/>
+        <circle cx="30.5" cy="21" r="1.5" fill="rgba(232,197,71,0.4)"/>
+      </svg>`,
+    },
+    {
+      id:'gif-2plus3',
+      name:'2+3 Mosaic',
+      desc:'2 large frames + 3 small frames',
+      svgFn: ()=>`<svg viewBox="0 0 90 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="3" y="3" width="84" height="90" rx="3" fill="rgba(232,197,71,0.05)" stroke="rgba(232,197,71,0.35)" stroke-width="1.5"/>
+        <rect x="8" y="8" width="36" height="40" rx="2" fill="rgba(232,197,71,0.1)" stroke="rgba(232,197,71,0.2)" stroke-width="0.8"/>
+        <rect x="48" y="8" width="36" height="40" rx="2" fill="rgba(232,197,71,0.1)" stroke="rgba(232,197,71,0.2)" stroke-width="0.8"/>
+        <rect x="8" y="52" width="22" height="34" rx="1.5" fill="rgba(232,197,71,0.09)" stroke="rgba(232,197,71,0.18)" stroke-width="0.8"/>
+        <rect x="34" y="52" width="22" height="34" rx="1.5" fill="rgba(232,197,71,0.09)" stroke="rgba(232,197,71,0.18)" stroke-width="0.8"/>
+        <rect x="60" y="52" width="22" height="34" rx="1.5" fill="rgba(232,197,71,0.09)" stroke="rgba(232,197,71,0.18)" stroke-width="0.8"/>
+      </svg>`,
+    },
+  ],
+};
+
+/* ── Session data ─────────────────────────────────────────────────────── */
+let sess = {};
+try { sess = JSON.parse(localStorage.getItem('fp_session') || '{}'); } catch(_) {}
+
+/* Map package name → index */
+const PKG_NAMES = ['Classic','Strip','Polaroid','Party Mode','GIF Booth'];
+const PKG_PHOTOS = ['1 photo','4 photos','1 photo','6 photos','5 frames'];
+let pkgIdx = 0;
+if (sess.package) {
+  const ni = PKG_NAMES.findIndex(n => (sess.package.name||'').toLowerCase().includes(n.toLowerCase()));
+  if (ni >= 0) pkgIdx = ni;
+}
+
+const layouts = LAYOUTS[pkgIdx] || LAYOUTS[0];
+let selL = 0;
+
+/* ── Build layout grid ────────────────────────────────────────────────── */
+function buildGrid() {
+  const grid = document.getElementById('lgrid');
+  const cols = layouts.length >= 3 ? 'cols-3' : 'cols-2';
+  grid.className = `lgrid ${cols}`;
+
+  layouts.forEach((lay, i) => {
+    const card = document.createElement('div');
+    card.className = 'lcard' + (i === 0 ? ' sel' : '');
+    card.id = 'lc' + i;
+    card.onclick = (e) => sl(i, e);
+
+    let badgeHtml = '';
+    if (lay.badge) badgeHtml = `<div class="lbadge ${lay.badge}">${lay.badgeLabel}</div>`;
+
+    card.innerHTML = `
+      <div class="lcard-preview">${lay.svgFn()}</div>
+      <div class="lcard-info">
+        <div class="lcard-row">
+          <div class="lcard-name">${lay.name}</div>
+          <div style="display:flex;align-items:center;gap:5px;">
+            ${badgeHtml}
+            <div class="lchk" id="lchk${i}"><svg width="9" height="9" viewBox="0 0 10 10" fill="none"><path d="M2 5 L4 7 L8 3" stroke="#1A1200" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          </div>
+        </div>
+        <div class="lcard-desc">${lay.desc}</div>
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+/* ── Select layout ────────────────────────────────────────────────────── */
+function sl(i, e) {
+  addRipple(e);
+  selL = i;
+  layouts.forEach((_, n) => {
+    const card = document.getElementById('lc' + n);
+    if (card) card.classList.toggle('sel', n === i);
+  });
+  document.getElementById('sp-layout').textContent = layouts[i].name;
+  document.getElementById('hint').classList.remove('show');
+}
+
+/* ── Populate summary panel ───────────────────────────────────────────── */
+function populateSummary() {
+  document.getElementById('ctx-pkg-name').textContent = sess.package?.name || PKG_NAMES[pkgIdx];
+  document.getElementById('ctx-pkg-photos').textContent = PKG_PHOTOS[pkgIdx];
+  document.getElementById('sp-name').textContent = sess.package?.name || '—';
+  document.getElementById('sp-filter').textContent = sess.filter || '—';
+  document.getElementById('sp-layout').textContent = layouts[0]?.name || '—';
+  document.getElementById('sp-total').textContent = sess.package?.price || '—';
+}
+
+/* ── Proceed to payment ───────────────────────────────────────────────── */
+function proceed(e) {
+  addRipple(e);
+  const layout = layouts[selL];
+  sess.layout = { id: layout.id, name: layout.name };
+  try { localStorage.setItem('fp_session', JSON.stringify(sess)); } catch(_) {}
+  ft(() => {
+    if (typeof fpNavigate === 'function') fpNavigate('payment', sess);
+    else window.location.href = 'payment.html';
+  });
+}
+
+/* ── Go back to packages ──────────────────────────────────────────────── */
+function goBack() {
+  ft(() => {
+    if (typeof fpNavigate === 'function') fpNavigate('packages', sess);
+    else window.location.href = 'packages.html';
+  });
+}
+
+/* ── Helpers ──────────────────────────────────────────────────────────── */
+function addRipple(e) {
+  const r = document.createElement('div'); r.className = 'ripple';
+  const x = e ? (e.clientX || window.innerWidth / 2) : window.innerWidth / 2;
+  const y = e ? (e.clientY || window.innerHeight / 2) : window.innerHeight / 2;
+  r.style.cssText = `left:${x}px;top:${y}px;width:44px;height:44px;`;
+  document.body.appendChild(r); setTimeout(() => r.remove(), 600);
+}
+
+function ft(cb) {
+  const d = document.createElement('div');
+  d.style.cssText = 'position:fixed;inset:0;background:#fff;opacity:0;z-index:9999;pointer-events:none;transition:opacity 0.18s;';
+  document.body.appendChild(d);
+  requestAnimationFrame(() => { d.style.opacity = '0.75'; });
+  setTimeout(() => { if (cb) cb(); }, 210);
+}
+
+function updateClock() {
+  const n = new Date(); let h = n.getHours(), m = n.getMinutes(), ap = h >= 12 ? 'PM' : 'AM';
+  h = h % 12 || 12;
+  document.getElementById('clock').textContent = String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0') + ' ' + ap;
+}
+
+/* ── Init ── */
+buildGrid();
+populateSummary();
+updateClock();
+setInterval(updateClock, 1000);
+setTimeout(() => document.getElementById('hint').classList.add('show'), 3000);
+</script>
+</body>
+</html>
