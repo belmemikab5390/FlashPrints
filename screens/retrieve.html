@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Flash &amp; Prints — Your Moment</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+  :root{
+    --gold:#E8C547; --rose:#C84B6E; --sage:#3DAA6C;
+    --ink:#0A0A12; --cream:#FFF8F0;
+    --charcoal2:#1A1A26;
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html{ scroll-behavior:smooth; }
+  body{
+    min-height:100vh; background:var(--ink);
+    font-family:'DM Sans',sans-serif; color:var(--cream);
+    display:flex; flex-direction:column; align-items:center;
+  }
+
+  /* ── background ── */
+  .bg{
+    position:fixed; inset:0; z-index:0;
+    background:radial-gradient(ellipse 900px 700px at 50% 20%,
+      rgba(200,75,110,0.14) 0%, rgba(232,197,71,0.04) 50%, #0A0A12 70%);
+    pointer-events:none;
+  }
+
+  /* ── header ── */
+  header{
+    width:100%; max-width:640px; padding:32px 24px 0;
+    text-align:center; position:relative; z-index:1;
+    opacity:0; animation:fadeDown 0.6s 0.1s ease forwards;
+  }
+  .brand{ font-family:'Playfair Display',serif; font-weight:900; font-size:18px; color:#fff; }
+  .brand em{ color:var(--gold); font-style:normal; }
+  .brand-sub{ font-size:13px; color:rgba(255,255,255,0.3); margin-top:4px; }
+
+  /* ── main card ── */
+  main{
+    width:100%; max-width:640px; padding:32px 24px 64px;
+    display:flex; flex-direction:column; gap:28px;
+    position:relative; z-index:1;
+  }
+
+  /* ── loading / error ── */
+  .state-msg{
+    text-align:center; padding:60px 24px;
+    font-size:16px; color:rgba(255,255,255,0.4);
+    display:flex; flex-direction:column; align-items:center; gap:12px;
+  }
+  .state-msg .icon{ font-size:40px; }
+  .spinner{
+    width:36px; height:36px; border-radius:50%;
+    border:3px solid rgba(200,75,110,0.2);
+    border-top-color:var(--rose);
+    animation:spin 0.8s linear infinite;
+  }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+
+  /* ── photo card ── */
+  .photo-card{
+    background:rgba(26,26,38,0.9);
+    border:1px solid rgba(200,75,110,0.18);
+    border-radius:20px; overflow:hidden;
+    box-shadow:0 20px 60px rgba(0,0,0,0.5);
+    opacity:0; animation:fadeUp 0.6s 0.3s ease forwards;
+  }
+  .photo-wrap{
+    width:100%; background:#0A0A12;
+    display:flex; align-items:center; justify-content:center;
+    min-height:200px;
+  }
+  .photo-img{
+    width:100%; max-height:480px; object-fit:contain; display:block;
+  }
+  .photo-placeholder{
+    width:100%; padding:60px 24px;
+    display:flex; flex-direction:column; align-items:center; gap:12px;
+    color:rgba(255,255,255,0.2); font-size:14px; text-align:center;
+  }
+  .photo-placeholder .icon{ font-size:48px; opacity:0.3; }
+  .photo-meta{
+    padding:16px 20px;
+    font-size:12px; color:rgba(255,255,255,0.25);
+    display:flex; justify-content:space-between; align-items:center;
+  }
+
+  /* ── message card ── */
+  .message-card{
+    background:rgba(26,26,38,0.9);
+    border:1px solid rgba(232,197,71,0.15);
+    border-radius:20px; padding:32px 28px;
+    box-shadow:0 20px 60px rgba(0,0,0,0.4);
+    opacity:0; animation:fadeUp 0.6s 0.5s ease forwards;
+  }
+  .message-card .envelope{ font-size:32px; margin-bottom:12px; }
+  .message-salutation{
+    font-family:'Playfair Display',serif; font-style:italic;
+    font-size:20px; font-weight:700; color:var(--cream);
+    margin-bottom:6px;
+  }
+  .message-salutation span{ color:var(--gold); }
+  .message-date{
+    font-size:12px; color:rgba(255,255,255,0.3);
+    margin-bottom:20px; font-family:'DM Sans',sans-serif;
+  }
+  .message-body{
+    font-size:17px; line-height:1.75; color:rgba(255,255,255,0.85);
+    white-space:pre-wrap; word-break:break-word;
+    border-left:3px solid rgba(200,75,110,0.4);
+    padding-left:16px; margin-left:4px;
+  }
+  .message-empty{
+    font-size:15px; font-style:italic; color:rgba(255,255,255,0.25);
+    text-align:center; padding:16px 0;
+  }
+
+  /* ── reminder ── */
+  .reminder{
+    text-align:center; padding:8px 16px 0;
+    font-size:14px; font-style:italic; color:rgba(232,197,71,0.45);
+    opacity:0; animation:fadeUp 0.6s 0.7s ease forwards;
+  }
+
+  /* ── footer ── */
+  footer{
+    width:100%; max-width:640px; padding:0 24px 40px;
+    text-align:center;
+    font-size:12px; color:rgba(255,255,255,0.18);
+    position:relative; z-index:1;
+    opacity:0; animation:fadeUp 0.5s 0.9s ease forwards;
+  }
+  footer strong{ color:rgba(232,197,71,0.35); }
+
+  @keyframes fadeDown{
+    from{ opacity:0; transform:translateY(-16px); }
+    to  { opacity:1; transform:translateY(0); }
+  }
+  @keyframes fadeUp{
+    from{ opacity:0; transform:translateY(20px); }
+    to  { opacity:1; transform:translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg"></div>
+
+<header>
+  <div class="brand">Flash <em>&</em> Prints</div>
+  <div class="brand-sub">A moment saved for you</div>
+</header>
+
+<main id="mainContent">
+  <div class="state-msg" id="loadingState">
+    <div class="spinner"></div>
+    <div>Loading your moment…</div>
+  </div>
+</main>
+
+<footer id="footerEl" style="display:none">
+  <div>Captured at <strong>Flash &amp; Prints</strong> photobooth</div>
+  <div id="footerDate" style="margin-top:4px;"></div>
+</footer>
+
+<script>
+(async function(){
+  const params    = new URL(window.location.href).searchParams;
+  const sessionId = params.get('id');
+  const main      = document.getElementById('mainContent');
+  const footer    = document.getElementById('footerEl');
+
+  function showError(msg){
+    main.innerHTML = `
+      <div class="state-msg">
+        <div class="icon">💔</div>
+        <div>${msg}</div>
+      </div>`;
+  }
+
+  if (!sessionId) { showError('No session ID provided.'); return; }
+
+  /* derive server base from current page URL — works for LAN access */
+  const base = window.location.origin;
+
+  let session;
+  try {
+    const res = await fetch(`${base}/api/sessions/${encodeURIComponent(sessionId)}`);
+    if (!res.ok) throw new Error('not found');
+    const data = await res.json();
+    if (!data.ok || !data.session) throw new Error('invalid response');
+    session = data.session;
+  } catch(e) {
+    showError('This moment could not be found. It may have expired.');
+    return;
+  }
+
+  /* ── build photo card ── */
+  const photos = (session.photos || []).filter(Boolean);
+  let photoHTML = '';
+  if (photos.length > 0) {
+    /* photo path stored in session may be an absolute OS path like
+       C:\…\captures\sessions\ID\photo_1.jpg — extract just the
+       sessionId/filename portion so we can build a safe URL */
+    const firstPhoto = photos[0].replace(/\\/g, '/');
+    const match = firstPhoto.match(/captures\/sessions\/([^/]+)\/([^/]+)$/);
+    const photoUrl = match
+      ? `${base}/captures/sessions/${encodeURIComponent(match[1])}/${encodeURIComponent(match[2])}`
+      : null;
+    const safePhotoUrl = photoUrl ? escapeAttr(photoUrl) : null;
+    photoHTML = `
+      <div class="photo-card">
+        <div class="photo-wrap">
+          ${safePhotoUrl
+            ? `<img class="photo-img" src="${safePhotoUrl}" alt="Your photo" onerror="this.parentNode.innerHTML='<div class=\\"photo-placeholder\\"><div class=\\"icon\\">📷</div><div>Photo not available</div></div>'">`
+            : `<div class="photo-placeholder"><div class="icon">📷</div><div>Photo not available</div></div>`
+          }
+        </div>
+        <div class="photo-meta">
+          <span>📍 ${escapeHtml(session.boothLocation || 'Flash &amp; Prints')}</span>
+          <span>${escapeHtml(session.packageName || '')}</span>
+        </div>
+      </div>`;
+  }
+
+  /* ── build message card ── */
+  const capturedAt = session.createdAt
+    ? new Date(session.createdAt).toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' })
+    : '';
+
+  const messageBody = session.message
+    ? `<div class="message-body">${escapeHtml(session.message)}</div>`
+    : `<div class="message-empty">No message was left for this moment.</div>`;
+
+  const messageCard = `
+    <div class="message-card">
+      <div class="envelope">💌</div>
+      <div class="message-salutation">Dear me, <span>5 years from now…</span></div>
+      ${capturedAt ? `<div class="message-date">Written on ${capturedAt}</div>` : ''}
+      ${messageBody}
+    </div>`;
+
+  /* ── render ── */
+  main.innerHTML = (photoHTML || '') + messageCard;
+
+  /* reminder */
+  const reminder = document.createElement('div');
+  reminder.className = 'reminder';
+  reminder.textContent = '"Come back and see how far you\'ve come."';
+  main.appendChild(reminder);
+
+  /* footer */
+  footer.style.display = '';
+  if (capturedAt) document.getElementById('footerDate').textContent = capturedAt;
+})();
+
+function escapeHtml(str){
+  return str
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
+
+function escapeAttr(str){
+  return str
+    .replace(/&/g,'&amp;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#39;');
+}
+</script>
+</body>
+</html>

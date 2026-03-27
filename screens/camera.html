@@ -792,7 +792,7 @@
     <div class="done-icon">📸</div>
     <div class="done-title">all photos taken!</div>
     <div class="done-strip" id="doneStrip"></div>
-    <div class="done-sub">amazing shots! heading to preview<br/>so you can choose your filter.</div>
+    <div class="done-sub">amazing shots! write a note to<br/>your future self next.</div>
     <div class="done-bar"><div class="done-bar-fill" id="doneBarFill"></div></div>
     <button class="done-next-btn" onclick="goToPreview()">see your photos →</button>
   </div>
@@ -1693,8 +1693,8 @@ function showDoneOverlay(){
 function goToPreview(){
   stopPreviewStream();
   flashTransition(() => {
-    if (typeof fpNavigate === 'function') fpNavigate('preview');
-    else window.location.href = 'preview.html';
+    if (typeof fpNavigate === 'function') fpNavigate('message');
+    else window.location.href = 'message.html';
   });
 }
 

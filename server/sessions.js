@@ -155,6 +155,25 @@ function listSessions({ limit = 50, status } = {}) {
   } catch(_) { return []; }
 }
 
+/* ── save future-self message to session manifest ── */
+function saveMessage(sessionId, message) {
+  const folder = path.join(SESSIONS_DIR, sessionId);
+  const mf     = path.join(folder, 'session.json');
+  if (!fs.existsSync(mf)) return false;
+
+  try {
+    const session     = JSON.parse(fs.readFileSync(mf, 'utf8'));
+    session.message   = message;
+    session.messageAt = new Date().toISOString();
+    _writeManifest(folder, session);
+    console.log(`[SESSION] Message saved for: ${sessionId}`);
+    return true;
+  } catch(e) {
+    console.error('[SESSION] saveMessage error:', e.message);
+    return false;
+  }
+}
+
 /* ── clean old sessions ── */
 function cleanOldSessions(maxAgeDays = SESSION_MAX_AGE_DAYS) {
   const cutoff = Date.now() - maxAgeDays * 24 * 60 * 60 * 1000;
@@ -240,10 +259,26 @@ router.delete('/clean', (req, res) => {
   res.json({ ok: true, removed });
 });
 
+/* POST /api/sessions/:id/message */
+router.post('/:id/message', (req, res) => {
+  const { id } = req.params;
+  const { message } = req.body;
+  if (typeof message !== 'string' || message.trim().length === 0) {
+    return res.status(400).json({ ok: false, error: 'message is required' });
+  }
+  if (message.length > 300) {
+    return res.status(400).json({ ok: false, error: 'message must be 300 characters or fewer' });
+  }
+  const ok = saveMessage(id, message.trim());
+  if (!ok) return res.status(404).json({ ok: false, error: 'Session not found' });
+  res.json({ ok: true });
+});
+
 module.exports = router;
 module.exports.createSession    = createSession;
 module.exports.recordPhoto      = recordPhoto;
 module.exports.finaliseSession  = finaliseSession;
+module.exports.saveMessage      = saveMessage;
 module.exports.getSession       = getSession;
 module.exports.listSessions     = listSessions;
 module.exports.cleanOldSessions = cleanOldSessions;
