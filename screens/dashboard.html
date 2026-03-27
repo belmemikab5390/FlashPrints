@@ -700,7 +700,7 @@
       <div class="card-header" style="flex-wrap:wrap;gap:10px;">
         <div>
           <div class="card-title">overlay layout creator</div>
-          <div style="font-size:11px;color:var(--text3);margin-top:2px;">import a PNG overlay · drag to place photo slots · save adds it to the layout selection screen</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:2px;">import a PNG or JPG overlay · drag to place photo slots · save adds it to the layout selection screen</div>
         </div>
         <select id="oePackageSelect" style="background:var(--charcoal3);border:1px solid var(--border);color:var(--text2);font-size:11px;padding:5px 10px;border-radius:8px;cursor:pointer;min-width:150px;">
           <option value="0">Classic (4×6)</option>
@@ -718,7 +718,7 @@
             <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M11 3v11M7.5 6.5l3.5-3.5 3.5 3.5" stroke="rgba(232,197,71,0.6)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 16v1.5A1.5 1.5 0 004.5 19h13a1.5 1.5 0 001.5-1.5V16" stroke="rgba(232,197,71,0.4)" stroke-width="1.5" stroke-linecap="round"/></svg>
             <span class="oe-upload-text">click to import overlay image</span>
             <span class="oe-upload-sub">PNG · JPG supported</span>
-            <input type="file" accept="image/png,image/jpeg,image/jpg" id="oeImageInput" style="display:none;" onchange="oeHandleImageUpload(event)"/>
+            <input type="file" accept="image/png,image/jpeg" id="oeImageInput" style="display:none;" onchange="oeHandleImageUpload(event)"/>
           </label>
 
           <input class="oe-field" id="oeName" placeholder="Layout name (e.g. Vintage Frame)"/>
@@ -1688,10 +1688,20 @@ function scrollToOverlayEditor() {
 function oeHandleImageUpload(event) {
   const file = event.target.files[0];
   if (!file) return;
+  const allowed = ['image/png', 'image/jpeg'];
+  if (!allowed.includes(file.type)) {
+    showToast('✗ Unsupported file type. Please upload a PNG or JPG image.');
+    event.target.value = '';
+    return;
+  }
   const reader = new FileReader();
   reader.onload = (e) => {
     const raw = e.target.result;
     const img = new Image();
+    img.onerror = () => {
+      showToast('✗ Could not load image. Please try a different PNG or JPG file.');
+      event.target.value = '';
+    };
     img.onload = () => {
       /* Normalise viewBox: longer side = 110 SVG units (matches existing layouts) */
       const scale = Math.max(img.naturalWidth, img.naturalHeight) / 110;
