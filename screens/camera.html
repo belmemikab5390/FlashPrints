@@ -477,6 +477,26 @@
     backdrop-filter:blur(4px);
   }
 
+  /* ── mood filter overlay ── */
+  .mood-filter-overlay{
+    position:absolute; inset:0; z-index:3;
+    pointer-events:none; border-radius:inherit;
+    transition:background 0.5s ease;
+  }
+
+  /* ── mood prompt badge ── */
+  .mood-prompt-badge{
+    position:absolute; bottom:20px; left:50%; transform:translateX(-50%);
+    background:rgba(0,0,0,0.65); border:1px solid rgba(255,255,255,0.14);
+    border-radius:30px; padding:9px 22px; z-index:15;
+    font-family:'DM Sans',sans-serif; font-size:13px; font-weight:500;
+    color:rgba(255,255,255,0.75); text-align:center; white-space:nowrap;
+    backdrop-filter:blur(6px);
+    display:none;
+    animation:moodBadgeIn 0.4s cubic-bezier(0.34,1.2,0.64,1) both;
+  }
+  @keyframes moodBadgeIn{ from{opacity:0;transform:translateX(-50%) translateY(12px)} to{opacity:1;transform:translateX(-50%) translateY(0)} }
+
   /* ── ripple ── */
   .ripple{
     position:fixed; border-radius:50%; background:rgba(232,197,71,0.2);
@@ -569,6 +589,7 @@
     <div class="step-dot done"></div><div class="step-line"></div>
     <div class="step-dot done"></div><div class="step-line"></div>
     <div class="step-dot done"></div><div class="step-line"></div>
+    <div class="step-dot done"></div><div class="step-line"></div>
     <div class="step-dot active"></div><div class="step-line"></div>
     <div class="step-dot"></div>
   </div>
@@ -580,7 +601,7 @@
   <!-- header row -->
   <div class="header-row">
     <div class="header-left">
-      <div class="header-eyebrow">step 4 of 5 · shoot</div>
+      <div class="header-eyebrow">step 5 of 6 · shoot</div>
       <div class="header-title">get <em>ready!</em></div>
     </div>
     <div class="rec-badge" id="recBadge">
@@ -658,6 +679,8 @@
       <div class="fps-badge" id="fpsBadge">● LIVE</div>
 
       <!-- overlay elements (always on top) -->
+      <div class="mood-filter-overlay" id="moodFilterOverlay"></div>
+      <div class="mood-prompt-badge" id="moodPromptBadge"></div>
       <div class="cam-corner tl"></div>
       <div class="cam-corner tr"></div>
       <div class="cam-corner bl"></div>
@@ -789,6 +812,10 @@ try {
   const s = JSON.parse(localStorage.getItem('fp_session')||'{}');
   if(s.package){ session.package = s.package.name || session.package; }
   if(s.filter){ session.filter = s.filter; }
+  if(s.selectedMood){ session.selectedMood = s.selectedMood; }
+  if(s.moodFilter){ session.moodFilter = s.moodFilter; }
+  if(s.moodPrompt){ session.moodPrompt = s.moodPrompt; }
+  if(s.moodColor){ session.moodColor = s.moodColor; }
 } catch(e){}
 
 const pkgData   = PACKAGES[session.package] || PACKAGES['Classic Strip'];
@@ -810,6 +837,38 @@ buildSidebar();
 buildCounterDots();
 updateClock(); setInterval(updateClock, 1000);
 /* initCamera() called below — AFTER all camera state vars are declared */
+
+/* ── mood setup ── */
+if (session.selectedMood && session.moodFilter) {
+  const moodFilter = session.moodFilter;
+
+  /* apply CSS filter to both camera feed elements */
+  const videoEl = document.getElementById('dslrPreview');
+  const imgEl   = document.getElementById('digiCamImg');
+  if (videoEl) videoEl.style.filter = moodFilter;
+  if (imgEl)   imgEl.style.filter   = moodFilter;
+
+  /* colour tint overlay */
+  const overlay = document.getElementById('moodFilterOverlay');
+  if (overlay && session.moodColor) {
+    /* convert hex color to a soft rgba tint */
+    const hex = session.moodColor.replace('#','');
+    const r   = parseInt(hex.substring(0,2),16);
+    const g   = parseInt(hex.substring(2,4),16);
+    const b   = parseInt(hex.substring(4,6),16);
+    overlay.style.background = `rgba(${r},${g},${b},0.07)`;
+  }
+
+  /* prompt badge */
+  if (session.moodPrompt) {
+    const badge = document.getElementById('moodPromptBadge');
+    if (badge) {
+      badge.textContent = session.moodPrompt;
+      badge.style.display = 'block';
+      if (session.moodColor) badge.style.borderColor = session.moodColor + '44';
+    }
+  }
+}
 
 /* ── clock ── */
 function updateClock(){

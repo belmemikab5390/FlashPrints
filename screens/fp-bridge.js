@@ -38,6 +38,7 @@
         welcome:  'welcome.html',
         packages: 'packages.html',
         payment:  'payment.html',
+        mood:     'mood.html',
         camera:   'camera.html',
         preview:  'preview.html',
         printing: 'printing.html',

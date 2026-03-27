@@ -22,6 +22,7 @@ const SCREENS = {
   welcome:  'screens/welcome.html',
   packages: 'screens/packages.html',
   payment:  'screens/payment.html',
+  mood:     'screens/mood.html',
   camera:   'screens/camera.html',
   preview:  'screens/preview.html',
   printing: 'screens/printing.html',
