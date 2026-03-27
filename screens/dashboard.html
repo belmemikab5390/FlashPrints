@@ -247,6 +247,33 @@
   .export-btn{display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:8px;border:1px solid var(--border);background:var(--border2);font-size:12px;color:var(--text2);cursor:pointer;transition:all 0.15s;}
   .export-btn:hover{color:var(--text);border-color:rgba(255,255,255,0.15);}
 
+  /* ── layout editor ── */
+  .le-grid{display:grid;grid-template-columns:1fr 260px;gap:20px;align-items:start;}
+  .le-table{width:100%;border-collapse:collapse;font-size:12px;}
+  .le-table thead th{padding:7px 10px;text-align:left;font-size:9px;font-family:'Space Mono',monospace;letter-spacing:1.5px;color:var(--text3);background:var(--charcoal3);border-bottom:1px solid var(--border);}
+  .le-table thead th:first-child{border-radius:8px 0 0 8px;}
+  .le-table thead th:last-child{border-radius:0 8px 8px 0;}
+  .le-table tbody tr{border-bottom:1px solid var(--border2);}
+  .le-table tbody tr.le-active-row td{background:rgba(232,197,71,0.04);}
+  .le-table tbody td{padding:6px 6px;}
+  .le-table tbody td:first-child{padding-left:10px;}
+  .le-slot-num{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;background:rgba(232,197,71,0.1);border:1px solid rgba(232,197,71,0.2);font-size:11px;font-weight:600;color:var(--gold);font-family:'Space Mono',monospace;}
+  .le-input{width:60px;background:var(--charcoal3);border:1px solid var(--border);border-radius:7px;color:var(--text);font-size:12px;padding:5px 7px;font-family:'Space Mono',monospace;text-align:right;transition:border-color 0.15s;}
+  .le-input:focus{outline:none;border-color:rgba(232,197,71,0.5);}
+  .le-preview-wrap{position:sticky;top:20px;background:var(--charcoal3);border:1px solid var(--border);border-radius:14px;padding:16px;display:flex;flex-direction:column;align-items:center;gap:12px;}
+  .le-preview-label{font-size:9px;font-family:'Space Mono',monospace;letter-spacing:2px;color:var(--text3);text-transform:uppercase;}
+  .le-preview-svg{width:100%;max-height:260px;overflow:hidden;display:flex;align-items:center;justify-content:center;}
+  .le-preview-svg svg{max-width:100%;max-height:240px;}
+  .le-modified-badge{font-size:9px;padding:2px 8px;border-radius:20px;background:rgba(232,197,71,0.12);border:1px solid rgba(232,197,71,0.3);color:var(--gold);display:none;}
+  .le-modified-badge.show{display:inline-block;}
+  .le-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+  .le-btn{padding:7px 14px;border-radius:8px;border:1px solid var(--border);background:var(--border2);font-size:12px;color:var(--text2);cursor:pointer;transition:all 0.15s;font-family:inherit;}
+  .le-btn:hover{color:var(--text);border-color:rgba(255,255,255,0.18);}
+  .le-btn-save{background:rgba(232,197,71,0.12);border-color:rgba(232,197,71,0.3);color:var(--gold);}
+  .le-btn-save:hover{background:rgba(232,197,71,0.2);}
+  .le-btn-reset{color:var(--rose);border-color:rgba(200,75,110,0.3);}
+  .le-btn-reset:hover{background:rgba(200,75,110,0.08);}
+
   /* toast */
   .toast{position:fixed;bottom:24px;right:24px;background:var(--charcoal2);border:1px solid var(--sage-border);border-radius:12px;padding:12px 18px;display:flex;align-items:center;gap:8px;font-size:13px;color:#fff;z-index:200;animation:toastIn 0.3s cubic-bezier(0.34,1.4,0.64,1) both;}
   @keyframes toastIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
@@ -300,6 +327,10 @@
       <div class="nav-item" onclick="showToast('⚙️ Settings')">
         <svg class="nav-icon" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="3" stroke="currentColor" stroke-width="1.3"/><path d="M9 1 L9 3 M9 15 L9 17 M1 9 L3 9 M15 9 L17 9 M3.22 3.22 L4.64 4.64 M13.36 13.36 L14.78 14.78 M14.78 3.22 L13.36 4.64 M4.64 13.36 L3.22 14.78" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
         Settings
+      </div>
+      <div class="nav-item" onclick="scrollToLayoutEditor()">
+        <svg class="nav-icon" viewBox="0 0 18 18" fill="none"><rect x="2" y="2" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.3"/><rect x="10" y="2" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.3"/><rect x="2" y="10" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.3"/><rect x="10" y="10" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M5 5 L5 5.1 M13 5 L13 5.1 M5 13 L5 13.1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        Layout Editor
       </div>
     </nav>
 
@@ -551,9 +582,96 @@
       </div>
     </div>
 
+    <!-- layout editor -->
+    <div class="card" id="layoutEditorCard">
+      <div class="card-header" style="flex-wrap:wrap;gap:10px;">
+        <div>
+          <div class="card-title">layout editor</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:2px;">adjust photo slot positions · changes apply to the kiosk layout screen</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <select id="leLayoutSelect" onchange="leLoadLayout()" style="background:var(--charcoal3);border:1px solid var(--border);color:var(--text2);font-size:11px;padding:5px 10px;border-radius:8px;cursor:pointer;min-width:170px;">
+            <optgroup label="Classic (4×6)">
+              <option value="classic-framed">Framed Classic</option>
+              <option value="classic-fullbleed">Full Bleed</option>
+              <option value="classic-caption">With Caption</option>
+            </optgroup>
+            <optgroup label="Strip (2×6)">
+              <option value="strip-4x1">Classic Strip</option>
+              <option value="strip-2x2">2×2 Grid</option>
+              <option value="strip-featured">Featured</option>
+            </optgroup>
+            <optgroup label="Polaroid (4×4)">
+              <option value="polaroid-classic">Classic Polaroid</option>
+              <option value="polaroid-minimal">Minimal Frame</option>
+              <option value="polaroid-dated">Dated Polaroid</option>
+            </optgroup>
+            <optgroup label="Party Mode">
+              <option value="party-2strip3">Dual Strip</option>
+              <option value="party-3x2grid">3×2 Grid</option>
+              <option value="party-featured-strip">Feature + Strip</option>
+            </optgroup>
+            <optgroup label="GIF Booth">
+              <option value="gif-filmstrip-h">Filmstrip</option>
+              <option value="gif-strip-v">Vertical Strip</option>
+              <option value="gif-2plus3">2+3 Mosaic</option>
+            </optgroup>
+          </select>
+          <span class="le-modified-badge" id="leModifiedBadge">● modified</span>
+        </div>
+      </div>
+
+      <div class="le-grid">
+        <!-- slot table -->
+        <div>
+          <table class="le-table">
+            <thead>
+              <tr>
+                <th>SLOT</th>
+                <th>LEFT</th>
+                <th>TOP</th>
+                <th>WIDTH</th>
+                <th>HEIGHT</th>
+                <th>ANGLE</th>
+              </tr>
+            </thead>
+            <tbody id="leTableBody"></tbody>
+          </table>
+
+          <div class="le-actions" style="margin-top:14px;">
+            <button class="le-btn le-btn-save" onclick="leSave()">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6 L5 9 L10 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Save Layout
+            </button>
+            <button class="le-btn le-btn-reset" onclick="leReset()">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6 C2 3.79 3.79 2 6 2 C7.2 2 8.3 2.55 9.05 3.4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M8 1.5 L9.5 3.5 L7.5 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Reset to Default
+            </button>
+            <button class="le-btn" onclick="leExport()">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1 L6 7 M3.5 5 L6 7.5 L8.5 5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 9 L10 9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+              Export JSON
+            </button>
+            <label class="le-btn" style="cursor:pointer;">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 9 L6 3 M3.5 5 L6 2.5 L8.5 5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 9 L10 9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+              Import JSON
+              <input type="file" accept=".json" id="leImportFile" style="display:none;" onchange="leImport(event)"/>
+            </label>
+          </div>
+        </div>
+
+        <!-- live preview -->
+        <div class="le-preview-wrap">
+          <div class="le-preview-label">live preview</div>
+          <div class="le-preview-svg" id="lePreviewSvg"></div>
+          <div style="font-size:10px;color:var(--text3);text-align:center;">slot positions are shown to scale · numbers indicate photo order</div>
+        </div>
+      </div>
+    </div>
+
   </main>
 </div>
 
+<script src="layout-slots.js"></script>
 <script>
 /* ── greeting ── */
 const h=new Date().getHours();
@@ -1297,6 +1415,163 @@ state.on && state.on('change', s => {
   const el = document.querySelector('.tag.tag-gold');
   if (el && s.stats) el.textContent = s.stats.todaySessions + ' today';
 });
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   LAYOUT EDITOR
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+/* Working copy of the slots currently being edited */
+let leSlots = [];
+let leActiveRow = -1;
+
+function scrollToLayoutEditor() {
+  const el = document.getElementById('layoutEditorCard');
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+/* Load a layout into the editor (called on select change + on init) */
+function leLoadLayout() {
+  const id = document.getElementById('leLayoutSelect').value;
+  const def = getLayoutSlots(id);
+  if (!def) return;
+
+  /* Deep-copy slots so edits don't mutate the shared object */
+  leSlots = def.slots.map(s => Object.assign({}, s));
+  leActiveRow = -1;
+  leRenderTable();
+  leRenderPreview();
+  leRefreshModifiedBadge();
+}
+
+/* Render the editable slot table */
+function leRenderTable() {
+  const tbody = document.getElementById('leTableBody');
+  if (!tbody) return;
+  tbody.innerHTML = leSlots.map((s, i) => `
+    <tr class="${i === leActiveRow ? 'le-active-row' : ''}" onclick="leSetActive(${i})">
+      <td><span class="le-slot-num">${i + 1}</span></td>
+      <td><input class="le-input" type="number" value="${s.x}"     oninput="leUpdate(${i},'x',this.value)"     onclick="leSetActive(${i})"/></td>
+      <td><input class="le-input" type="number" value="${s.y}"     oninput="leUpdate(${i},'y',this.value)"     onclick="leSetActive(${i})"/></td>
+      <td><input class="le-input" type="number" value="${s.w}"     oninput="leUpdate(${i},'w',this.value)"     onclick="leSetActive(${i})"/></td>
+      <td><input class="le-input" type="number" value="${s.h}"     oninput="leUpdate(${i},'h',this.value)"     onclick="leSetActive(${i})"/></td>
+      <td><input class="le-input" type="number" value="${s.angle}" oninput="leUpdate(${i},'angle',this.value)" onclick="leSetActive(${i})" style="width:52px;"/></td>
+    </tr>`).join('');
+}
+
+/* Highlight active row without re-rendering the whole table */
+function leSetActive(idx) {
+  leActiveRow = idx;
+  document.querySelectorAll('#leTableBody tr').forEach((tr, i) => {
+    tr.classList.toggle('le-active-row', i === idx);
+  });
+  leRenderPreview();
+}
+
+/* Update a field in the working copy and refresh preview */
+function leUpdate(idx, field, rawVal) {
+  const val = parseFloat(rawVal);
+  if (!isNaN(val)) {
+    leSlots[idx][field] = val;
+    leRenderPreview();
+  }
+}
+
+/* Render the live SVG preview using the current working slots */
+function leRenderPreview() {
+  const id  = document.getElementById('leLayoutSelect').value;
+  const def = getLayoutSlots(id);
+  if (!def) return;
+
+  /* Build a temporary definition with the current working slots */
+  const tmpDef = Object.assign({}, def, { slots: leSlots });
+
+  /* Temporarily override getLayoutSlots for one call via inline SVG generation */
+  const parts = [`<svg viewBox="${tmpDef.viewBox}" fill="none" xmlns="http://www.w3.org/2000/svg">`];
+  if (tmpDef.bgRect) {
+    const b = tmpDef.bgRect;
+    parts.push(`<rect x="${b.x}" y="${b.y}" width="${b.w}" height="${b.h}" rx="${b.rx || 3}" fill="rgba(232,197,71,0.05)" stroke="rgba(232,197,71,0.35)" stroke-width="1.5"/>`);
+  }
+  tmpDef.slots.forEach((s, i) => {
+    const isHL   = i === leActiveRow;
+    const fill   = isHL ? 'rgba(232,197,71,0.22)' : 'rgba(232,197,71,0.10)';
+    const stroke = isHL ? 'rgba(232,197,71,0.70)' : 'rgba(232,197,71,0.22)';
+    const sw     = isHL ? '1.8' : '0.8';
+    const cx = s.x + s.w / 2, cy = s.y + s.h / 2;
+    const xf = s.angle ? ` transform="rotate(${s.angle},${cx},${cy})"` : '';
+    parts.push(`<rect x="${s.x}" y="${s.y}" width="${s.w}" height="${s.h}" rx="1.5" fill="${fill}" stroke="${stroke}" stroke-width="${sw}"${xf}/>`);
+    const fs = Math.max(4, Math.min(s.w, s.h) * 0.38);
+    parts.push(`<text x="${cx}" y="${cy}" dominant-baseline="middle" text-anchor="middle" font-size="${fs}" fill="rgba(232,197,71,0.55)" font-family="monospace">${i + 1}</text>`);
+  });
+  parts.push('</svg>');
+
+  const wrap = document.getElementById('lePreviewSvg');
+  if (wrap) wrap.innerHTML = parts.join('');
+}
+
+/* Show/hide the "modified" badge based on whether saved overrides exist */
+function leRefreshModifiedBadge() {
+  const id = document.getElementById('leLayoutSelect').value;
+  try {
+    const ov = JSON.parse(localStorage.getItem('fp_layout_slots') || '{}');
+    const badge = document.getElementById('leModifiedBadge');
+    if (badge) badge.classList.toggle('show', !!ov[id]);
+  } catch(_) {}
+}
+
+/* Save current working slots to localStorage */
+function leSave() {
+  const id = document.getElementById('leLayoutSelect').value;
+  saveLayoutSlots(id, leSlots.map(s => Object.assign({}, s)));
+  leRefreshModifiedBadge();
+  showToast('✓ Layout saved — kiosk will reflect changes on next load');
+}
+
+/* Reset to default slots */
+function leReset() {
+  if (!confirm('Reset this layout to defaults? Any saved changes will be lost.')) return;
+  const id = document.getElementById('leLayoutSelect').value;
+  resetLayoutSlots(id);
+  leLoadLayout();
+  showToast('↩ Layout reset to defaults');
+}
+
+/* Export all saved overrides as a JSON file */
+function leExport() {
+  try {
+    const data = localStorage.getItem('fp_layout_slots') || '{}';
+    const blob = new Blob([data], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'flash-prints-layouts.json';
+    a.click();
+    URL.revokeObjectURL(a.href);
+    showToast('✓ Layout JSON exported');
+  } catch(e) {
+    showToast('✗ Export failed');
+  }
+}
+
+/* Import overrides from a JSON file */
+function leImport(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const data = JSON.parse(e.target.result);
+      localStorage.setItem('fp_layout_slots', JSON.stringify(data));
+      leLoadLayout();
+      showToast('✓ Layouts imported successfully');
+    } catch(_) {
+      showToast('✗ Invalid JSON file');
+    }
+    event.target.value = '';
+  };
+  reader.readAsText(file);
+}
+
+/* Init layout editor */
+leLoadLayout();
 </script>
 </body>
 </html>
