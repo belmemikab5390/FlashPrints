@@ -63,66 +63,73 @@
   @media (orientation: landscape) {
     .main{
       top: 72px;
-      flex-direction: row;
+      flex-direction: column;   /* camera row on top, controls row at bottom */
       padding: 20px 32px 24px;
       gap: 20px;
       align-items: stretch;
     }
-    /* left column: header + camera + sidebar */
-    .main > :first-child { /* header-row */
-      display: none; /* hide header to save space */
-    }
+    /* hide header to save space */
+    .main > :first-child { display: none; }
     .camera-section {
       flex: 1;
-      flex-direction: column;
+      flex-direction: row;      /* camera on left, sidebar vertical on right */
       min-width: 0;
+      min-height: 0;
+      overflow: hidden;         /* prevent sidebar from spilling into bottom bar */
+      align-items: stretch;
     }
     .camera-wrap {
       flex: 1 !important;
       min-height: 0;
     }
-    /* sidebar goes horizontal under the camera */
+    /* sidebar stays as a vertical column on the right */
     .progress-sidebar {
-      width: 100% !important;
-      flex-direction: row !important;
+      width: 120px !important;
+      flex-direction: column !important;
       padding-top: 0 !important;
       justify-content: center !important;
-      gap: 12px !important;
+      gap: 8px !important;
       flex-shrink: 0;
-      height: auto !important;
+      /* let the sidebar fill the camera-section height and clip overflow */
+      height: 100% !important;
+      overflow: hidden !important;
+      align-self: stretch !important;
     }
     .sidebar-label { display: none; }
     .photo-thumb {
-      width: 72px !important;
-      height: 108px !important;   /* maintain 2:3 portrait ratio */
-      border-radius: 10px !important;
-      transform: none !important; /* disable scale on landscape */
+      width: 100% !important;
+      height: auto !important;
+      aspect-ratio: 4/3 !important;   /* landscape to match camera orientation */
+      border-radius: 8px !important;
+      transform: none !important;
+      flex-shrink: 1 !important;      /* allow thumbs to shrink if needed */
     }
-    .photo-thumb.active-slot { transform: scale(1.06) !important; }
-    /* right column: controls */
+    .photo-thumb.active-slot { transform: scale(1.04) !important; }
+    /* bottom row: all controls in a horizontal strip */
     .bottom-section {
-      width: 280px !important;
-      flex-direction: column !important;
+      flex-direction: row !important;
       flex-shrink: 0;
+      width: 100% !important;
+      height: auto !important;
     }
     .status-card {
       flex: 1 !important;
-      flex-direction: column !important;
-      align-items: flex-start !important;
-      padding: 18px !important;
+      flex-direction: row !important;
+      align-items: center !important;
+      padding: 16px 20px !important;
     }
     .status-msg { font-size: 20px !important; }
-    .card-countdown { width: 80px !important; height: 80px !important; align-self: center; }
+    .card-countdown { width: 80px !important; height: 80px !important; }
     .photo-counter {
-      width: 100% !important;
-      flex-direction: row !important;
-      justify-content: space-between !important;
+      width: 160px !important;
+      flex-direction: column !important;
+      justify-content: center !important;
       padding: 14px 18px !important;
       height: auto !important;
     }
     .action-btn {
-      width: 100% !important;
-      height: 80px !important;
+      width: 220px !important;
+      height: auto !important;
     }
     /* REC badge stays top right */
     .header-row { display: none !important; }
@@ -531,7 +538,7 @@
   .done-sub{ font-size:16px; color:rgba(255,255,255,0.35); line-height:1.6; }
   .done-strip{ display:flex; gap:10px; margin:8px 0; }
   .done-strip-cell{
-    width:80px; height:107px;   /* 2:3 portrait — matches print ratio */
+    width:80px; height:60px;   /* 4:3 landscape — matches camera orientation */
     border-radius:10px;
     background:var(--charcoal3);
     border:1.5px solid rgba(255,255,255,0.08);
@@ -690,20 +697,7 @@
       <div class="filter-badge" id="filterBadge">filter: original</div>
       <div class="shoot-ring" id="shootRing"></div>
 
-      <!-- countdown overlay — big ring + number -->
-      <div class="countdown-overlay">
-        <div style="position:relative;display:flex;align-items:center;justify-content:center;width:360px;height:360px;">
-          <svg style="position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg);" viewBox="0 0 360 360">
-            <circle class="cd-ring-track" cx="180" cy="180" r="165"
-              fill="none" stroke="rgba(232,197,71,0.06)" stroke-width="6"/>
-            <circle id="cdRingFill" cx="180" cy="180" r="165"
-              fill="none" stroke="rgba(232,197,71,0.7)" stroke-width="6"
-              stroke-linecap="round"
-              stroke-dasharray="1037" stroke-dashoffset="1037"/>
-          </svg>
-          <div class="cd-number" id="cdNumber">3</div>
-        </div>
-      </div>
+
     </div>
 
     <!-- progress sidebar -->
@@ -1262,7 +1256,7 @@ function runCountdown(secs) {
     ring.classList.add('active');
 
     /* set ring color gold */
-    cdRing.style.stroke = 'rgba(232,197,71,0.75)';
+    if (cdRing) cdRing.style.stroke = 'rgba(232,197,71,0.75)';
     cardRing.classList.remove('get-ready-ring');
     cardRing.style.stroke = 'var(--gold)';
 
@@ -1271,7 +1265,7 @@ function runCountdown(secs) {
     function tick() {
       if (remaining < 0) {
         /* countdown finished */
-        cdNum.className = 'cd-number';
+        if (cdNum) cdNum.className = 'cd-number';
         ring.classList.remove('active');
         resetRings();
         resolve();
@@ -1279,14 +1273,14 @@ function runCountdown(secs) {
       }
 
       /* viewport overlay number */
-      if (remaining > 0) {
+      if (remaining > 0 && cdNum) {
         cdNum.textContent = remaining;
         cdNum.className   = 'cd-number show' + (remaining === 1 ? ' go' : '');
       }
 
       /* viewport ring drain */
       const fillRatio = remaining / secs;          /* 1 → full, 0 → empty */
-      cdRing.style.strokeDashoffset = RING_CIRCUM * (1 - fillRatio);
+      if (cdRing) cdRing.style.strokeDashoffset = RING_CIRCUM * (1 - fillRatio);
 
       /* card number + ring */
       if (remaining > 0) {
@@ -1437,7 +1431,7 @@ async function _captureFromDSLR(sessionId, photoIndex, videoEl) {
 async function fireShutter(n) {
   isShooting = true;
 
-  document.getElementById('cdNumber').className = 'cd-number';
+  document.getElementById('cdNumber')?.classList.remove('show');
   flashEffect();
   const captureResult = await triggerCaptureElectron(n);
 

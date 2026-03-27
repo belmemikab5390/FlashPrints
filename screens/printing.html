@@ -558,7 +558,6 @@ try {
   if(s.filter){ session.filter=s.filter; }
 } catch(e){}
 
-const EMOJIS = ['🌸','💫','🦋','✨'];
 const PRINT_DURATION = 12000; // 12 seconds real DNP timing
 
 /* ── set filter spec ── */
@@ -576,13 +575,29 @@ updateClock(); setInterval(updateClock,1000);
 /* ── build paper strip content ── */
 function buildPaperContent(){
   const content = document.getElementById('paperContent');
-  const cellHeight = Math.floor(340/4) - 7;
+
+  /* load real captured frames (base64 data URLs) from localStorage */
+  let frames = [];
+  try { frames = JSON.parse(localStorage.getItem('fp_captured_frames') || '[]'); } catch(e) {}
+
+  /* determine number of cells from session or fall back to frame count */
+  let sess = {};
+  try { sess = JSON.parse(localStorage.getItem('fp_session') || '{}'); } catch(e) {}
+  const photoCount = sess.photoCount || frames.filter(Boolean).length || 4;
+
+  const cellHeight = Math.floor(340 / photoCount) - 7;
   content.innerHTML = '';
-  for(let i=0;i<4;i++){
+  for(let i = 0; i < photoCount; i++){
     const cell = document.createElement('div');
     cell.className = 'paper-photo-cell';
-    cell.style.height = cellHeight+'px';
-    cell.textContent = EMOJIS[i];
+    cell.style.height = cellHeight + 'px';
+    const frame = frames[i];
+    if(frame){
+      const img = document.createElement('img');
+      img.src = frame;
+      img.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:4px;';
+      cell.appendChild(img);
+    }
     content.appendChild(cell);
   }
   /* branding */
