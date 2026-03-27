@@ -1,9 +1,10 @@
 /**
  * server/index.js — Flash & Prints Express server
  */
-const express = require('express');
-const cors    = require('cors');
-const path    = require('path');
+const express  = require('express');
+const cors     = require('cors');
+const path     = require('path');
+const QRCode   = require('qrcode');
 require('dotenv').config({ path: path.join(__dirname, '../.env') });
 
 const app  = express();
@@ -17,6 +18,8 @@ app.use(express.urlencoded({ extended: true }));
    so EventSource / fetch from screens works without cross-origin issues */
 app.use('/screens', require('express').static(require('path').join(__dirname, '../screens')));
 app.use('/assets',  require('express').static(require('path').join(__dirname, '../assets')));
+/* serve captured session photos for retrieval page */
+app.use('/captures', require('express').static(require('path').join(__dirname, '../captures')));
 
 /* ── health check ── */
 app.get('/health', (req, res) => {
@@ -44,8 +47,30 @@ app.use('/api/dashboard', require('./dashboard-api'));
 /* ── Session management API ── */
 app.use('/api/sessions', require('./sessions'));
 
+/* ── Future-Self QR code ── */
+app.get('/api/sessions/:id/qr', async (req, res) => {
+  const { id } = req.params;
+  const { getSession } = require('./sessions');
+  const session = getSession(id);
+  if (!session) return res.status(404).json({ ok: false, error: 'Session not found' });
+
+  const PUBLIC_URL = process.env.PUBLIC_URL || `http://localhost:${PORT}`;
+  const url        = `${PUBLIC_URL}/screens/retrieve.html?id=${encodeURIComponent(id)}`;
+
+  try {
+    const dataUrl = await QRCode.toDataURL(url, {
+      errorCorrectionLevel: 'M',
+      margin: 2,
+      width: 360,
+      color: { dark: '#111118', light: '#FFF8F0' },
+    });
+    res.json({ ok: true, qr: dataUrl, url });
+  } catch(e) {
+    res.status(500).json({ ok: false, error: e.message });
+  }
+});
+
 /* ── GCash payment status + SSE push ── */
-const { router: gcashRouter, paymentEventBus } = require('./gcash-api');
 app.use('/api/gcash', gcashRouter);
 
 /* ══════════════════════════════════════

@@ -40,6 +40,7 @@
         payment:  'payment.html',
         mood:     'mood.html',
         camera:   'camera.html',
+        message:  'message.html',
         preview:  'preview.html',
         printing: 'printing.html',
         receipt:  'receipt.html',
