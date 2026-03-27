@@ -1470,10 +1470,15 @@ function leSetActive(idx) {
 /* Update a field in the working copy and refresh preview */
 function leUpdate(idx, field, rawVal) {
   const val = parseFloat(rawVal);
-  if (!isNaN(val)) {
-    leSlots[idx][field] = val;
-    leRenderPreview();
+  const input = document.querySelectorAll('#leTableBody tr')[idx]
+    ?.querySelectorAll('input')[['x','y','w','h','angle'].indexOf(field)];
+  if (isNaN(val)) {
+    if (input) { input.style.borderColor = 'rgba(200,75,110,0.7)'; input.title = 'Enter a valid number'; }
+    return;
   }
+  if (input) { input.style.borderColor = ''; input.title = ''; }
+  leSlots[idx][field] = val;
+  leRenderPreview();
 }
 
 /* Render the live SVG preview using the current working slots */
@@ -1559,11 +1564,13 @@ function leImport(event) {
   reader.onload = (e) => {
     try {
       const data = JSON.parse(e.target.result);
+      if (typeof data !== 'object' || Array.isArray(data)) throw new TypeError('Expected a JSON object at the root level');
       localStorage.setItem('fp_layout_slots', JSON.stringify(data));
       leLoadLayout();
       showToast('✓ Layouts imported successfully');
-    } catch(_) {
-      showToast('✗ Invalid JSON file');
+    } catch(err) {
+      const msg = err instanceof SyntaxError ? 'File is not valid JSON' : err.message;
+      showToast('✗ Import failed: ' + msg);
     }
     event.target.value = '';
   };

@@ -139,7 +139,10 @@ const LAYOUT_SLOT_DEFAULTS = {
 const _LS_KEY = 'fp_layout_slots';
 
 function _readOverrides() {
-  try { return JSON.parse(localStorage.getItem(_LS_KEY) || '{}'); } catch(_) { return {}; }
+  try { return JSON.parse(localStorage.getItem(_LS_KEY) || '{}'); } catch(_) {
+    /* localStorage corrupted or unavailable — return empty overrides */
+    return {};
+  }
 }
 
 /** Return slot definition for a layout, merged with any saved overrides. */
@@ -154,14 +157,18 @@ function getLayoutSlots(layoutId) {
 function saveLayoutSlots(layoutId, slots) {
   const ov = _readOverrides();
   ov[layoutId] = slots;
-  try { localStorage.setItem(_LS_KEY, JSON.stringify(ov)); } catch(_) {}
+  try { localStorage.setItem(_LS_KEY, JSON.stringify(ov)); } catch(_) {
+    /* Storage quota exceeded or unavailable — changes won't persist */
+  }
 }
 
 /** Remove saved overrides for a layout (revert to defaults). */
 function resetLayoutSlots(layoutId) {
   const ov = _readOverrides();
   delete ov[layoutId];
-  try { localStorage.setItem(_LS_KEY, JSON.stringify(ov)); } catch(_) {}
+  try { localStorage.setItem(_LS_KEY, JSON.stringify(ov)); } catch(_) {
+    /* Storage unavailable — reset will not persist */
+  }
 }
 
 /* ── SVG generation ───────────────────────────────────────────────────── */
